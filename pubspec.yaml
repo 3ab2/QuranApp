@@ -1,0 +1,37 @@
+name: quran_app
+
+description: Application islamique complète (Adhan, Quran, Tafsir, Stories)
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  just_audio: ^0.9.36
+  geolocator: 13.0.4
+  flutter_local_notifications: ^17.0.0
+  audio_service: ^0.18.0
+  sqflite: ^2.3.0
+  path_provider: ^2.1.0
+  arabic_numbers: ^1.0.0
+  flutter_qiblah: ^3.0.0
+  intl: ^0.19.0
+  get: ^4.6.5
+  provider: ^6.1.2
+  shared_preferences: ^2.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/ 
