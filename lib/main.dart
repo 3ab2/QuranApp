@@ -12,6 +12,9 @@ import 'pages/story_detail_page.dart';
 import 'data/prophets_data.dart';
 import 'pages/surah_detail_page.dart';
 import 'data/surah_data.dart';
+import 'pages/scientific_miracles_page.dart';
+import 'pages/splash_screen.dart';
+import 'pages/search_surah_page.dart';
 
 void main() {
   runApp(const QuranApp());
@@ -40,9 +43,12 @@ class QuranApp extends StatelessWidget {
         '/stories': (context) => const StoriesPage(),
         for (var p in prophets)
           '/story/${p["id"]}': (context) => StoryDetailPage(id: p["id"]),
-        '/miracles': (context) => const MiraclesPage(),
+        '/miracles': (context) => MiraclesPage(),
+        '/scientific-miracles': (context) => ScientificMiraclesPage(),
         '/search': (context) => const SearchPage(),
+        '/search-surah': (context) => const SearchSurahPage(),
         '/settings': (context) => const SettingsPage(),
+        '/splash': (context) => const SplashScreen(),
       },
     );
   }

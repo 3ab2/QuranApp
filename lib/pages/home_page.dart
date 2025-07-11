@@ -46,14 +46,14 @@ class HomePage extends StatelessWidget {
             _buildTile(
               context,
               icon: Icons.science,
-              label: 'إعجاز علمي في القرآن',
-              route: '/miracles',
+              label: 'الإعجاز العلمي في القرآن',
+              route: '/scientific-miracles',
             ),
             _buildTile(
               context,
               icon: Icons.search,
               label: 'البحث في السور',
-              route: '/search',
+              route: '/search-surah',
             ),
             _buildTile(
               context,
