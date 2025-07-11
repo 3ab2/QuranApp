@@ -1,0 +1,56 @@
+{
+  "muezzins": [
+    {
+      "id": "mishary_alafasy",
+      "name": "مشاري العفاسي",
+      "name_en": "Mishary Alafasy",
+      "audio_url": "https://www.mp3quran.net/afs/001.mp3"
+    },
+    {
+      "id": "nasser_alqatami",
+      "name": "ناصر القطامي",
+      "name_en": "Nasser Al-Qatami",
+      "audio_url": "https://www.mp3quran.net/qat/001.mp3"
+    },
+    {
+      "id": "abdul_basit",
+      "name": "عبد الباسط عبد الصمد",
+      "name_en": "Abdul Basit Abdul Samad",
+      "audio_url": "https://www.mp3quran.net/bas/001.mp3"
+    },
+    {
+      "id": "mahmoud_khalil",
+      "name": "محمود خليل الحصري",
+      "name_en": "Mahmoud Khalil Al-Husary",
+      "audio_url": "https://www.mp3quran.net/hsr/001.mp3"
+    },
+    {
+      "id": "muhammad_siddiq",
+      "name": "محمد صديق المنشاوي",
+      "name_en": "Muhammad Siddiq Al-Minshawi",
+      "audio_url": "https://www.mp3quran.net/minshawi/001.mp3"
+    }
+  ],
+  "adhan_sounds": [
+    {
+      "id": "fajr_adhan",
+      "name": "أذان الفجر",
+      "name_en": "Fajr Adhan",
+      "audio_url": "https://www.mp3quran.net/adhan/fajr.mp3"
+    },
+    {
+      "id": "regular_adhan",
+      "name": "الأذان العادي",
+      "name_en": "Regular Adhan",
+      "audio_url": "https://www.mp3quran.net/adhan/regular.mp3"
+    }
+  ],
+  "default_settings": {
+    "adhan_enabled": true,
+    "selected_muezzin": "mishary_alafasy",
+    "selected_adhan_sound": "regular_adhan",
+    "notification_before_minutes": 5,
+    "auto_location": true,
+    "volume": 0.8
+  }
+} 

@@ -21,7 +21,8 @@
         "path_provider",
         "provider",
         "shared_preferences",
-        "sqflite"
+        "sqflite",
+        "timezone"
       ],
       "devDependencies": [
         "flutter_test"
@@ -53,6 +54,13 @@
         "test_api",
         "vector_math",
         "vm_service"
+      ]
+    },
+    {
+      "name": "timezone",
+      "version": "0.9.4",
+      "dependencies": [
+        "path"
       ]
     },
     {
@@ -701,13 +709,6 @@
         "flutter",
         "meta",
         "plugin_platform_interface"
-      ]
-    },
-    {
-      "name": "timezone",
-      "version": "0.9.4",
-      "dependencies": [
-        "path"
       ]
     },
     {

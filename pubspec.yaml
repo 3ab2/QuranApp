@@ -27,6 +27,7 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.2.2
   audioplayers: ^5.2.0
+  timezone: ^0.9.2
 
 dev_dependencies:
   flutter_test:
@@ -37,4 +38,6 @@ flutter:
   assets:
     - assets/
     - assets/data/miracles.json
-    - assets/data/surahs.json 
+    - assets/data/surahs.json
+    - assets/data/prayer_times.json
+    - assets/data/adhan_settings.json 
