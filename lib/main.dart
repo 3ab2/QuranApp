@@ -8,6 +8,10 @@ import 'pages/stories_page.dart';
 import 'pages/miracles_page.dart';
 import 'pages/search_page.dart';
 import 'pages/settings_page.dart';
+import 'pages/story_detail_page.dart';
+import 'data/prophets_data.dart';
+import 'pages/surah_detail_page.dart';
+import 'data/surah_data.dart';
 
 void main() {
   runApp(const QuranApp());
@@ -27,11 +31,15 @@ class QuranApp extends StatelessWidget {
       ),
       home: const HomePage(),
       routes: {
-        '/quran': (context) => QuranPage(),
+        '/quran': (context) => const QuranPage(),
+        for (var s in surahs)
+          '/surah/${s['number']}': (context) => SurahDetailPage(number: s['number']),
         '/adhan': (context) => const AdhanPage(),
         '/tafsir': (context) => const TafsirPage(),
         '/audio': (context) => const AudioPage(),
         '/stories': (context) => const StoriesPage(),
+        for (var p in prophets)
+          '/story/${p["id"]}': (context) => StoryDetailPage(id: p["id"]),
         '/miracles': (context) => const MiraclesPage(),
         '/search': (context) => const SearchPage(),
         '/settings': (context) => const SettingsPage(),
