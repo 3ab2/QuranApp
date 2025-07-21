@@ -36,8 +36,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
-    - assets/data/miracles.json
-    - assets/data/surahs.json
-    - assets/data/prayer_times.json
-    - assets/data/adhan_settings.json 
+    - assets/data/
+    - assets/fonts/
+    - assets/sounds/fajr_adhan.mp3
+    - assets/sounds/dhuhr_adhan.mp3
+    - assets/sounds/asr_adhan.mp3
+    - assets/sounds/maghrib_adhan.mp3
+    - assets/sounds/isha_adhan.mp3 

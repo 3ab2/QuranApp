@@ -72,16 +72,12 @@ class Location {
 
 class AdhanSettings {
   final bool adhanEnabled;
-  final String selectedMuezzin;
-  final String selectedAdhanSound;
   final int notificationBeforeMinutes;
   final bool autoLocation;
   final double volume;
 
   AdhanSettings({
     required this.adhanEnabled,
-    required this.selectedMuezzin,
-    required this.selectedAdhanSound,
     required this.notificationBeforeMinutes,
     required this.autoLocation,
     required this.volume,
@@ -90,19 +86,15 @@ class AdhanSettings {
   factory AdhanSettings.fromJson(Map<String, dynamic> json) {
     return AdhanSettings(
       adhanEnabled: json['adhan_enabled'] ?? true,
-      selectedMuezzin: json['selected_muezzin'] ?? 'mishary_alafasy',
-      selectedAdhanSound: json['selected_adhan_sound'] ?? 'regular_adhan',
       notificationBeforeMinutes: json['notification_before_minutes'] ?? 5,
       autoLocation: json['auto_location'] ?? true,
-      volume: json['volume']?.toDouble() ?? 0.8,
+      volume: (json['volume'] as num?)?.toDouble() ?? 0.8,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'adhan_enabled': adhanEnabled,
-      'selected_muezzin': selectedMuezzin,
-      'selected_adhan_sound': selectedAdhanSound,
       'notification_before_minutes': notificationBeforeMinutes,
       'auto_location': autoLocation,
       'volume': volume,

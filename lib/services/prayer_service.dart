@@ -22,20 +22,14 @@ class PrayerService {
   PrayerTimes? _prayerTimes;
   Location? _location;
   AdhanSettings? _settings;
-  List<Muezzin> _muezzins = [];
-  List<AdhanSound> _adhanSounds = [];
 
   PrayerTimes? get prayerTimes => _prayerTimes;
   Location? get location => _location;
   AdhanSettings? get settings => _settings;
-  List<Muezzin> get muezzins => _muezzins;
-  List<AdhanSound> get adhanSounds => _adhanSounds;
 
   Future<void> initialize() async {
     await _initializeNotifications();
     await _loadSettings();
-    await _loadMuezzins();
-    await _loadAdhanSounds();
   }
 
   Future<void> _initializeNotifications() async {
@@ -64,30 +58,6 @@ class PrayerService {
       }
     } catch (e) {
       print('Erreur lors du chargement des paramètres: $e');
-    }
-  }
-
-  Future<void> _loadMuezzins() async {
-    try {
-      final String data = await rootBundle.loadString('assets/data/adhan_settings.json');
-      final Map<String, dynamic> jsonData = json.decode(data);
-      final List<dynamic> muezzinsList = jsonData['muezzins'];
-      
-      _muezzins = muezzinsList.map((json) => Muezzin.fromJson(json)).toList();
-    } catch (e) {
-      print('Erreur lors du chargement des muezzins: $e');
-    }
-  }
-
-  Future<void> _loadAdhanSounds() async {
-    try {
-      final String data = await rootBundle.loadString('assets/data/adhan_settings.json');
-      final Map<String, dynamic> jsonData = json.decode(data);
-      final List<dynamic> soundsList = jsonData['adhan_sounds'];
-      
-      _adhanSounds = soundsList.map((json) => AdhanSound.fromJson(json)).toList();
-    } catch (e) {
-      print('Erreur lors du chargement des sons d\'adhan: $e');
     }
   }
 
@@ -298,46 +268,6 @@ class PrayerService {
       'العشاء': 5,
     };
     return prayerIds[prayerName] ?? 0;
-  }
-
-  Future<void> playAdhan(String prayerName) async {
-    if (_settings?.adhanEnabled != true) return;
-
-    try {
-      // Trouver le son d'adhan approprié
-      AdhanSound? adhanSound;
-      if (prayerName == 'الفجر') {
-        adhanSound = _adhanSounds.firstWhere((sound) => sound.id == 'fajr_adhan');
-      } else {
-        adhanSound = _adhanSounds.firstWhere((sound) => sound.id == 'regular_adhan');
-      }
-
-      await _audioPlayer.stop();
-      await _audioPlayer.setVolume(_settings?.volume ?? 0.8);
-      await _audioPlayer.play(UrlSource(adhanSound.audioUrl));
-    } catch (e) {
-      print('Erreur lors de la lecture de l\'adhan: $e');
-    }
-  }
-
-  Future<void> stopAdhan() async {
-    await _audioPlayer.stop();
-  }
-
-  Muezzin? getSelectedMuezzin() {
-    if (_settings == null) return null;
-    return _muezzins.firstWhere(
-      (muezzin) => muezzin.id == _settings!.selectedMuezzin,
-      orElse: () => _muezzins.first,
-    );
-  }
-
-  AdhanSound? getSelectedAdhanSound() {
-    if (_settings == null) return null;
-    return _adhanSounds.firstWhere(
-      (sound) => sound.id == _settings!.selectedAdhanSound,
-      orElse: () => _adhanSounds.first,
-    );
   }
 
   void dispose() {

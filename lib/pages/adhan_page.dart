@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:just_audio/just_audio.dart';
 import '../models/prayer_model.dart';
 import '../services/prayer_service.dart';
 
@@ -12,13 +13,12 @@ class AdhanPage extends StatefulWidget {
 
 class _AdhanPageState extends State<AdhanPage> {
   final PrayerService _prayerService = PrayerService();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   
   PrayerTimes? _prayerTimes;
   Location? _location;
   AdhanSettings? _settings;
   bool _isLoading = true;
-  bool _isPlayingAdhan = false;
-  String? _currentPlayingPrayer;
 
   @override
   void initState() {
@@ -314,19 +314,37 @@ class _AdhanPageState extends State<AdhanPage> {
   }
 
   Future<void> _playAdhan(String prayerName) async {
-    if (_isPlayingAdhan) {
-      await _prayerService.stopAdhan();
-      setState(() {
-        _isPlayingAdhan = false;
-        _currentPlayingPrayer = null;
-      });
+    if (_audioPlayer.playing) {
+      await _audioPlayer.stop();
     } else {
-      await _prayerService.playAdhan(prayerName);
-      setState(() {
-        _isPlayingAdhan = true;
-        _currentPlayingPrayer = prayerName;
-      });
+      String audioPath;
+      switch (prayerName) {
+        case 'الفجر':
+          audioPath = 'sounds/fajr_adhan.mp3';
+          break;
+        case 'الظهر':
+          audioPath = 'sounds/dhuhr_adhan.mp3';
+          break;
+        case 'العصر':
+          audioPath = 'sounds/asr_adhan.mp3';
+          break;
+        case 'المغرب':
+          audioPath = 'sounds/maghrib_adhan.mp3';
+          break;
+        case 'العشاء':
+          audioPath = 'sounds/isha_adhan.mp3';
+          break;
+        default:
+          return;
+      }
+      try {
+        await _audioPlayer.setAsset('assets/$audioPath');
+        _audioPlayer.play();
+      } catch (e) {
+        _showErrorSnackBar('خطأ في تشغيل الأذان');
+      }
     }
+    setState(() {});
   }
 
   Future<void> _showSettingsDialog() async {
@@ -334,8 +352,6 @@ class _AdhanPageState extends State<AdhanPage> {
     if (currentSettings == null) return;
 
     bool adhanEnabled = currentSettings.adhanEnabled;
-    String selectedMuezzin = currentSettings.selectedMuezzin;
-    String selectedAdhanSound = currentSettings.selectedAdhanSound;
     int notificationMinutes = currentSettings.notificationBeforeMinutes;
     double volume = currentSettings.volume;
 
@@ -355,50 +371,6 @@ class _AdhanPageState extends State<AdhanPage> {
                   onChanged: (value) {
                     setDialogState(() {
                       adhanEnabled = value;
-                    });
-                  },
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // اختيار المؤذن
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'اختر المؤذن',
-                    labelStyle: TextStyle(fontFamily: 'Amiri'),
-                  ),
-                  value: selectedMuezzin,
-                  items: _prayerService.muezzins.map((muezzin) {
-                    return DropdownMenuItem(
-                      value: muezzin.id,
-                      child: Text('${muezzin.name} (${muezzin.nameEn})', style: const TextStyle(fontFamily: 'Amiri')),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setDialogState(() {
-                      selectedMuezzin = value!;
-                    });
-                  },
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // اختيار صوت الأذان
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'صوت الأذان',
-                    labelStyle: TextStyle(fontFamily: 'Amiri'),
-                  ),
-                  value: selectedAdhanSound,
-                  items: _prayerService.adhanSounds.map((sound) {
-                    return DropdownMenuItem(
-                      value: sound.id,
-                      child: Text('${sound.name} (${sound.nameEn})', style: const TextStyle(fontFamily: 'Amiri')),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setDialogState(() {
-                      selectedAdhanSound = value!;
                     });
                   },
                 ),
@@ -450,8 +422,6 @@ class _AdhanPageState extends State<AdhanPage> {
               onPressed: () async {
                 final newSettings = AdhanSettings(
                   adhanEnabled: adhanEnabled,
-                  selectedMuezzin: selectedMuezzin,
-                  selectedAdhanSound: selectedAdhanSound,
                   notificationBeforeMinutes: notificationMinutes,
                   autoLocation: currentSettings.autoLocation,
                   volume: volume,
@@ -473,8 +443,6 @@ class _AdhanPageState extends State<AdhanPage> {
   }
 
   Widget _buildPrayerCard(String prayerName, String time, IconData icon, Color color) {
-    final isCurrentPrayer = _currentPlayingPrayer == prayerName;
-    
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
@@ -506,12 +474,33 @@ class _AdhanPageState extends State<AdhanPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (_settings?.adhanEnabled == true)
-              IconButton(
-                icon: Icon(
-                  isCurrentPrayer ? Icons.stop : Icons.play_arrow,
-                  color: isCurrentPrayer ? Colors.red : Colors.indigo,
-                ),
-                onPressed: () => _playAdhan(prayerName),
+              StreamBuilder<PlayerState>(
+                stream: _audioPlayer.playerStateStream,
+                builder: (context, snapshot) {
+                  final playerState = snapshot.data;
+                  final isPlaying = playerState?.playing ?? false;
+                  
+                  // Define a map to get the correct filename for each prayer
+                  const prayerAudioMap = {
+                    'الفجر': 'fajr_adhan.mp3',
+                    'الظهر': 'dhuhr_adhan.mp3',
+                    'العصر': 'asr_adhan.mp3',
+                    'المغرب': 'maghrib_adhan.mp3',
+                    'العشاء': 'isha_adhan.mp3',
+                  };
+                  
+                  final audioPath = 'assets/sounds/${prayerAudioMap[prayerName]}';
+                  final isCurrentSource = _audioPlayer.audioSource is ProgressiveAudioSource && 
+                                          (_audioPlayer.audioSource as ProgressiveAudioSource).tag == audioPath;
+
+                  return IconButton(
+                    icon: Icon(
+                      isPlaying && isCurrentSource ? Icons.stop : Icons.play_arrow,
+                      color: isPlaying && isCurrentSource ? Colors.red : Colors.indigo,
+                    ),
+                    onPressed: () => _playAdhan(prayerName),
+                  );
+                },
               ),
             IconButton(
               icon: const Icon(Icons.info_outline, color: Colors.indigo),
@@ -679,7 +668,7 @@ class _AdhanPageState extends State<AdhanPage> {
 
   @override
   void dispose() {
-    _prayerService.stopAdhan();
+    _audioPlayer.dispose();
     super.dispose();
   }
 } 
