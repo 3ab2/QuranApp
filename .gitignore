@@ -1,0 +1,15 @@
+# Ignore todo file
+todo.md
+
+# Ignore log files and folders
+*.log
+log/
+logs/
+
+# Ignore tabs files/folders
+tabs/
+*.tabs
+
+# Ignore session files/folders
+session/
+sessions/
