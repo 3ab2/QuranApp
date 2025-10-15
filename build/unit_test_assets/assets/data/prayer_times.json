@@ -1,0 +1,21 @@
+{
+  "location": {
+    "city": "Casablanca",
+    "country": "Morocco",
+    "latitude": 33.5731,
+    "longitude": -7.5898
+  },
+  "settings": {
+    "adhan_enabled": true,
+    "selected_muezzin": "Mishary Alafasy",
+    "notification_before_minutes": 5
+  },
+  "prayer_times": {
+    "fajr": "04:23",
+    "sunrise": "06:00",
+    "dhuhr": "13:35",
+    "asr": "17:10",
+    "maghrib": "20:02",
+    "isha": "21:25"
+  }
+} 

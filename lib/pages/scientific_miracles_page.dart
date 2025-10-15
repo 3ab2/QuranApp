@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/scientific_miracle_model.dart';
 import '../services/miracle_service.dart';
+import '../widgets/top_bar.dart';
+import '../widgets/back_button_widget.dart';
 
 class ScientificMiraclesPage extends StatefulWidget {
   const ScientificMiraclesPage({super.key});
+
   @override
-  _ScientificMiraclesPageState createState() => _ScientificMiraclesPageState();
+  ScientificMiraclesPageState createState() => ScientificMiraclesPageState();
 }
 
-class _ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
+class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
   List<ScientificMiracle> miracles = [];
   List<ScientificMiracle> filtered = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -53,113 +57,178 @@ class _ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color backgroundColor = Colors.white;
+    const Color gold = Color(0xFFD4AF37);
+    const Color darkGreen = Color(0xFF006400);
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF9FAFB),
-        appBar: AppBar(
-          title: const Text('الإعجاز العلمي في القرآن', style: TextStyle(fontFamily: 'Amiri')),
-          backgroundColor: Colors.indigo,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'ابحث عن آية أو شرح أو تصنيف...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                onChanged: (val) {
-                  search = val;
-                  filter();
-                },
-              ),
-            ),
-            SizedBox(
-              height: 48,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: ChoiceChip(
-                      label: const Text('الكل', style: TextStyle(fontFamily: 'Amiri')),
-                      selected: selectedCategory == null,
-                      onSelected: (_) {
-                        setState(() { selectedCategory = null; filter(); });
-                      },
-                    ),
-                  ),
-                  ...categories.map((cat) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: ChoiceChip(
-                      label: Text(cat, style: const TextStyle(fontFamily: 'Amiri')),
-                      selected: selectedCategory == cat,
-                      onSelected: (_) {
-                        setState(() { selectedCategory = cat; filter(); });
-                      },
-                    ),
-                  ))
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: filtered.isEmpty
-                ? const Center(child: Text('لا توجد نتائج', style: TextStyle(fontFamily: 'Amiri', fontSize: 18)))
-                : ListView.builder(
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final miracle = filtered[index];
-                      return Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                        elevation: 4,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          title: Text(
-                            miracle.verse,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, fontFamily: 'Amiri'),
-                            textAlign: TextAlign.right,
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const SizedBox(height: 8),
-                              Text('سورة ${miracle.surah} - آية ${miracle.ayah}', style: const TextStyle(fontFamily: 'Amiri')),
-                              const SizedBox(height: 4),
-                              Text(
-                                miracle.explanation,
-                                style: const TextStyle(fontSize: 15, color: Colors.black87, fontFamily: 'Amiri'),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.indigo.shade50,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(miracle.category, style: const TextStyle(fontSize: 13, color: Colors.indigo, fontFamily: 'Amiri')),
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.volume_up, color: Colors.indigo),
-                            onPressed: () => playAudio(miracle.audio),
-                          ),
+        backgroundColor: backgroundColor,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const TopBar(),
+              const SizedBox(height: 20),
+              // Back Button and Page Title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const BackButtonWidget(),
+                    Expanded(
+                      child: Text(
+                        'الإعجاز العلمي في القرآن',
+                        style: GoogleFonts.amiri(
+                          color: darkGreen,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
-                      );
-                    },
-                  ),
-            ),
-          ],
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'ابحث عن آية أو شرح أو تصنيف...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(18))),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        onChanged: (val) {
+                          search = val;
+                          filter();
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 48,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: ChoiceChip(
+                              label: Text('الكل'),
+                              selected: false,
+                              selectedColor: Color(0xFF006400),
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                          ...categories.map((cat) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: ChoiceChip(
+                              label: Text(cat, style: GoogleFonts.amiri(color: selectedCategory == cat ? Colors.white : darkGreen)),
+                              selected: selectedCategory == cat,
+                              selectedColor: darkGreen,
+                              backgroundColor: Colors.white,
+                              onSelected: (_) {
+                                setState(() { selectedCategory = cat; filter(); });
+                              },
+                            ),
+                          ))
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: filtered.isEmpty
+                        ? Center(
+                            child: Text(
+                              'لا توجد نتائج',
+                              style: GoogleFonts.amiri(
+                                fontSize: 18,
+                                color: darkGreen,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: filtered.length,
+                            itemBuilder: (context, index) {
+                              final miracle = filtered[index];
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: gold.withValues(alpha: 0.2),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(16),
+                                  title: Text(
+                                    miracle.verse,
+                                    style: GoogleFonts.amiri(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: darkGreen,
+                                    ),
+                                    textDirection: TextDirection.rtl,
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'سورة ${miracle.surah} - آية ${miracle.ayah}',
+                                        style: GoogleFonts.amiri(
+                                          color: darkGreen.withValues(alpha: 0.7),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        miracle.explanation,
+                                        style: GoogleFonts.amiri(
+                                          fontSize: 15,
+                                          color: darkGreen.withValues(alpha: 0.8),
+                                        ),
+                                        textDirection: TextDirection.rtl,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Color(0x8090EE90),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          miracle.category,
+                                          style: GoogleFonts.amiri(
+                                            fontSize: 13,
+                                            color: darkGreen,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.volume_up, color: darkGreen),
+                                    onPressed: () => playAudio(miracle.audio),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

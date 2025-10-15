@@ -1,0 +1,8 @@
+{
+  "default_settings": {
+    "adhan_enabled": true,
+    "notification_before_minutes": 5,
+    "auto_location": true,
+    "volume": 0.8
+  }
+} 

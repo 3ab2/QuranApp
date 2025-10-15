@@ -36,15 +36,15 @@ class QuranApp extends StatelessWidget {
       routes: {
         '/quran': (context) => const QuranPage(),
         for (var s in surahs)
-          '/surah/${s['number']}': (context) => SurahDetailPage(number: s['number']),
+          '/surah/${s['number']}': (context) => SurahDetailPage(surahNumber: s['number'], surahName: s['name']),
         '/adhan': (context) => const AdhanPage(),
         '/tafsir': (context) => const TafsirPage(),
         '/audio': (context) => const AudioPage(),
         '/stories': (context) => const StoriesPage(),
         for (var p in prophets)
           '/story/${p["id"]}': (context) => StoryDetailPage(id: p["id"]),
-        '/miracles': (context) => MiraclesPage(),
-        '/scientific-miracles': (context) => ScientificMiraclesPage(),
+        '/miracles': (context) => const MiraclesPage(),
+        '/scientific-miracles': (context) => const ScientificMiraclesPage(),
         '/search': (context) => const SearchPage(),
         '/search-surah': (context) => const SearchSurahPage(),
         '/settings': (context) => const SettingsPage(),

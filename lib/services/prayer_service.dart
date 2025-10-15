@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
@@ -32,6 +33,8 @@ class PrayerService {
     await _loadSettings();
   }
 
+
+
   Future<void> _initializeNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -57,7 +60,7 @@ class PrayerService {
         _settings = AdhanSettings.fromJson(jsonData['default_settings']);
       }
     } catch (e) {
-      print('Erreur lors du chargement des paramètres: $e');
+      debugPrint('Erreur lors du chargement des paramètres: $e');
     }
   }
 
@@ -67,7 +70,7 @@ class PrayerService {
       await prefs.setString('adhan_settings', json.encode(settings.toJson()));
       _settings = settings;
     } catch (e) {
-      print('Erreur lors de la sauvegarde des paramètres: $e');
+      debugPrint('Erreur lors de la sauvegarde des paramètres: $e');
     }
   }
 
@@ -93,7 +96,7 @@ class PrayerService {
 
       return _location;
     } catch (e) {
-      print('Erreur lors de l\'obtention de la localisation: $e');
+      debugPrint('Erreur lors de l\'obtention de la localisation: $e');
       return null;
     }
   }
@@ -101,13 +104,11 @@ class PrayerService {
   Future<PrayerTimes?> getPrayerTimes({Location? customLocation}) async {
     try {
       Location? locationToUse = customLocation ?? _location;
-      if (locationToUse == null) {
-        locationToUse = await getCurrentLocation();
-      }
+      locationToUse ??= await getCurrentLocation();
       
       if (locationToUse == null) {
         // Utiliser des données par défaut si la localisation échoue
-        print('Utilisation des données par défaut pour مكة المكرمة');
+        debugPrint('Utilisation des données par défaut pour مكة المكرمة');
         _location = Location(
           city: 'مكة المكرمة',
           country: 'Saudi Arabia',
@@ -118,7 +119,7 @@ class PrayerService {
       }
 
       final url = 'https://api.aladhan.com/v1/timings?latitude=${locationToUse.latitude}&longitude=${locationToUse.longitude}&method=2';
-      print('Tentative de récupération des horaires depuis: $url');
+      debugPrint('Tentative de récupération des horaires depuis: $url');
       
       final response = await http.get(Uri.parse(url)).timeout(
         const Duration(seconds: 10),
@@ -130,7 +131,7 @@ class PrayerService {
       if (response.statusCode == 200) {
         try {
           final data = json.decode(response.body);
-          print('Réponse API reçue: ${response.body.substring(0, 200)}...');
+          debugPrint('Réponse API reçue: ${response.body.substring(0, 200)}...');
           
           if (data['data'] != null && data['data']['timings'] != null) {
             final timings = data['data']['timings'];
@@ -140,7 +141,7 @@ class PrayerService {
               _prayerTimes = PrayerTimes.fromJson(timings);
               _location = locationToUse;
               
-              print('Horaires de prière récupérés avec succès');
+              debugPrint('Horaires de prière récupérés avec succès');
               
               // Programmer les notifications si activées
               if (_settings?.adhanEnabled == true) {
@@ -149,24 +150,24 @@ class PrayerService {
               
               return _prayerTimes;
             } else {
-              print('Données de timing invalides, utilisation des données par défaut');
+              debugPrint('Données de timing invalides, utilisation des données par défaut');
               return _getDefaultPrayerTimes(locationToUse);
             }
           } else {
-            print('Structure de données API invalide');
+            debugPrint('Structure de données API invalide');
             return _getDefaultPrayerTimes(locationToUse);
           }
         } catch (e) {
-          print('Erreur lors du parsing JSON: $e');
+          debugPrint('Erreur lors du parsing JSON: $e');
           return _getDefaultPrayerTimes(locationToUse);
         }
       } else {
-        print('Erreur API: ${response.statusCode} - ${response.body}');
+        debugPrint('Erreur API: ${response.statusCode} - ${response.body}');
         // Utiliser des données par défaut
         return _getDefaultPrayerTimes(locationToUse);
       }
     } catch (e) {
-      print('Erreur lors de l\'obtention des horaires de prière: $e');
+      debugPrint('Erreur lors de l\'obtention des horaires de prière: $e');
       // Utiliser des données par défaut en cas d'erreur
       if (customLocation != null) {
         return _getDefaultPrayerTimes(customLocation);
@@ -189,7 +190,7 @@ class PrayerService {
     _prayerTimes = defaultTimes;
     _location = location;
     
-    print('Utilisation des horaires par défaut');
+    debugPrint('Utilisation des horaires par défaut');
     return defaultTimes;
   }
 
@@ -198,7 +199,7 @@ class PrayerService {
     
     for (final field in requiredFields) {
       if (timings[field] == null || timings[field].toString().isEmpty) {
-        print('Champ manquant ou vide: $field');
+        debugPrint('Champ manquant ou vide: $field');
         return false;
       }
     }
