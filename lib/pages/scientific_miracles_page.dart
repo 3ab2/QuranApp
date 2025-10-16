@@ -202,7 +202,7 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Color(0x8090EE90),
+                                          color: const Color(0x8090EE90),
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         child: Text(
@@ -216,7 +216,7 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                                     ],
                                   ),
                                   trailing: IconButton(
-                                    icon: Icon(Icons.volume_up, color: darkGreen),
+                                    icon: const Icon(Icons.volume_up, color: darkGreen),
                                     onPressed: () => playAudio(miracle.audio),
                                   ),
                                 ),

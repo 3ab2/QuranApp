@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -272,7 +273,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                                         text: verse['text'],
                                         style: GoogleFonts.amiri(
                                           fontSize: fontSize,
-                                          color: darkGreen,
+                                          color: const Color.fromARGB(255, 24, 27, 24),
                                           shadows: [
                                             Shadow(
                                               color: gold.withValues(alpha: 0.3),
@@ -282,12 +283,21 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                                           ],
                                         ),
                                       ),
-                                      WidgetSpan(
-                                        child: VerseNumber(
-                                          verse: verse,
-                                          isFav: isFav,
+                                      TextSpan(
+                                        text: ' (${verse['verse_key'].split(':')[1]}) ',
+                                        style: GoogleFonts.amiri(
                                           fontSize: fontSize,
-                                          onLike: () {
+                                          color: const Color.fromARGB(255, 5, 122, 15),
+                                          shadows: [
+                                            Shadow(
+                                              color: gold.withValues(alpha: 0.3),
+                                              offset: const Offset(1, 1),
+                                              blurRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
                                             setState(() {
                                               if (isFav) {
                                                 favorites.remove(verse['verse_key']);
@@ -297,14 +307,13 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                                             });
                                             _saveFavorites();
                                           },
-                                        ),
                                       ),
-                                      const TextSpan(text: ' '),
                                     ];
                                   }).toList(),
                                 ),
                                 softWrap: true,
                                 textDirection: TextDirection.rtl,
+                                textAlign: TextAlign.justify,
                               ),
                             ),
                           ),
