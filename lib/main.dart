@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/settings_provider.dart';
 import 'pages/home_page.dart';
 import 'pages/quran_page.dart';
 import 'pages/adhan_page.dart';
@@ -13,8 +15,16 @@ import 'data/surah_data.dart';
 import 'pages/scientific_miracles_page.dart';
 import 'pages/search_surah_page.dart';
 
-void main() {
-  runApp(const QuranApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final settingsProvider = SettingsProvider();
+  await settingsProvider.loadSettings();
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => settingsProvider,
+      child: const QuranApp(),
+    ),
+  );
 }
 
 class QuranApp extends StatelessWidget {
@@ -22,29 +32,31 @@ class QuranApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Quran App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Amiri',
-        brightness: Brightness.light,
-      ),
-      home: const HomePage(),
-      routes: {
-        '/quran': (context) => const QuranPage(),
-        for (var s in surahs)
-          '/surah/${s['number']}': (context) => SurahDetailPage(surahNumber: s['number'], surahName: s['name']),
-        '/adhan': (context) => const AdhanPage(),
-        '/tafsir': (context) => const TafsirPage(),
-        '/audio': (context) => const AudioPage(),
-        '/stories': (context) => const StoriesPage(),
-        for (var p in prophets)
-          '/story/${p["id"]}': (context) => StoryDetailPage(id: p["id"]),
-        '/scientific-miracles': (context) => const ScientificMiraclesPage(),    
-        '/search-surah': (context) => const SearchSurahPage(),
-        '/settings': (context) => const SettingsPage(),
-        
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, child) {
+        return MaterialApp(
+          title: 'Quran App',
+          debugShowCheckedModeBanner: false,
+          theme: settings.getThemeData(),
+          themeMode: settings.themeMode,
+          home: const HomePage(),
+          routes: {
+            '/quran': (context) => const QuranPage(),
+            for (var s in surahs)
+              '/surah/${s['number']}': (context) => SurahDetailPage(surahNumber: s['number'], surahName: s['name']),
+            '/adhan': (context) => const AdhanPage(),
+            '/tafsir': (context) => const TafsirPage(),
+            '/audio': (context) => const AudioPage(),
+            '/stories': (context) => const StoriesPage(),
+            for (var p in prophets)
+              '/story/${p["id"]}': (context) => StoryDetailPage(id: p["id"]),
+            '/scientific-miracles': (context) => const ScientificMiraclesPage(),
+            '/search-surah': (context) => const SearchSurahPage(),
+            '/settings': (context) => const SettingsPage(),
+
+          },
+        );
       },
     );
   }
-} 
+}

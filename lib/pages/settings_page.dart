@@ -1,41 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../widgets/top_bar.dart';
 import '../widgets/back_button_widget.dart';
+import '../providers/settings_provider.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  bool isAdhanEnabled = true;
-  bool isDarkMode = false;
-  bool isReminderEnabled = true;
-  double volume = 0.8;
-  String selectedLanguage = 'العربية';
-  String selectedReciter = 'ماهر المعيقلي';
-
-  List<String> reciters = [
-    'ماهر المعيقلي',
-    'عبد الباسط عبد الصمد',
-    'مشاري العفاسي',
-    'سعد الغامدي',
-  ];
-
-  List<String> languages = [
-    'العربية',
-    'English',
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
+
     const Color backgroundColor = Colors.white;
     const Color gold = Color(0xFFD4AF37);
     const Color softGreen = Color(0xFF90EE90);
     const Color darkGreen = Color(0xFF006400);
+
+    List<String> reciters = [
+      'ماهر المعيقلي',
+      'عبد الباسط عبد الصمد',
+      'مشاري العفاسي',
+      'سعد الغامدي',
+    ];
+
+    List<String> languages = [
+      'العربية',
+      'English',
+    ];
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -92,13 +84,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        value: isAdhanEnabled,
+                        value: settings.isAdhanEnabled,
                         activeColor: darkGreen,
-                        onChanged: (val) {
-                          setState(() {
-                            isAdhanEnabled = val;
-                          });
-                        },
+                        onChanged: (val) => settings.setAdhanEnabled(val),
                       ),
                     ),
                     Container(
@@ -122,13 +110,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        value: isDarkMode,
+                        value: settings.isDarkMode,
                         activeColor: darkGreen,
-                        onChanged: (val) {
-                          setState(() {
-                            isDarkMode = val;
-                          });
-                        },
+                        onChanged: (val) => settings.setDarkMode(val),
                       ),
                     ),
                     Container(
@@ -152,13 +136,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        value: isReminderEnabled,
+                        value: settings.isReminderEnabled,
                         activeColor: darkGreen,
-                        onChanged: (val) {
-                          setState(() {
-                            isReminderEnabled = val;
-                          });
-                        },
+                        onChanged: (val) => settings.setReminderEnabled(val),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -179,7 +159,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         border: Border.all(color: gold),
                       ),
                       child: DropdownButton<String>(
-                        value: selectedReciter,
+                        value: settings.selectedReciter,
                         isExpanded: true,
                         underline: const SizedBox(),
                         items: reciters.map((reciter) {
@@ -191,11 +171,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedReciter = value!;
-                          });
-                        },
+                        onChanged: (value) => settings.setSelectedReciter(value!),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -216,7 +192,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         border: Border.all(color: gold),
                       ),
                       child: DropdownButton<String>(
-                        value: selectedLanguage,
+                        value: settings.selectedLanguage,
                         isExpanded: true,
                         underline: const SizedBox(),
                         items: languages.map((lang) {
@@ -228,11 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedLanguage = value!;
-                          });
-                        },
+                        onChanged: (value) => settings.setSelectedLanguage(value!),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -259,18 +231,14 @@ class _SettingsPageState extends State<SettingsPage> {
                         ],
                       ),
                       child: Slider(
-                        value: volume,
+                        value: settings.volume,
                         min: 0,
                         max: 1,
                         divisions: 10,
-                        label: '${(volume * 100).round()}%',
+                        label: '${(settings.volume * 100).round()}%',
                         activeColor: darkGreen,
                         inactiveColor: softGreen,
-                        onChanged: (val) {
-                          setState(() {
-                            volume = val;
-                          });
-                        },
+                        onChanged: (val) => settings.setVolume(val),
                       ),
                     ),
                     const SizedBox(height: 20),

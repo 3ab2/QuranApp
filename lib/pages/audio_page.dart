@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../widgets/top_bar.dart';
 import '../widgets/back_button_widget.dart';
+import '../providers/settings_provider.dart';
 
 class AudioPage extends StatefulWidget {
   const AudioPage({super.key});
@@ -20,17 +22,36 @@ class _AudioPageState extends State<AudioPage> {
   int? currentIndex;
   bool isPlaying = false;
   Duration? lastPosition;
+  String selectedReciter = 'ماهر المعيقلي';
+  double volume = 0.7;
+  late SettingsProvider settings;
 
   @override
   void initState() {
     super.initState();
     loadSurahs();
     restoreLastPlayed();
+    _loadSettings();
     _audioPlayer.playerStateStream.listen((state) {
       setState(() {
         isPlaying = state.playing;
       });
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    settings = Provider.of<SettingsProvider>(context);
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedReciter = prefs.getString('selectedReciter') ?? 'ماهر المعيقلي';
+      volume = prefs.getDouble('volume') ?? 0.7;
+    });
+    _audioPlayer.setVolume(volume);
   }
 
   Future<void> loadSurahs() async {
@@ -43,7 +64,11 @@ class _AudioPageState extends State<AudioPage> {
 
   Future<void> playSurah(int index, {Duration? position}) async {
     final surah = surahs[index];
-    final url = surah['audio'];
+    // Use selected reciter from settings
+    final reciter = settings.selectedReciter;
+    // Assuming audio URLs are structured like 'https://example.com/{reciter}/{surah_number}.mp3'
+    // Adjust based on actual API structure
+    final url = surah['audio'].replaceAll('{reciter}', reciter.toLowerCase().replaceAll(' ', '-'));
     await _audioPlayer.setUrl(url);
     if (position != null) {
       await _audioPlayer.seek(position);
