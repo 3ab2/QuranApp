@@ -16,6 +16,7 @@
         "geolocator",
         "get",
         "google_fonts",
+        "hijri",
         "http",
         "intl",
         "just_audio",
@@ -64,6 +65,11 @@
         "vector_math",
         "vm_service"
       ]
+    },
+    {
+      "name": "hijri",
+      "version": "3.0.0",
+      "dependencies": []
     },
     {
       "name": "google_fonts",

@@ -254,6 +254,12 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "hijri",
+      "rootUri": "file:///C:/Users/THINKPAD%20PC/AppData/Local/Pub/Cache/hosted/pub.dev/hijri-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "http",
       "rootUri": "file:///C:/Users/THINKPAD%20PC/AppData/Local/Pub/Cache/hosted/pub.dev/http-1.4.0",
       "packageUri": "lib/",
