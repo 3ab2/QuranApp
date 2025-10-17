@@ -99,65 +99,7 @@ class _AudioPageState extends State<AudioPage> {
     }
   }
 
-  Widget buildBottomPlayer() {
-    if (currentIndex == null) return const SizedBox.shrink();
-    final surah = surahs[currentIndex!];
-    return Container(
-      color: Colors.green.shade100,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  surah['name'],
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textDirection: TextDirection.rtl,
-                ),
-                StreamBuilder<Duration>(
-                  stream: _audioPlayer.positionStream,
-                  builder: (context, snapshot) {
-                    final position = snapshot.data ?? Duration.zero;
-                    final total = _audioPlayer.duration ?? Duration.zero;
-                    return Slider(
-                      value: position.inSeconds.toDouble(),
-                      max: total.inSeconds.toDouble() > 0 ? total.inSeconds.toDouble() : 1,
-                      onChanged: (v) async {
-                        await _audioPlayer.seek(Duration(seconds: v.toInt()));
-                        saveLastPlayed(currentIndex!, position: Duration(seconds: v.toInt()));
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.skip_previous),
-            onPressed: currentIndex! > 0 ? () => playSurah(currentIndex! - 1) : null,
-          ),
-          IconButton(
-            icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-            onPressed: () {
-              if (isPlaying) {
-                _audioPlayer.pause();
-                saveLastPlayed(currentIndex!, position: _audioPlayer.position);
-              } else {
-                playSurah(currentIndex!, position: _audioPlayer.position);
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.skip_next),
-            onPressed: currentIndex! < surahs.length - 1 ? () => playSurah(currentIndex! + 1) : null,
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   @override
   void dispose() {
@@ -167,20 +109,19 @@ class _AudioPageState extends State<AudioPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color softGreen = Color(0xFF90EE90);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        // Themed background
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
               const SizedBox(height: 20),
+              
               // Back Button and Page Title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -191,7 +132,7 @@ class _AudioPageState extends State<AudioPage> {
                       child: Text(
                         'الاستماع للتلاوة',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -204,7 +145,7 @@ class _AudioPageState extends State<AudioPage> {
               const SizedBox(height: 20),
               Expanded(
                 child: surahs.isEmpty
-                    ? const Center(child: CircularProgressIndicator(color: darkGreen))
+                    ? Center(child: CircularProgressIndicator(color: cs.primary))
                     : ListView.builder(
                         itemCount: surahs.length,
                         itemBuilder: (context, index) {
@@ -212,11 +153,11 @@ class _AudioPageState extends State<AudioPage> {
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: gold.withValues(alpha: 0.2),
+                                  color: theme.shadowColor.withValues(alpha: 0.08),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -229,20 +170,20 @@ class _AudioPageState extends State<AudioPage> {
                                 style: GoogleFonts.amiri(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: darkGreen,
+                                  color: cs.onSurface,
                                 ),
                               ),
                               leading: CircleAvatar(
-                                backgroundColor: softGreen.withValues(alpha: 0.5),
+                                backgroundColor: cs.primary.withValues(alpha: 0.2),
                                 child: Text(
                                   surah['number'].toString(),
-                                  style: const TextStyle(color: darkGreen),
+                                  style: TextStyle(color: cs.onSurface),
                                 ),
                               ),
                               trailing: IconButton(
                                 icon: Icon(
                                   currentIndex == index && isPlaying ? Icons.pause : Icons.play_arrow,
-                                  color: darkGreen,
+                                  color: cs.onSurface,
                                 ),
                                 onPressed: () {
                                   if (currentIndex == index && isPlaying) {
@@ -264,8 +205,70 @@ class _AudioPageState extends State<AudioPage> {
             ],
           ),
         ),
-        bottomNavigationBar: buildBottomPlayer(),
+        bottomNavigationBar: buildBottomPlayerThemed(context),
       ),
     );
   }
-} 
+
+  Widget buildBottomPlayerThemed(BuildContext context) {
+    if (currentIndex == null) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    final surah = surahs[currentIndex!];
+    return Container(
+      color: cs.primary.withValues(alpha: 0.12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  surah['name'],
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface),
+                  textDirection: TextDirection.rtl,
+                ),
+                StreamBuilder<Duration>(
+                  stream: _audioPlayer.positionStream,
+                  builder: (context, snapshot) {
+                    final position = snapshot.data ?? Duration.zero;
+                    final total = _audioPlayer.duration ?? Duration.zero;
+                    return Slider(
+                      value: position.inSeconds.toDouble(),
+                      max: total.inSeconds.toDouble() > 0 ? total.inSeconds.toDouble() : 1,
+                      activeColor: cs.primary,
+                      onChanged: (v) async {
+                        await _audioPlayer.seek(Duration(seconds: v.toInt()));
+                        saveLastPlayed(currentIndex!, position: Duration(seconds: v.toInt()));
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.skip_previous, color: cs.onSurface),
+            onPressed: currentIndex! > 0 ? () => playSurah(currentIndex! - 1) : null,
+          ),
+          IconButton(
+            icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow, color: cs.onSurface),
+            onPressed: () {
+              if (isPlaying) {
+                _audioPlayer.pause();
+                saveLastPlayed(currentIndex!, position: _audioPlayer.position);
+              } else {
+                playSurah(currentIndex!, position: _audioPlayer.position);
+              }
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.skip_next, color: cs.onSurface),
+            onPressed: currentIndex! < surahs.length - 1 ? () => playSurah(currentIndex! + 1) : null,
+          ),
+        ],
+      ),
+    );
+  }
+}

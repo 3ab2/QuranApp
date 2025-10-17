@@ -311,7 +311,7 @@ class _AdhanPageState extends State<AdhanPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: const TextStyle(fontFamily: 'Amiri')),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }
@@ -447,17 +447,17 @@ class _AdhanPageState extends State<AdhanPage> {
   }
 
   Widget _buildPrayerCard(String prayerName, String time, IconData icon, Color color) {
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: gold.withValues(alpha: 0.2),
+            color: theme.shadowColor.withValues(alpha: 0.08),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -474,14 +474,14 @@ class _AdhanPageState extends State<AdhanPage> {
           style: GoogleFonts.amiri(
             fontWeight: FontWeight.bold,
             fontSize: 18,
-            color: darkGreen,
+            color: cs.onSurface,
           ),
         ),
         subtitle: Text(
           time,
           style: GoogleFonts.amiri(
             fontSize: 16,
-            color: darkGreen.withValues(alpha: 0.7),
+            color: cs.onSurface.withValues(alpha: 0.7),
           ),
         ),
         trailing: Row(
@@ -510,14 +510,14 @@ class _AdhanPageState extends State<AdhanPage> {
                   return IconButton(
                     icon: Icon(
                       isPlaying && isCurrentSource ? Icons.stop : Icons.play_arrow,
-                      color: isPlaying && isCurrentSource ? Colors.red : darkGreen,
+                      color: isPlaying && isCurrentSource ? theme.colorScheme.error : cs.onSurface,
                     ),
                     onPressed: () => _playAdhan(prayerName),
                   );
                 },
               ),
             IconButton(
-              icon: const Icon(Icons.info_outline, color: darkGreen),
+              icon: Icon(Icons.info_outline, color: cs.onSurface),
               onPressed: () => _showPrayerInfo(prayerName),
             ),
           ],
@@ -556,20 +556,18 @@ class _AdhanPageState extends State<AdhanPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color softGreen = Color(0xFF90EE90);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
               const SizedBox(height: 20),
+
               // Back Button, Page Title, and Icons
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -580,7 +578,7 @@ class _AdhanPageState extends State<AdhanPage> {
                       child: Text(
                         'الأذان وأوقات الصلاة',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: theme.colorScheme.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -590,11 +588,11 @@ class _AdhanPageState extends State<AdhanPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.settings, color: darkGreen),
+                          icon: Icon(Icons.settings, color: theme.colorScheme.onSurface),
                           onPressed: _showSettingsDialog,
                         ),
                         IconButton(
-                          icon: const Icon(Icons.refresh, color: darkGreen),
+                          icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
                           onPressed: _loadPrayerTimes,
                         ),
                       ],
@@ -609,11 +607,11 @@ class _AdhanPageState extends State<AdhanPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const CircularProgressIndicator(color: darkGreen),
+                            CircularProgressIndicator(color: theme.colorScheme.primary),
                             const SizedBox(height: 16),
                             Text(
                               'جاري تحميل أوقات الصلاة...',
-                              style: GoogleFonts.amiri(color: darkGreen),
+                              style: GoogleFonts.amiri(color: theme.colorScheme.onSurface),
                             ),
                           ],
                         ),
@@ -623,19 +621,19 @@ class _AdhanPageState extends State<AdhanPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.location_off, size: 64, color: Colors.grey),
+                                Icon(Icons.location_off, size: 64, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                                 const SizedBox(height: 16),
                                 Text(
                                   'لم يتم تحديد موقعك',
                                   style: GoogleFonts.amiri(
                                     fontSize: 18,
-                                    color: darkGreen,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'اضغط على زر الإعدادات لاختيار الموقع',
-                                  style: GoogleFonts.amiri(color: darkGreen),
+                                  style: GoogleFonts.amiri(color: theme.colorScheme.onSurface),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 16),
@@ -647,8 +645,8 @@ class _AdhanPageState extends State<AdhanPage> {
                                     style: GoogleFonts.amiri(),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: darkGreen,
-                                    foregroundColor: Colors.white,
+                                    backgroundColor: theme.colorScheme.primary,
+                                    foregroundColor: theme.colorScheme.onPrimary,
                                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                   ),
                                 ),
@@ -663,13 +661,13 @@ class _AdhanPageState extends State<AdhanPage> {
                                   margin: const EdgeInsets.symmetric(horizontal: 16),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: softGreen.withValues(alpha: 0.3),
+                                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: gold.withValues(alpha: 0.5)),
+                                    border: Border.all(color: theme.colorScheme.secondary.withValues(alpha: 0.4)),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.location_on, color: darkGreen),
+                                      Icon(Icons.location_on, color: theme.colorScheme.onSurface),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Column(
@@ -680,13 +678,13 @@ class _AdhanPageState extends State<AdhanPage> {
                                               style: GoogleFonts.amiri(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 16,
-                                                color: darkGreen,
+                                                color: theme.colorScheme.onSurface,
                                               ),
                                             ),
                                             Text(
                                               _location!.country,
                                               style: GoogleFonts.amiri(
-                                                color: darkGreen.withValues(alpha: 0.7),
+                                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                               ),
                                             ),
                                           ],

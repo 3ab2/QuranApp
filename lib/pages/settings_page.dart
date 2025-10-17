@@ -11,11 +11,8 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
-
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color softGreen = Color(0xFF90EE90);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     List<String> reciters = [
       'ماهر المعيقلي',
@@ -32,7 +29,7 @@ class SettingsPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        // Use scaffold background from theme
         body: SafeArea(
           child: Column(
             children: [
@@ -48,7 +45,7 @@ class SettingsPage extends StatelessWidget {
                       child: Text(
                         'الإعدادات',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -66,11 +63,11 @@ class SettingsPage extends StatelessWidget {
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: gold.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -80,23 +77,23 @@ class SettingsPage extends StatelessWidget {
                         title: Text(
                           'تفعيل الأذان',
                           style: GoogleFonts.amiri(
-                            color: darkGreen,
+                            color: cs.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         value: settings.isAdhanEnabled,
-                        activeColor: darkGreen,
+                        activeColor: cs.primary,
                         onChanged: (val) => settings.setAdhanEnabled(val),
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: gold.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -106,23 +103,23 @@ class SettingsPage extends StatelessWidget {
                         title: Text(
                           'الوضع الليلي',
                           style: GoogleFonts.amiri(
-                            color: darkGreen,
+                            color: cs.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         value: settings.isDarkMode,
-                        activeColor: darkGreen,
+                        activeColor: cs.primary,
                         onChanged: (val) => settings.setDarkMode(val),
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: gold.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -132,12 +129,12 @@ class SettingsPage extends StatelessWidget {
                         title: Text(
                           'تذكير بالصلاة',
                           style: GoogleFonts.amiri(
-                            color: darkGreen,
+                            color: cs.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         value: settings.isReminderEnabled,
-                        activeColor: darkGreen,
+                        activeColor: cs.primary,
                         onChanged: (val) => settings.setReminderEnabled(val),
                       ),
                     ),
@@ -147,16 +144,16 @@ class SettingsPage extends StatelessWidget {
                       style: GoogleFonts.amiri(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: darkGreen,
+                        color: cs.onSurface,
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: gold),
+                        border: Border.all(color: cs.secondary),
                       ),
                       child: DropdownButton<String>(
                         value: settings.selectedReciter,
@@ -167,7 +164,7 @@ class SettingsPage extends StatelessWidget {
                             value: reciter,
                             child: Text(
                               reciter,
-                              style: GoogleFonts.amiri(color: darkGreen),
+                              style: GoogleFonts.amiri(color: cs.onSurface),
                             ),
                           );
                         }).toList(),
@@ -180,16 +177,16 @@ class SettingsPage extends StatelessWidget {
                       style: GoogleFonts.amiri(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: darkGreen,
+                        color: cs.onSurface,
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: gold),
+                        border: Border.all(color: cs.secondary),
                       ),
                       child: DropdownButton<String>(
                         value: settings.selectedLanguage,
@@ -200,7 +197,7 @@ class SettingsPage extends StatelessWidget {
                             value: lang,
                             child: Text(
                               lang,
-                              style: GoogleFonts.amiri(color: darkGreen),
+                              style: GoogleFonts.amiri(color: cs.onSurface),
                             ),
                           );
                         }).toList(),
@@ -213,18 +210,18 @@ class SettingsPage extends StatelessWidget {
                       style: GoogleFonts.amiri(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: darkGreen,
+                        color: cs.onSurface,
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: gold.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -236,8 +233,8 @@ class SettingsPage extends StatelessWidget {
                         max: 1,
                         divisions: 10,
                         label: '${(settings.volume * 100).round()}%',
-                        activeColor: darkGreen,
-                        inactiveColor: softGreen,
+                        activeColor: cs.primary,
+                        inactiveColor: cs.primary.withValues(alpha: 0.3),
                         onChanged: (val) => settings.setVolume(val),
                       ),
                     ),
@@ -248,7 +245,7 @@ class SettingsPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -263,7 +260,7 @@ class SettingsPage extends StatelessWidget {
                                 'تم حذف البيانات المؤقتة',
                                 style: GoogleFonts.amiri(),
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor: theme.colorScheme.error,
                             ),
                           );
                         },
@@ -273,8 +270,8 @@ class SettingsPage extends StatelessWidget {
                           style: GoogleFonts.amiri(),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
+                          backgroundColor: theme.colorScheme.error,
+                          foregroundColor: theme.colorScheme.onError,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

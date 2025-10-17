@@ -9,14 +9,13 @@ class StoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -32,7 +31,7 @@ class StoriesPage extends StatelessWidget {
                       child: Text(
                         'قصص الأنبياء',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -52,11 +51,11 @@ class StoriesPage extends StatelessWidget {
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: gold.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -69,14 +68,14 @@ class StoriesPage extends StatelessWidget {
                           style: GoogleFonts.amiri(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: darkGreen,
+                            color: cs.onSurface,
                           ),
                         ),
-                        trailing: const Icon(
+                        trailing: Icon(
                           Icons.arrow_forward_ios,
-                          color: Color(0xFF006400),
+                          color: cs.onSurface,
                         ),
-                        onTap: () => Navigator.pushNamed(context, '/story/${p["id"]}'),
+                        onTap: () => Navigator.pushNamed(context, '/story/${p["id"]}')
                       ),
                     );
                   },

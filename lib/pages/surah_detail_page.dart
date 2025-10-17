@@ -23,6 +23,7 @@ class _VerseNumberState extends State<VerseNumber> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return MouseRegion(
       onEnter: (_) => setState(() => hovered = true),
       onExit: (_) => setState(() => hovered = false),
@@ -30,14 +31,14 @@ class _VerseNumberState extends State<VerseNumber> {
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.green.shade200.withValues(alpha: 128 / 255),
+          color: cs.primary.withValues(alpha: 0.5),
         ),
         child: Stack(
           children: [
             Center(
               child: Text(
                 widget.verse['verse_key'].split(':')[1],
-                style: TextStyle(fontSize: widget.fontSize * 0.7, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: widget.fontSize * 0.7, fontWeight: FontWeight.bold, color: cs.onPrimary),
               ),
             ),
             Positioned(
@@ -51,12 +52,12 @@ class _VerseNumberState extends State<VerseNumber> {
                   child: Container(
                     padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: cs.surface.withValues(alpha: 0.8),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       widget.isFav ? Icons.favorite : Icons.favorite_border,
-                      color: widget.isFav ? Colors.red : Colors.grey,
+                      color: widget.isFav ? Colors.red : cs.onSurface,
                       size: 12,
                     ),
                   ),
@@ -140,12 +141,12 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final cs = Theme.of(context).colorScheme;
+    final gold = cs.secondary;
+    final darkGreen = cs.primary;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: cs.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -156,9 +157,47 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: darkGreen),
-                    onPressed: () => Navigator.of(context).pop(),
+                  if (!isSearching)
+                    IconButton(
+                      icon: Icon(Icons.search, color: darkGreen),
+                      onPressed: () {
+                        setState(() {
+                          isSearching = true;
+                        });
+                      },
+                    ),
+                  if (isSearching)
+                    IconButton(
+                      icon: Icon(Icons.close, color: darkGreen),
+                      onPressed: () {
+                        setState(() {
+                          isSearching = false;
+                          searchQuery = '';
+                          filteredVerses = verses;
+                        });
+                      },
+                    ),
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: darkGreen),
+                    onSelected: (value) {
+                      if (value == 'increase_font') {
+                        setState(() {
+                          fontSize += 2;
+                        });
+                        _saveFontSize();
+                      } else if (value == 'decrease_font') {
+                        setState(() {
+                          fontSize = max(14.0, fontSize - 2);
+                        });
+                        _saveFontSize();
+                      }
+                      // Handle other menu actions
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'increase_font', child: Text('Increase Font Size')),
+                      const PopupMenuItem(value: 'decrease_font', child: Text('Decrease Font Size')),
+                      // Add more menu items
+                    ],
                   ),
                   Expanded(
                     child: isSearching
@@ -185,50 +224,9 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                             textAlign: TextAlign.center,
                           ),
                   ),
-                  if (!isSearching)
-                    IconButton(
-                      icon: const Icon(Icons.search, color: darkGreen),
-                      onPressed: () {
-                        setState(() {
-                          isSearching = true;
-                        });
-                      },
-                    ),
-                  if (isSearching)
-                    IconButton(
-                      icon: const Icon(Icons.close, color: darkGreen),
-                      onPressed: () {
-                        setState(() {
-                          isSearching = false;
-                          searchQuery = '';
-                          filteredVerses = verses;
-                        });
-                      },
-                    ),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: darkGreen),
-                    onSelected: (value) {
-                      if (value == 'increase_font') {
-                        setState(() {
-                          fontSize += 2;
-                        });
-                        _saveFontSize();
-                      } else if (value == 'decrease_font') {
-                        setState(() {
-                          fontSize = max(14.0, fontSize - 2);
-                        });
-                        _saveFontSize();
-                      }
-                      // Handle other menu actions
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'increase_font', child: Text('Increase Font Size')),
-                      const PopupMenuItem(value: 'decrease_font', child: Text('Decrease Font Size')),
-                      const PopupMenuItem(value: 'about', child: Text('About')),
-                      const PopupMenuItem(value: 'help', child: Text('Help')),
-                      const PopupMenuItem(value: 'rate', child: Text('Rate Us')),
-                      const PopupMenuItem(value: 'sources', child: Text('Trusted Sources')),
-                    ],
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward, color: darkGreen),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
@@ -273,7 +271,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                                         text: verse['text'],
                                         style: GoogleFonts.amiri(
                                           fontSize: fontSize,
-                                          color: const Color.fromARGB(255, 24, 27, 24),
+                                          color: cs.onSurface,
                                           shadows: [
                                             Shadow(
                                               color: gold.withValues(alpha: 0.3),
@@ -287,7 +285,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                                         text: ' (${verse['verse_key'].split(':')[1]}) ',
                                         style: GoogleFonts.amiri(
                                           fontSize: fontSize,
-                                          color: const Color.fromARGB(255, 5, 122, 15),
+                                          color: cs.primary,
                                           shadows: [
                                             Shadow(
                                               color: gold.withValues(alpha: 0.3),
@@ -320,7 +318,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                         ),
                       ],
                     )
-                  : const Center(child: CircularProgressIndicator(color: darkGreen)),
+                  : Center(child: CircularProgressIndicator(color: darkGreen)),
             ),
           ],
         ),

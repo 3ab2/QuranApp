@@ -13,7 +13,6 @@ import 'data/prophets_data.dart';
 import 'pages/surah_detail_page.dart';
 import 'data/surah_data.dart';
 import 'pages/scientific_miracles_page.dart';
-import 'pages/search_surah_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +36,8 @@ class QuranApp extends StatelessWidget {
         return MaterialApp(
           title: 'Quran App',
           debugShowCheckedModeBanner: false,
-          theme: settings.getThemeData(),
+          theme: settings.getLightThemeData(),
+          darkTheme: settings.getDarkThemeData(),
           themeMode: settings.themeMode,
           home: const HomePage(),
           routes: {
@@ -51,7 +51,6 @@ class QuranApp extends StatelessWidget {
             for (var p in prophets)
               '/story/${p["id"]}': (context) => StoryDetailPage(id: p["id"]),
             '/scientific-miracles': (context) => const ScientificMiraclesPage(),
-            '/search-surah': (context) => const SearchSurahPage(),
             '/settings': (context) => const SettingsPage(),
 
           },

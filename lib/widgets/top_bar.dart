@@ -7,17 +7,16 @@ class TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     String todayDate = DateFormat('MMMM dd, yyyy').format(DateTime.now());
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        border: Border(bottom: BorderSide(color: gold.withAlpha(51), width: 1)),
+        color: cs.surface,
+        border: Border(bottom: BorderSide(color: theme.dividerColor, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,13 +24,13 @@ class TopBar extends StatelessWidget {
           Text(
             todayDate,
             style: GoogleFonts.amiri(
-              color: darkGreen,
+              color: cs.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: darkGreen),
+            icon: Icon(Icons.more_vert, color: cs.onSurface),
             onSelected: (value) {
               // Handle menu selection
               switch (value) {
@@ -50,10 +49,10 @@ class TopBar extends StatelessWidget {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'about', child: Text('About the App')),
-              const PopupMenuItem(value: 'help', child: Text('Help')),
-              const PopupMenuItem(value: 'rate', child: Text('Rate Us')),
-              const PopupMenuItem(value: 'trusted', child: Text('Trusted Sources')),
+              PopupMenuItem(value: 'about', child: Text('About the App', style: TextStyle(color: cs.onSurface))),
+              PopupMenuItem(value: 'help', child: Text('Help', style: TextStyle(color: cs.onSurface))),
+              PopupMenuItem(value: 'rate', child: Text('Rate Us', style: TextStyle(color: cs.onSurface))),
+              PopupMenuItem(value: 'trusted', child: Text('Trusted Sources', style: TextStyle(color: cs.onSurface))),
             ],
           ),
         ],

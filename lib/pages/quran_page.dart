@@ -9,14 +9,12 @@ class QuranPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -32,7 +30,7 @@ class QuranPage extends StatelessWidget {
                       child: Text(
                         'القرآن الكريم',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -51,11 +49,11 @@ class QuranPage extends StatelessWidget {
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: gold.withValues(alpha: 0.2),
+                            color: theme.shadowColor.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -66,13 +64,13 @@ class QuranPage extends StatelessWidget {
                           '${surah["number"]}. ${surah["name"]}',
                           style: GoogleFonts.amiri(
                             fontSize: 18,
-                            color: darkGreen,
+                            color: cs.onSurface,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        trailing: const Icon(
+                        trailing: Icon(
                           Icons.arrow_forward_ios,
-                          color: darkGreen,
+                          color: cs.onSurface,
                         ),
                         onTap: () => Navigator.pushNamed(
                           context,
@@ -89,4 +87,4 @@ class QuranPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

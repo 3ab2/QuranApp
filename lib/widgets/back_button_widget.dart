@@ -5,10 +5,10 @@ class BackButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color darkGreen = Color(0xFF006400);
+    final cs = Theme.of(context).colorScheme;
 
     return IconButton(
-      icon: const Icon(Icons.arrow_back, color: darkGreen),
+      icon: Icon(Icons.arrow_back, color: cs.onSurface),
       onPressed: () {
         if (Navigator.canPop(context)) {
           Navigator.pop(context);

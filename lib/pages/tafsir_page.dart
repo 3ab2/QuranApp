@@ -53,14 +53,13 @@ class _TafsirPageState extends State<TafsirPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -76,7 +75,7 @@ class _TafsirPageState extends State<TafsirPage> {
                       child: Text(
                         'تفسير الجلالين',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -93,11 +92,11 @@ class _TafsirPageState extends State<TafsirPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const CircularProgressIndicator(color: darkGreen),
+                            CircularProgressIndicator(color: cs.primary),
                             const SizedBox(height: 16),
                             Text(
                               'جاري تحميل التفسير...',
-                              style: GoogleFonts.amiri(color: darkGreen),
+                              style: GoogleFonts.amiri(color: cs.onSurface),
                             ),
                           ],
                         ),
@@ -115,7 +114,7 @@ class _TafsirPageState extends State<TafsirPage> {
                                     errorMessage!,
                                     style: GoogleFonts.amiri(
                                       fontSize: 18,
-                                      color: darkGreen,
+                                      color: cs.onSurface,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -134,8 +133,8 @@ class _TafsirPageState extends State<TafsirPage> {
                                       style: GoogleFonts.amiri(),
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: darkGreen,
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: cs.primary,
+                                      foregroundColor: cs.onPrimary,
                                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                     ),
                                   ),
@@ -151,11 +150,11 @@ class _TafsirPageState extends State<TafsirPage> {
                                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: theme.cardColor,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: gold.withValues(alpha: 0.2),
+                                      color: theme.shadowColor.withValues(alpha: 0.08),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -169,7 +168,7 @@ class _TafsirPageState extends State<TafsirPage> {
                                       style: GoogleFonts.amiri(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18,
-                                        color: darkGreen,
+                                        color: cs.onSurface,
                                       ),
                                       textDirection: TextDirection.rtl,
                                     ),
@@ -179,7 +178,7 @@ class _TafsirPageState extends State<TafsirPage> {
                                       textDirection: TextDirection.rtl,
                                       style: GoogleFonts.amiri(
                                         fontSize: 16,
-                                        color: darkGreen.withValues(alpha: 0.8),
+                                        color: cs.onSurface.withValues(alpha: 0.85),
                                       ),
                                     ),
                                   ],

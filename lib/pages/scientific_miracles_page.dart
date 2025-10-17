@@ -43,10 +43,10 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
     setState(() {
       filtered = miracles.where((m) {
         final matchesText = search.isEmpty ||
-          m.verse.contains(search) ||
-          m.surah.contains(search) ||
-          m.explanation.contains(search) ||
-          m.category.contains(search);
+            m.verse.contains(search) ||
+            m.surah.contains(search) ||
+            m.explanation.contains(search) ||
+            m.category.contains(search);
         final matchesCat = selectedCategory == null || m.category == selectedCategory;
         return matchesText && matchesCat;
       }).toList();
@@ -57,19 +57,19 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
               const SizedBox(height: 20),
+
               // Back Button and Page Title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -80,7 +80,7 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                       child: Text(
                         'الإعجاز العلمي في القرآن',
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -97,12 +97,12 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'ابحث عن آية أو شرح أو تصنيف...',
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(18))),
+                          prefixIcon: const Icon(Icons.search),
+                          border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(18))),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: theme.cardColor,
                         ),
                         onChanged: (val) {
                           search = val;
@@ -115,114 +115,115 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: ChoiceChip(
-                              label: Text('الكل'),
-                              selected: false,
-                              selectedColor: Color(0xFF006400),
-                              backgroundColor: Colors.white,
+                              label: Text('الكل', style: GoogleFonts.amiri(color: cs.onSurface)),
+                              selected: selectedCategory == null,
+                              selectedColor: cs.primary,
+                              backgroundColor: theme.cardColor,
+                              onSelected: (_) { setState(() { selectedCategory = null; filter(); }); },
                             ),
                           ),
                           ...categories.map((cat) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: ChoiceChip(
-                              label: Text(cat, style: GoogleFonts.amiri(color: selectedCategory == cat ? Colors.white : darkGreen)),
-                              selected: selectedCategory == cat,
-                              selectedColor: darkGreen,
-                              backgroundColor: Colors.white,
-                              onSelected: (_) {
-                                setState(() { selectedCategory = cat; filter(); });
-                              },
-                            ),
-                          ))
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: ChoiceChip(
+                                  label: Text(cat, style: GoogleFonts.amiri(color: selectedCategory == cat ? cs.onPrimary : cs.onSurface)),
+                                  selected: selectedCategory == cat,
+                                  selectedColor: cs.primary,
+                                  backgroundColor: theme.cardColor,
+                                  onSelected: (_) {
+                                    setState(() { selectedCategory = cat; filter(); });
+                                  },
+                                ),
+                              ))
                         ],
                       ),
                     ),
                     const SizedBox(height: 8),
                     Expanded(
                       child: filtered.isEmpty
-                        ? Center(
-                            child: Text(
-                              'لا توجد نتائج',
-                              style: GoogleFonts.amiri(
-                                fontSize: 18,
-                                color: darkGreen,
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: filtered.length,
-                            itemBuilder: (context, index) {
-                              final miracle = filtered[index];
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: gold.withValues(alpha: 0.2),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                          ? Center(
+                              child: Text(
+                                'لا توجد نتائج',
+                                style: GoogleFonts.amiri(
+                                  fontSize: 18,
+                                  color: cs.onSurface,
                                 ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(16),
-                                  title: Text(
-                                    miracle.verse,
-                                    style: GoogleFonts.amiri(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: darkGreen,
-                                    ),
-                                    textDirection: TextDirection.rtl,
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'سورة ${miracle.surah} - آية ${miracle.ayah}',
-                                        style: GoogleFonts.amiri(
-                                          color: darkGreen.withValues(alpha: 0.7),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        miracle.explanation,
-                                        style: GoogleFonts.amiri(
-                                          fontSize: 15,
-                                          color: darkGreen.withValues(alpha: 0.8),
-                                        ),
-                                        textDirection: TextDirection.rtl,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0x8090EE90),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Text(
-                                          miracle.category,
-                                          style: GoogleFonts.amiri(
-                                            fontSize: 13,
-                                            color: darkGreen,
-                                          ),
-                                        ),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                final miracle = filtered[index];
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: theme.cardColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: theme.shadowColor.withValues(alpha: 0.08),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
                                       ),
                                     ],
                                   ),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.volume_up, color: darkGreen),
-                                    onPressed: () => playAudio(miracle.audio),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.all(16),
+                                    title: Text(
+                                      miracle.verse,
+                                      style: GoogleFonts.amiri(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: cs.onSurface,
+                                      ),
+                                      textDirection: TextDirection.rtl,
+                                    ),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'سورة ${miracle.surah} - آية ${miracle.ayah}',
+                                          style: GoogleFonts.amiri(
+                                        color: cs.onSurface.withValues(alpha: 0.7),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          miracle.explanation,
+                                          style: GoogleFonts.amiri(
+                                            fontSize: 15,
+                                            color: cs.onSurface.withValues(alpha: 0.85),
+                                          ),
+                                          textDirection: TextDirection.rtl,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: cs.primary.withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            miracle.category,
+                                            style: GoogleFonts.amiri(
+                                              fontSize: 13,
+                                              color: cs.onSurface,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: IconButton(
+                                      icon: Icon(Icons.volume_up, color: cs.onSurface),
+                                      onPressed: () => playAudio(miracle.audio),
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
@@ -239,4 +240,5 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
     _audioPlayer.dispose();
     super.dispose();
   }
-} 
+}
+ 

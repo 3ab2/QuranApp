@@ -57,14 +57,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
   @override
   Widget build(BuildContext ctx) {
-    const Color backgroundColor = Colors.white;
-    const Color gold = Color(0xFFD4AF37);
-    const Color darkGreen = Color(0xFF006400);
+    final theme = Theme.of(ctx);
+    final cs = theme.colorScheme;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -80,7 +79,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                       child: Text(
                         p["name"],
                         style: GoogleFonts.amiri(
-                          color: darkGreen,
+                          color: cs.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -116,8 +115,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                           ),
                           onPressed: _playAudio,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
+                            backgroundColor: theme.colorScheme.error,
+                            foregroundColor: theme.colorScheme.onError,
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -130,11 +129,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
+                            boxShadow: [
                                 BoxShadow(
-                                  color: gold.withValues(alpha: 0.2),
+                                  color: theme.shadowColor.withValues(alpha: 0.08),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -145,7 +144,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                               style: GoogleFonts.amiri(
                                 fontSize: 18,
                                 height: 1.6,
-                                color: darkGreen,
+                                color: cs.onSurface,
                               ),
                               textDirection: TextDirection.rtl,
                             ),
@@ -156,11 +155,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.cardColor,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: gold.withValues(alpha: 0.2),
+                              color: theme.shadowColor.withValues(alpha: 0.08),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -170,13 +169,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                           children: [
                             Checkbox(
                               value: read,
-                              activeColor: darkGreen,
+                              activeColor: cs.primary,
                               onChanged: (_) => _toggleRead(),
                             ),
                             Text(
                               'تمت القراءة',
                               style: GoogleFonts.amiri(
-                                color: darkGreen,
+                                color: cs.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
