@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/download_provider.dart';
 import 'pages/home_page.dart';
 import 'pages/quran_page.dart';
 import 'pages/adhan_page.dart';
@@ -18,9 +19,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final settingsProvider = SettingsProvider();
   await settingsProvider.loadSettings();
+  final downloadProvider = DownloadProvider();
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => settingsProvider,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => settingsProvider),
+        ChangeNotifierProvider(create: (context) => downloadProvider),
+      ],
       child: const QuranApp(),
     ),
   );
