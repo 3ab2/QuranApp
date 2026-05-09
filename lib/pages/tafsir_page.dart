@@ -5,12 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 
 import '../data/surah_data.dart';
+import '../models/scientific_miracle_model.dart';
 import '../models/tafsir_entry.dart';
 import '../models/tafsir_search_hit.dart';
+import '../services/miracle_service.dart';
 import '../services/quran_text_service.dart';
 import '../services/tafsir/tafsir_repository.dart';
 import '../services/tafsir/tafsir_search_service.dart';
 import '../ui/app_tokens.dart';
+import '../widgets/back_button_widget.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
 
@@ -27,20 +30,25 @@ class TafsirPage extends StatefulWidget {
 }
 
 class _TafsirPageState extends State<TafsirPage> {
+  static const double _kEstimatedCardHeight = 285;
+
   final _repo = TafsirRepository();
   late final TafsirSearchService _searchService = TafsirSearchService(repository: _repo);
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _jumpAyahController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   final Map<String, GlobalKey> _itemKeys = {};
 
   Timer? _debounce;
+  int _searchGeneration = 0;
 
   /// Dropdown anchor and first surah in the current feed.
   int _anchorSurah = 1;
 
   List<TafsirEntry> _feed = [];
+  List<ScientificMiracle> _miracles = [];
   int _lastAppendedSurah = 0;
 
   bool _bootLoading = true;
@@ -50,6 +58,7 @@ class _TafsirPageState extends State<TafsirPage> {
   List<TafsirSearchHit> _searchHits = [];
   bool _searchActive = false;
   bool _searchBusy = false;
+  bool _searchExpanded = false;
 
   @override
   void initState() {
@@ -60,7 +69,11 @@ class _TafsirPageState extends State<TafsirPage> {
   }
 
   Future<void> _startBoot() async {
+    final miraclesFuture = MiracleService.loadMiracles();
     await QuranTextService.instance.ensureLoaded();
+    final miracles = await miraclesFuture;
+    if (!mounted) return;
+    setState(() => _miracles = miracles);
     await _resetFeedFromSurah(
       _anchorSurah,
       scrollToAyah: widget.ayahNumber,
@@ -129,7 +142,9 @@ class _TafsirPageState extends State<TafsirPage> {
       });
       final ay = scrollToAyah;
       if (ay != null && ay >= 1) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAyahVisible(surah, ay));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          unawaited(_scrollToAyahInFeed(surah, ay, showErrorSnack: false));
+        });
       }
     } catch (_) {
       if (!mounted) return;
@@ -164,24 +179,86 @@ class _TafsirPageState extends State<TafsirPage> {
     }
   }
 
-  void _ensureAyahVisible(int surah, int ayah) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  /// [ListView.builder] does not build off-screen children, so [GlobalKey.currentContext]
+  /// is often null until we scroll near the target. Nudge scroll offset iteratively, then
+  /// [Scrollable.ensureVisible].
+  Future<void> _scrollToAyahInFeed(int surah, int ayah, {required bool showErrorSnack}) async {
+    if (_bootLoading || _feed.isEmpty) {
+      debugPrint('[TafsirPage] jump skipped (loading or empty feed)');
+      return;
+    }
+
+    final idx = _feed.indexWhere((e) => e.surahNumber == surah && e.ayahNumber == ayah);
+    if (idx < 0) {
+      debugPrint('[TafsirPage] jump MISS surah=$surah ayah=$ayah feedLen=${_feed.length}');
+      if (showErrorSnack && mounted) {
+        final m = ScaffoldMessenger.maybeOf(context);
+        if (m != null) {
+          m.showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)!.tafsirJumpNotInFeed)),
+          );
+        }
+      }
+      return;
+    }
+
+    final sc = _scrollController;
+
+    for (var attempt = 0; attempt < 36; attempt++) {
       if (!mounted) return;
+      if (!sc.hasClients) {
+        await Future<void>.delayed(const Duration(milliseconds: 16));
+        continue;
+      }
+
+      final maxScroll = sc.position.maxScrollExtent;
+      final wave = attempt * 0.2;
+      var offset = idx * _kEstimatedCardHeight;
+      if (attempt > 0) {
+        final dir = attempt.isEven ? 1.0 : -1.0;
+        offset += dir * _kEstimatedCardHeight * 0.5 * (1 + wave);
+      }
+      offset = offset.clamp(0.0, maxScroll);
+      sc.jumpTo(offset);
+
+      await Future<void>.delayed(const Duration(milliseconds: 12));
+      await Future<void>.delayed(Duration.zero);
+
       final ctx = _keyFor(surah, ayah).currentContext;
-      if (ctx != null) {
-        Scrollable.ensureVisible(
-          ctx,
-          alignment: 0.08,
-          duration: const Duration(milliseconds: 380),
-          curve: Curves.easeOutCubic,
+      if (ctx != null && ctx.mounted) {
+        try {
+          Scrollable.ensureVisible(
+            ctx,
+            alignment: 0.06,
+            duration: const Duration(milliseconds: 340),
+            curve: Curves.easeOutCubic,
+          );
+        } catch (e, st) {
+          debugPrint('[TafsirPage] ensureVisible error $e\n$st');
+        }
+        debugPrint('[TafsirPage] jump OK surah=$surah ayah=$ayah idx=$idx attempts=$attempt');
+        return;
+      }
+      if (attempt % 8 == 7) {
+        debugPrint('[TafsirPage] jump retry attempt=$attempt offset=$offset maxScroll=$maxScroll');
+      }
+    }
+
+    debugPrint('[TafsirPage] jump FAILED surah=$surah ayah=$ayah idx=$idx');
+    if (showErrorSnack && mounted) {
+      final m = ScaffoldMessenger.maybeOf(context);
+      if (m != null) {
+        m.showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.tafsirJumpNotInFeed)),
         );
       }
-    });
+    }
   }
 
   void _onSearchChanged(String raw) {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 380), () async {
+    _debounce = Timer(const Duration(milliseconds: 420), () async {
+      final gen = ++_searchGeneration;
       final q = raw.trim();
       if (!mounted) return;
       if (q.isEmpty) {
@@ -192,14 +269,23 @@ class _TafsirPageState extends State<TafsirPage> {
         });
         return;
       }
-      setState(() => _searchBusy = true);
+      setState(() {
+        _searchBusy = true;
+        _searchHits = [];
+      });
+
+      final feedSnapshot = List<TafsirEntry>.from(_feed);
+      final miraclesSnapshot = _miracles;
+
       final hits = await _searchService.search(
         q,
         surahFilter: null,
         source: TafsirSource.alMuyassar,
-        scientificMiracles: null,
+        scientificMiracles: miraclesSnapshot.isEmpty ? null : miraclesSnapshot,
+        feedEntries: feedSnapshot,
       );
-      if (!mounted) return;
+
+      if (!mounted || gen != _searchGeneration) return;
       setState(() {
         _searchActive = true;
         _searchHits = hits;
@@ -211,22 +297,59 @@ class _TafsirPageState extends State<TafsirPage> {
   void _onSurahDropdown(int? n) {
     if (n == null || _bootLoading) return;
     _jumpAyahController.clear();
-    _resetFeedFromSurah(n);
+    unawaited(_resetFeedFromSurah(n));
   }
 
   void _onJumpAyah() {
-    final v = int.tryParse(_jumpAyahController.text.trim());
-    if (v == null || v < 1) return;
-    final max = _verseCount(_anchorSurah);
-    if (max > 0 && v > max) return;
-    _ensureAyahVisible(_anchorSurah, v);
+    FocusScope.of(context).unfocus();
+    final l10n = AppLocalizations.of(context)!;
+    final parsed = int.tryParse(_jumpAyahController.text.trim());
+    if (parsed == null || parsed < 1) {
+      debugPrint('[TafsirPage] Go: invalid or empty ayah');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.tafsirJumpInvalidAyah)),
+      );
+      return;
+    }
+    final maxV = _verseCount(_anchorSurah);
+    if (maxV > 0 && parsed > maxV) {
+      debugPrint('[TafsirPage] Go: ayah $parsed > max $maxV for surah $_anchorSurah');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.tafsirJumpInvalidAyah)),
+      );
+      return;
+    }
+    debugPrint('[TafsirPage] Go: surah=$_anchorSurah ayah=$parsed');
+    unawaited(_scrollToAyahInFeed(_anchorSurah, parsed, showErrorSnack: true));
+  }
+
+  void _toggleSearchPanel() {
+    if (_searchExpanded) {
+      _debounce?.cancel();
+      _searchController.clear();
+      _searchFocusNode.unfocus();
+      setState(() {
+        _searchExpanded = false;
+        _searchActive = false;
+        _searchHits = [];
+        _searchBusy = false;
+      });
+    } else {
+      setState(() => _searchExpanded = true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _searchFocusNode.requestFocus();
+      });
+    }
   }
 
   Future<void> _openHit(TafsirSearchHit hit) async {
+    _searchFocusNode.unfocus();
     _searchController.clear();
     setState(() {
+      _searchExpanded = false;
       _searchActive = false;
       _searchHits = [];
+      _searchBusy = false;
     });
     await _resetFeedFromSurah(hit.surahNumber, scrollToAyah: hit.ayahNumber);
   }
@@ -242,7 +365,24 @@ class _TafsirPageState extends State<TafsirPage> {
     _scrollController.dispose();
     _searchController.dispose();
     _jumpAyahController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  InputDecoration _compactFieldDecoration(
+    ThemeData theme, {
+    String? label,
+    String? hint,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      isDense: true,
+      filled: true,
+      fillColor: theme.cardColor,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    );
   }
 
   @override
@@ -262,108 +402,149 @@ class _TafsirPageState extends State<TafsirPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const TopBar(),
-              const SizedBox(height: AppSpacing.lg),
-              AppPageHeader(title: l10n.tafsirTitle),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                padding: const EdgeInsets.fromLTRB(AppSpacing.sm, 6, AppSpacing.md, 2),
+                child: Text(
+                  l10n.tafsirSourceMuyassarNote,
+                  textDirection: TextDirection.rtl,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.amiri(
+                    fontSize: 11,
+                    height: 1.2,
+                    color: cs.onSurface.withValues(alpha: 0.65),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: AppSpacing.sm, right: AppSpacing.md, bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.tafsirSourceMuyassarNote,
-                      textDirection: TextDirection.rtl,
-                      style: GoogleFonts.amiri(
-                        fontSize: 13,
-                        color: cs.onSurface.withValues(alpha: 0.72),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    DropdownButtonFormField<int>(
-                      value: _anchorSurah,
-                      decoration: InputDecoration(
-                        labelText: l10n.tafsirSelectSurah,
-                        filled: true,
-                        fillColor: theme.cardColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      isExpanded: true,
-                      items: surahs
-                          .map(
-                            (s) => DropdownMenuItem<int>(
-                              value: s['number'] as int,
-                              child: Text(
-                                '${s['number']}. ${s['name']}',
-                                style: GoogleFonts.amiri(),
-                                textDirection: TextDirection.rtl,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: _bootLoading ? null : _onSurahDropdown,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _jumpAyahController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: l10n.tafsirAyahNumber,
-                              filled: true,
-                              fillColor: theme.cardColor,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton(
-                          onPressed: _bootLoading ? null : _onJumpAyah,
-                          child: Text(l10n.tafsirGo),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: l10n.tafsirSearchHint,
-                        prefixIcon: _searchBusy
-                            ? const Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                    const BackButtonWidget(),
+                    Expanded(
+                      flex: 5,
+                      child: DropdownButtonFormField<int>(
+                        value: _anchorSurah,
+                        isExpanded: true,
+                        isDense: true,
+                        decoration: _compactFieldDecoration(theme, label: l10n.tafsirSelectSurah),
+                        style: GoogleFonts.amiri(fontSize: 14, color: cs.onSurface),
+                        items: surahs
+                            .map(
+                              (s) => DropdownMenuItem<int>(
+                                value: s['number'] as int,
+                                child: Text(
+                                  '${s['number']}. ${s['name']}',
+                                  style: GoogleFonts.amiri(fontSize: 14),
+                                  textDirection: TextDirection.rtl,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              )
-                            : const Icon(Icons.search),
-                        filled: true,
-                        fillColor: theme.cardColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: _bootLoading ? null : _onSurahDropdown,
                       ),
-                      onChanged: _onSearchChanged,
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      l10n.tafsirSearchCacheHint,
-                      textDirection: TextDirection.rtl,
-                      style: GoogleFonts.amiri(
-                        fontSize: 12,
-                        color: cs.onSurface.withValues(alpha: 0.6),
+                    const SizedBox(width: 4),
+                    SizedBox(
+                      width: 52,
+                      child: TextField(
+                        controller: _jumpAyahController,
+                        enabled: !_bootLoading,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        textInputAction: TextInputAction.go,
+                        style: GoogleFonts.amiri(fontSize: 15, color: cs.onSurface),
+                        decoration: _compactFieldDecoration(
+                          theme,
+                          hint: l10n.tafsirAyahNumber,
+                        ).copyWith(labelText: null),
+                        onSubmitted: (_) => _onJumpAyah(),
                       ),
+                    ),
+                    const SizedBox(width: 4),
+                    FilledButton(
+                      onPressed: _bootLoading ? null : _onJumpAyah,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: Text(l10n.tafsirGo, style: const TextStyle(fontSize: 13)),
+                    ),
+                    IconButton(
+                      tooltip: l10n.tafsirSearchHint,
+                      onPressed: _bootLoading ? null : _toggleSearchPanel,
+                      icon: Icon(_searchExpanded ? Icons.close : Icons.search, color: cs.primary),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 280),
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                child: _searchExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.md, 4, AppSpacing.md, 2),
+                        child: TextField(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          textDirection: TextDirection.rtl,
+                          style: GoogleFonts.amiri(fontSize: 15),
+                          decoration: InputDecoration(
+                            hintText: l10n.tafsirSearchHint,
+                            isDense: true,
+                            filled: true,
+                            fillColor: theme.cardColor,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            prefixIcon: _searchBusy
+                                ? const Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    ),
+                                  )
+                                : const Icon(Icons.search, size: 22),
+                            suffixIcon: ListenableBuilder(
+                              listenable: _searchController,
+                              builder: (context, _) {
+                                if (_searchController.text.isEmpty) return const SizedBox(width: 0, height: 0);
+                                return IconButton(
+                                  icon: const Icon(Icons.clear, size: 20),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _onSearchChanged('');
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          onChanged: _onSearchChanged,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              if (!_searchExpanded)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  child: Text(
+                    l10n.tafsirSearchCacheHint,
+                    textDirection: TextDirection.rtl,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.amiri(
+                      fontSize: 10,
+                      color: cs.onSurface.withValues(alpha: 0.55),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 4),
               Expanded(
                 child: AnimatedSwitcher(
                   duration: AppMotion.fast,
@@ -389,7 +570,7 @@ class _TafsirPageState extends State<TafsirPage> {
 
   Widget _buildSearchResults(ColorScheme cs) {
     final l10n = AppLocalizations.of(context)!;
-    if (_searchHits.isEmpty) {
+    if (_searchHits.isEmpty && !_searchBusy) {
       return Center(
         key: const ValueKey('empty-search'),
         child: Padding(
@@ -402,16 +583,33 @@ class _TafsirPageState extends State<TafsirPage> {
         ),
       );
     }
-    return ListView.builder(
+    if (_searchHits.isEmpty && _searchBusy) {
+      return Center(
+        key: const ValueKey('search-loading'),
+        child: CircularProgressIndicator(color: cs.primary),
+      );
+    }
+    return Column(
       key: const ValueKey('search'),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      itemCount: _searchHits.length,
-      itemBuilder: (context, i) {
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (_searchBusy)
+          LinearProgressIndicator(
+            minHeight: 2,
+            color: cs.primary,
+            backgroundColor: cs.primary.withValues(alpha: 0.12),
+          ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            itemCount: _searchHits.length,
+            itemBuilder: (context, i) {
         final h = _searchHits[i];
         return Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: AppCard(
             padding: const EdgeInsets.all(AppSpacing.md),
+            margin: EdgeInsets.zero,
             child: InkWell(
               onTap: () => _openHit(h),
               borderRadius: BorderRadius.circular(12),
@@ -466,7 +664,10 @@ class _TafsirPageState extends State<TafsirPage> {
             ),
           ),
         );
-      },
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -484,6 +685,7 @@ class _TafsirPageState extends State<TafsirPage> {
     return ListView.builder(
       key: const ValueKey('tafsir-feed'),
       controller: _scrollController,
+      cacheExtent: 4000,
       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
       itemCount: _feed.length + (showFooter ? 1 : 0),
       itemBuilder: (context, index) {
@@ -501,46 +703,49 @@ class _TafsirPageState extends State<TafsirPage> {
         }
 
         final e = _feed[index];
-        return Padding(
+        return RepaintBoundary(
           key: _keyFor(e.surahNumber, e.ayahNumber),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-          child: AppCard(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  '${e.surahName} · ﴿${e.ayahNumber}﴾',
-                  style: GoogleFonts.amiri(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
-                    color: cs.onSurface,
-                  ),
-                  textDirection: TextDirection.rtl,
-                ),
-                if (e.ayahText.isNotEmpty) ...[
-                  const SizedBox(height: 10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+            child: AppCard(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              margin: EdgeInsets.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   Text(
-                    e.ayahText,
+                    '${e.surahName} · ﴿${e.ayahNumber}﴾',
+                    style: GoogleFonts.amiri(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: cs.onSurface,
+                    ),
+                    textDirection: TextDirection.rtl,
+                  ),
+                  if (e.ayahText.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      e.ayahText,
+                      textDirection: TextDirection.rtl,
+                      style: GoogleFonts.amiri(
+                        fontSize: 17,
+                        height: 1.5,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  SelectableText(
+                    e.tafsirText,
                     textDirection: TextDirection.rtl,
                     style: GoogleFonts.amiri(
-                      fontSize: 17,
-                      height: 1.5,
-                      color: cs.primary,
+                      fontSize: 16,
+                      height: 1.55,
+                      color: cs.onSurface.withValues(alpha: 0.92),
                     ),
                   ),
                 ],
-                const SizedBox(height: 12),
-                SelectableText(
-                  e.tafsirText,
-                  textDirection: TextDirection.rtl,
-                  style: GoogleFonts.amiri(
-                    fontSize: 16,
-                    height: 1.55,
-                    color: cs.onSurface.withValues(alpha: 0.92),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );

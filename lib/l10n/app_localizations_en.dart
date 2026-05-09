@@ -90,7 +90,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get audioLocalPlayback => 'Playing from downloaded local file';
 
   @override
-  String get audioPlayError => 'Unable to play recitation. No valid local file and no online source available.';
+  String get audioPlayError =>
+      'Unable to play recitation. No valid local file and no online source available.';
 
   @override
   String get adhanPageTitle => 'Adhan and Prayer Times';
@@ -117,10 +118,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tafsirRetry => 'Retry';
 
   @override
-  String get tafsirFetchError => 'Unable to fetch tafsir. Please try again later.';
+  String get tafsirFetchError =>
+      'Unable to fetch tafsir. Please try again later.';
 
   @override
-  String get tafsirNetworkError => 'A network error occurred. Check your internet connection and try again.';
+  String get tafsirNetworkError =>
+      'A network error occurred. Check your internet connection and try again.';
 
   @override
   String tafsirContextTitle(Object surah, Object ayah) {
@@ -161,7 +164,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get surahOpenTafsir => 'Open Tafsir';
 
   @override
-  String get tafsirUnavailableForAyah => 'Tafsir is not available for this context.';
+  String get tafsirUnavailableForAyah =>
+      'Tafsir is not available for this context.';
 
   @override
   String get surahOpenTafsirCurrentAyah => 'Open tafsir for selected ayah';
@@ -183,22 +187,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tafsirGo => 'Go';
 
   @override
-  String get tafsirSearchHint =>
-      'Search ayah text, surah name, or cached tafsir…';
+  String get tafsirSearchHint => 'Ayah, tafsir, surah, or scientific topic…';
 
   @override
   String get tafsirSearchCacheHint =>
-      'Tafsir keyword matches include chapters you already opened (saved on device).';
+      'Tafsir search includes this page, cached surahs, and miracle topics.';
 
   @override
   String get tafsirSearchEmpty =>
-      'No results. Try other words or open a surah once to cache its tafsir.';
+      'No results. Try different words or open a surah to load its tafsir.';
+
+  @override
+  String get tafsirJumpInvalidAyah =>
+      'Enter a valid ayah number for this surah.';
+
+  @override
+  String get tafsirJumpNotInFeed =>
+      'This ayah is not in the current list. It may be missing from the source for this surah.';
 
   @override
   String get miraclesOpenTafsir => 'Open Al-Muyassar tafsir';
 
   @override
-  String get miraclesContinueInTafsirPage => 'Continue reading on the Tafsir page';
+  String get miraclesContinueInTafsirPage =>
+      'Continue reading on the Tafsir page';
 
   @override
   String get miraclesLoading => 'Loading…';
@@ -209,4 +221,119 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get miraclesModerateNote =>
       'Short educational notes only; consult qualified scholars for creed and law.';
+
+  @override
+  String get quranContinueReading => 'Continue';
+
+  @override
+  String get quranBookmarkSaved => 'Reading position saved.';
+
+  @override
+  String get quranSurahPickerHint => 'Find surah…';
+
+  @override
+  String get quranSurahNumberLabel => 'Surah';
+
+  @override
+  String get quranMadaniShort => 'Madani';
+
+  @override
+  String get quranMakkiShort => 'Makki';
+
+  @override
+  String get quranSearchClose => 'Close search';
+
+  @override
+  String get quranSearchOpen => 'Search Quran';
+
+  @override
+  String get quranSaveBookmark => 'Save reading position';
+
+  @override
+  String get quranLineSpacingIncrease => 'Increase line spacing';
+
+  @override
+  String get quranLineSpacingDecrease => 'Decrease line spacing';
+
+  @override
+  String get quranMushafModeToggle => 'Mushaf layout (coming soon)';
+
+  @override
+  String get quranReaderSearchHint => 'Ayah text, surah name, or number…';
+
+  @override
+  String get quranSearchEmpty =>
+      'No matches. Try other words or a surah number.';
+
+  @override
+  String get quranBackToHome => 'Home';
+
+  @override
+  String get tilawatDownloadComplete => 'Surah saved for offline listening.';
+
+  @override
+  String get tilawatDownloadFailed => 'Download failed. Check your connection.';
+
+  @override
+  String get tilawatDownloaded => 'Downloaded';
+
+  @override
+  String get tilawatDownloadForOffline => 'Download for offline';
+
+  @override
+  String get tilawatAutoPlayNext => 'Auto-play next surah';
+
+  @override
+  String get tilawatSleepTimer => 'Sleep timer';
+
+  @override
+  String get tilawatSleepOff => 'Off';
+
+  @override
+  String tilawatSleepMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String tilawatSleepEndsAt(String time) {
+    return 'Playback stops around $time';
+  }
+
+  @override
+  String get tilawatContinueListening => 'Continue listening';
+
+  @override
+  String get tilawatTooltipSleepTimer =>
+      'Sleep timer — choose when playback stops';
+
+  @override
+  String get tilawatTooltipDownload => 'Download for offline listening';
+
+  @override
+  String get tilawatTooltipAutoNext => 'Automatically play the next surah';
+
+  @override
+  String get tilawatTooltipRepeatOne => 'Repeat this surah';
+
+  @override
+  String tilawatReciterFallbackNotice(String name) {
+    return 'Reciter audio not available. Switching to default reciter ($name).';
+  }
+
+  @override
+  String get tilawatSleepChooseDuration => 'Choose duration';
+
+  @override
+  String get tilawatSleepOneHour => '1 hour';
+
+  @override
+  String get tilawatSleepOneHourThirty => '1 hour 30 minutes';
+
+  @override
+  String get tilawatSleepTwoHours => '2 hours';
+
+  @override
+  String tilawatSleepActiveRemaining(int minutes) {
+    return '$minutes min remaining';
+  }
 }

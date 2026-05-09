@@ -1,9 +1,17 @@
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
+import 'package:quran_app/services/tilawat_audio_handler.dart';
+import 'app_navigator.dart';
+import 'navigation/tilawat_navigator_observer.dart' show tilawatNavigatorObserver;
+import 'navigation/web_view_focus_guard.dart';
 import 'providers/settings_provider.dart';
 import 'providers/download_provider.dart';
+import 'providers/tilawat_audio_controller.dart';
+import 'widgets/tilawat_mini_player_bar.dart';
 import 'pages/home_page.dart';
 import 'pages/quran_page.dart';
 import 'pages/adhan_page.dart';
@@ -18,18 +26,53 @@ import 'pages/scientific_miracles_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  webViewFocusGuard.register();
   final settingsProvider = SettingsProvider();
   await settingsProvider.loadSettings();
   final downloadProvider = DownloadProvider();
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => settingsProvider),
-        ChangeNotifierProvider(create: (context) => downloadProvider),
-      ],
-      child: const QuranApp(),
-    ),
+
+  TilawatAudioHandler? tilawatBackgroundHandler;
+  if (tilawatUseBackgroundAudioHandler()) {
+    tilawatBackgroundHandler = await AudioService.init<TilawatAudioHandler>(
+      builder: () => TilawatAudioHandler(
+        settings: settingsProvider,
+        download: downloadProvider,
+      ),
+      config: const AudioServiceConfig(
+        androidNotificationChannelId: 'com.example.quran_app.channel.tilawat',
+        androidNotificationChannelName: 'Tilawat',
+        androidNotificationOngoing: true,
+        androidStopForegroundOnPause: true,
+      ),
+    );
+  }
+
+  Widget app = MultiProvider(
+    providers: [
+      ChangeNotifierProvider<SettingsProvider>.value(value: settingsProvider),
+      ChangeNotifierProvider<DownloadProvider>.value(value: downloadProvider),
+      ChangeNotifierProvider(
+        create: (context) {
+          final c = TilawatAudioController(
+            context.read<SettingsProvider>(),
+            context.read<DownloadProvider>(),
+            backgroundHandler: tilawatBackgroundHandler,
+          );
+          c.init();
+          return c;
+        },
+      ),
+    ],
+    child: const QuranApp(),
   );
+  // Avoid ReadingOrder rect sorts for in-app groups (View still uses reading order).
+  if (kIsWeb) {
+    app = FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: app,
+    );
+  }
+  runApp(app);
 }
 
 class QuranApp extends StatelessWidget {
@@ -40,6 +83,10 @@ class QuranApp extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return MaterialApp(
+          navigatorKey: appNavigatorKey,
+          navigatorObservers: [tilawatNavigatorObserver],
+          builder: (context, child) =>
+              TilawatAppShell(child: child ?? const SizedBox.shrink()),
           onGenerateTitle: (context) =>
               AppLocalizations.of(context)?.appTitle ?? 'Quran App',
           debugShowCheckedModeBanner: false,

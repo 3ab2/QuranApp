@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/quran_audio_service.dart';
+
 class SettingsProvider extends ChangeNotifier {
   // Preferences keys
   static const _kDarkMode = 'darkMode';
@@ -14,7 +16,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _isDarkMode = false;
   bool _isAdhanEnabled = false;
   bool _isReminderEnabled = false;
-  String _selectedReciter = 'ماهر المعيقلي';
+  String _selectedReciter = QuranAudioService.defaultReciterName;
   String _selectedLanguage = 'العربية';
   double _volume = 0.7;
 
@@ -24,7 +26,8 @@ class SettingsProvider extends ChangeNotifier {
     _isDarkMode = prefs.getBool(_kDarkMode) ?? false;
     _isAdhanEnabled = prefs.getBool(_kAdhanEnabled) ?? false;
     _isReminderEnabled = prefs.getBool(_kReminderEnabled) ?? false;
-    _selectedReciter = prefs.getString(_kSelectedReciter) ?? 'ماهر المعيقلي';
+    _selectedReciter =
+        prefs.getString(_kSelectedReciter) ?? QuranAudioService.defaultReciterName;
     _selectedLanguage = prefs.getString(_kSelectedLanguage) ?? 'العربية';
     _volume = prefs.getDouble(_kVolume) ?? 0.7;
     notifyListeners();

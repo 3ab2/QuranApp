@@ -90,7 +90,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get audioLocalPlayback => 'يتم التشغيل من الملف المحلي المحمّل';
 
   @override
-  String get audioPlayError => 'تعذر تشغيل التلاوة. لا يوجد ملف محلي صالح ولا مصدر إنترنت متاح.';
+  String get audioPlayError =>
+      'تعذر تشغيل التلاوة. لا يوجد ملف محلي صالح ولا مصدر إنترنت متاح.';
 
   @override
   String get adhanPageTitle => 'الأذان وأوقات الصلاة';
@@ -120,7 +121,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tafsirFetchError => 'تعذر جلب التفسير. الرجاء المحاولة لاحقًا.';
 
   @override
-  String get tafsirNetworkError => 'حدث خطأ أثناء الاتصال بالخادم. تأكد من اتصال الإنترنت وحاول مجددًا.';
+  String get tafsirNetworkError =>
+      'حدث خطأ أثناء الاتصال بالخادم. تأكد من اتصال الإنترنت وحاول مجددًا.';
 
   @override
   String tafsirContextTitle(Object surah, Object ayah) {
@@ -183,16 +185,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tafsirGo => 'انتقال';
 
   @override
-  String get tafsirSearchHint =>
-      'ابحث في نص الآية أو اسم السورة أو التفسير المحفوظ…';
+  String get tafsirSearchHint => 'آية، تفسير، سورة، أو موضوع علمي…';
 
   @override
   String get tafsirSearchCacheHint =>
-      'بحث التفسير يشمل السور التي فتحتها سابقًا (مخزنة على الجهاز).';
+      'يشمل الصفحة والسور المحفوظة ومواضيع الإعجاز.';
 
   @override
   String get tafsirSearchEmpty =>
-      'لا نتائج. جرّب كلمات أخرى أو افتح سورة مرة لتحميل تفسيرها.';
+      'لا نتائج. جرّب كلمات أخرى أو افتح سورة لتحميل تفسيرها.';
+
+  @override
+  String get tafsirJumpInvalidAyah => 'أدخل رقم آية صالح لهذه السورة.';
+
+  @override
+  String get tafsirJumpNotInFeed =>
+      'هذه الآية غير موجودة في القائمة. قد لا تتوفر في المصدر لهذه السورة.';
 
   @override
   String get miraclesOpenTafsir => 'فتح التفسير الميسر';
@@ -209,4 +217,117 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get miraclesModerateNote =>
       'ملاحظات تعليمية موجزة؛ راجع أهل العلم للعقيدة والفقه.';
+
+  @override
+  String get quranContinueReading => 'متابعة';
+
+  @override
+  String get quranBookmarkSaved => 'تم حفظ موضع القراءة.';
+
+  @override
+  String get quranSurahPickerHint => 'ابحث عن سورة…';
+
+  @override
+  String get quranSurahNumberLabel => 'سورة';
+
+  @override
+  String get quranMadaniShort => 'مدنية';
+
+  @override
+  String get quranMakkiShort => 'مكية';
+
+  @override
+  String get quranSearchClose => 'إغلاق البحث';
+
+  @override
+  String get quranSearchOpen => 'بحث في القرآن';
+
+  @override
+  String get quranSaveBookmark => 'حفظ موضع القراءة';
+
+  @override
+  String get quranLineSpacingIncrease => 'زيادة تباعد الأسطر';
+
+  @override
+  String get quranLineSpacingDecrease => 'تقليل تباعد الأسطر';
+
+  @override
+  String get quranMushafModeToggle => 'عرض المصحف (قريبًا)';
+
+  @override
+  String get quranReaderSearchHint => 'نص الآية أو اسم السورة أو الرقم…';
+
+  @override
+  String get quranSearchEmpty => 'لا نتائج. جرّب كلمات أخرى أو رقم السورة.';
+
+  @override
+  String get quranBackToHome => 'الرئيسية';
+
+  @override
+  String get tilawatDownloadComplete => 'تم حفظ السورة للاستماع دون اتصال.';
+
+  @override
+  String get tilawatDownloadFailed => 'فشل التحميل. تحقق من الاتصال.';
+
+  @override
+  String get tilawatDownloaded => 'تم التحميل';
+
+  @override
+  String get tilawatDownloadForOffline => 'تحميل للاستماع دون اتصال';
+
+  @override
+  String get tilawatAutoPlayNext => 'تشغيل السورة التالية تلقائيًا';
+
+  @override
+  String get tilawatSleepTimer => 'مؤقت النوم';
+
+  @override
+  String get tilawatSleepOff => 'إيقاف';
+
+  @override
+  String tilawatSleepMinutes(int minutes) {
+    return '$minutes د';
+  }
+
+  @override
+  String tilawatSleepEndsAt(String time) {
+    return 'يتوقف التشغيل حوالي $time';
+  }
+
+  @override
+  String get tilawatContinueListening => 'متابعة الاستماع';
+
+  @override
+  String get tilawatTooltipSleepTimer => 'مؤقت النوم — اختر وقت إيقاف التشغيل';
+
+  @override
+  String get tilawatTooltipDownload => 'تحميل للاستماع دون اتصال';
+
+  @override
+  String get tilawatTooltipAutoNext => 'تشغيل السورة التالية تلقائيًا';
+
+  @override
+  String get tilawatTooltipRepeatOne => 'تكرار هذه السورة';
+
+  @override
+  String tilawatReciterFallbackNotice(String name) {
+    return 'تعذر تحميل صوت القارئ المختار. سيتم التشغيل بالقارئ الافتراضي ($name).';
+  }
+
+  @override
+  String get tilawatSleepChooseDuration => 'اختر المدة';
+
+  @override
+  String get tilawatSleepOneHour => 'ساعة';
+
+  @override
+  String get tilawatSleepOneHourThirty => 'ساعة ونصف';
+
+  @override
+  String get tilawatSleepTwoHours => 'ساعتان';
+
+  @override
+  String tilawatSleepActiveRemaining(int minutes) {
+    return 'متبقي $minutes د';
+  }
 }

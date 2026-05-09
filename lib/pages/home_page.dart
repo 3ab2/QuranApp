@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
+
+import '../providers/tilawat_audio_controller.dart';
 import '../widgets/top_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -62,91 +64,125 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            const TopBar(),
-            const SizedBox(height: 20),
-            // Basmala
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: AnimatedBuilder(
-                  animation: _fadeAnimation,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _fadeAnimation.value,
-                      child: Text(
-                        'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                        style: GoogleFonts.amiri(
-                          color: cs.secondary,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const TopBar(),
+                  FutureBuilder<bool>(
+                    future: TilawatAudioController.hasSavedSession(),
+                    builder: (context, snap) {
+                      if (snap.data != true) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  },
-                ),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: FilledButton.tonalIcon(
+                            onPressed: () => Navigator.pushNamed(
+                              context,
+                              '/audio',
+                              arguments: {'resume': true},
+                            ),
+                            icon: const Icon(Icons.headphones_rounded),
+                            label: Text(l10n.tilawatContinueListening),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            // Buttons
-            if (_showButtons)
-              Expanded(
-                flex: 2,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      _buildButton(
-                        context,
-                        icon: Icons.menu_book,
-                        label: l10n.homeQuran,
-                        route: '/quran',
-                        cs: cs,
-                      ),
-                      _buildButton(
-                        context,
-                        icon: Icons.library_books,
-                        label: l10n.homeTafsir,
-                        route: '/tafsir',
-                        cs: cs,
-                      ),
-                      _buildButton(
-                        context,
-                        icon: Icons.headphones,
-                        label: l10n.homeAudio,
-                        route: '/audio',
-                        cs: cs,
-                      ),
-                      _buildButton(
-                        context,
-                        icon: Icons.auto_stories,
-                        label: l10n.homeStories,
-                        route: '/stories',
-                        cs: cs,
-                      ),
-                      _buildButton(
-                        context,
-                        icon: Icons.access_time,
-                        label: l10n.homeAdhan,
-                        route: '/adhan',
-                        cs: cs,
-                      ),
-                      _buildButton(
-                        context,
-                        icon: Icons.science,
-                        label: l10n.homeMiracles,
-                        route: '/scientific-miracles',
-                        cs: cs,
-                      ),
-                    ],
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedBuilder(
+                    animation: _fadeAnimation,
+                    builder: (context, child) {
+                      return Opacity(
+                        opacity: _fadeAnimation.value,
+                        child: Text(
+                          'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
+                          style: GoogleFonts.amiri(
+                            color: cs.secondary,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    },
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  if (_showButtons)
+                    SlideTransition(
+                      position: _slideAnimation,
+                      child: Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          _buildButton(
+                            context,
+                            icon: Icons.menu_book,
+                            label: l10n.homeQuran,
+                            route: '/quran',
+                            cs: cs,
+                          ),
+                          _buildButton(
+                            context,
+                            icon: Icons.library_books,
+                            label: l10n.homeTafsir,
+                            route: '/tafsir',
+                            cs: cs,
+                          ),
+                          _buildButton(
+                            context,
+                            icon: Icons.headphones,
+                            label: l10n.homeAudio,
+                            route: '/audio',
+                            cs: cs,
+                          ),
+                          _buildButton(
+                            context,
+                            icon: Icons.auto_stories,
+                            label: l10n.homeStories,
+                            route: '/stories',
+                            cs: cs,
+                          ),
+                          _buildButton(
+                            context,
+                            icon: Icons.access_time,
+                            label: l10n.homeAdhan,
+                            route: '/adhan',
+                            cs: cs,
+                          ),
+                          _buildButton(
+                            context,
+                            icon: Icons.science,
+                            label: l10n.homeMiracles,
+                            route: '/scientific-miracles',
+                            cs: cs,
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         ),
       ),

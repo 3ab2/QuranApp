@@ -30,11 +30,15 @@ class TafsirSearchService {
   }
 
   /// Runs a ranked search. [surahFilter] limits ayah/tafsir scans to one surah when set.
+  ///
+  /// [feedEntries] searches the current on-screen chapter feed so tafsir keywords work
+  /// even before disk/web cache is populated for that surah.
   Future<List<TafsirSearchHit>> search(
     String query, {
     int? surahFilter,
     TafsirSource source = TafsirSource.alMuyassar,
     List<ScientificMiracle>? scientificMiracles,
+    List<TafsirEntry>? feedEntries,
   }) async {
     final qRaw = query.trim();
     if (qRaw.isEmpty) return [];
@@ -107,6 +111,27 @@ class TafsirSearchService {
     }
 
     final miracles = scientificMiracles;
+    if (feedEntries != null && feedEntries.isNotEmpty) {
+      for (final e in feedEntries) {
+        if (surahFilter != null && e.surahNumber != surahFilter) continue;
+        final sc = _containsScore(_normalize(e.tafsirText), q, 64);
+        if (sc > 0) {
+          final snippet =
+              e.tafsirText.length > 160 ? '${e.tafsirText.substring(0, 160)}…' : e.tafsirText;
+          put(TafsirSearchHit(
+            surahNumber: e.surahNumber,
+            surahName: e.surahName,
+            ayahNumber: e.ayahNumber,
+            ayahText: e.ayahText,
+            tafsirSnippet: snippet,
+            score: sc,
+            kind: TafsirSearchHitKind.tafsirCached,
+            source: source,
+          ));
+        }
+      }
+    }
+
     if (miracles != null) {
       for (final m in miracles) {
         if (surahFilter != null && m.resolvedSurahNumber != surahFilter) continue;
@@ -155,20 +180,30 @@ class TafsirSearchService {
         cachedChapters = await _repo.listCachedChapters(source);
       }
 
-      for (final chapter in cachedChapters) {
-        if (surahFilter != null && chapter != surahFilter) continue;
+      final chapterFutures = cachedChapters.map((chapter) async {
+        if (surahFilter != null && chapter != surahFilter) return <TafsirEntry>[];
         final surahName = surahs.firstWhere(
           (x) => x['number'] == chapter,
           orElse: () => {'name': ''},
         )['name'] as String;
-        final entries = await _repo.readCachedChapter(source, chapter, surahName);
+        return _repo.readCachedChapter(source, chapter, surahName);
+      });
+      final chapterResults = await Future.wait(chapterFutures);
+      for (final entries in chapterResults) {
         for (final e in entries) {
           final sc = _containsScore(_normalize(e.tafsirText), q, 62);
           if (sc > 0) {
-            final snippet = e.tafsirText.length > 160 ? '${e.tafsirText.substring(0, 160)}…' : e.tafsirText;
+            final surahLabel = e.surahName.isNotEmpty
+                ? e.surahName
+                : (surahs.firstWhere(
+                    (x) => x['number'] == e.surahNumber,
+                    orElse: () => {'name': ''},
+                  )['name'] as String);
+            final snippet =
+                e.tafsirText.length > 160 ? '${e.tafsirText.substring(0, 160)}…' : e.tafsirText;
             put(TafsirSearchHit(
               surahNumber: e.surahNumber,
-              surahName: e.surahName.isNotEmpty ? e.surahName : surahName,
+              surahName: surahLabel,
               ayahNumber: e.ayahNumber,
               ayahText: e.ayahText,
               tafsirSnippet: snippet,

@@ -63,12 +63,77 @@
   "tafsirBrowseSurahs": "Sourates",
   "tafsirAyahNumber": "Verset",
   "tafsirGo": "Aller",
-  "tafsirSearchHint": "Rechercher un verset, une sourate ou le tafsir (cache)…",
-  "tafsirSearchCacheHint": "Le tafsir indexé correspond aux sourates déjà ouvertes (stockées sur l’appareil).",
-  "tafsirSearchEmpty": "Aucun résultat. Autres mots ou ouvrez une sourate pour mettre son tafsir en cache.",
+  "tafsirSearchHint": "Verset, tafsir, sourate ou thème scientifique…",
+  "tafsirSearchCacheHint": "Inclut cette page, les sourates en cache et les miracles.",
+  "tafsirSearchEmpty": "Aucun résultat. Essayez d’autres mots ou ouvrez une sourate.",
+  "tafsirJumpInvalidAyah": "Indiquez un numéro de verset valide pour cette sourate.",
+  "tafsirJumpNotInFeed": "Ce verset n’apparaît pas dans la liste. Il peut être absent dans la source.",
   "miraclesOpenTafsir": "Ouvrir le tafsir Al-Muyassar",
   "miraclesContinueInTafsirPage": "Poursuivre sur la page Tafsir",
   "miraclesLoading": "Chargement…",
   "miraclesTafsirPreview": "Aperçu du tafsir",
-  "miraclesModerateNote": "Notes courtes et prudentes ; consultez des savants pour la croyance et la jurisprudence."
+  "miraclesModerateNote": "Notes courtes et prudentes ; consultez des savants pour la croyance et la jurisprudence.",
+  "quranContinueReading": "Reprendre",
+  "quranBookmarkSaved": "Position de lecture enregistrée.",
+  "quranSurahPickerHint": "Chercher une sourate…",
+  "quranSurahNumberLabel": "Sourate",
+  "quranMadaniShort": "Médinoise",
+  "quranMakkiShort": "Mecquoise",
+  "quranSearchClose": "Fermer la recherche",
+  "quranSearchOpen": "Rechercher dans le Coran",
+  "quranSaveBookmark": "Enregistrer la position",
+  "quranLineSpacingIncrease": "Augmenter l’interligne",
+  "quranLineSpacingDecrease": "Réduire l’interligne",
+  "quranMushafModeToggle": "Mode mushaf (bientôt)",
+  "quranReaderSearchHint": "Texte du verset, nom ou numéro de sourate…",
+  "quranSearchEmpty": "Aucun résultat. Essayez d’autres mots ou un numéro de sourate.",
+  "quranBackToHome": "Accueil",
+  "tilawatDownloadComplete": "Sourate enregistrée pour l’écoute hors ligne.",
+  "tilawatDownloadFailed": "Échec du téléchargement. Vérifiez la connexion.",
+  "tilawatDownloaded": "Téléchargée",
+  "tilawatDownloadForOffline": "Télécharger pour hors ligne",
+  "tilawatAutoPlayNext": "Lecture auto de la sourate suivante",
+  "tilawatSleepTimer": "Minuteur de sommeil",
+  "tilawatSleepOff": "Désactivé",
+  "tilawatSleepMinutes": "{minutes} min",
+  "@tilawatSleepMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tilawatSleepEndsAt": "Arrêt vers {time}",
+  "@tilawatSleepEndsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tilawatContinueListening": "Continuer l’écoute",
+  "tilawatTooltipSleepTimer": "Minuteur de sommeil — choisir l’arrêt",
+  "tilawatTooltipDownload": "Télécharger pour écoute hors ligne",
+  "tilawatTooltipAutoNext": "Lire automatiquement la sourate suivante",
+  "tilawatTooltipRepeatOne": "Répéter cette sourate",
+  "tilawatReciterFallbackNotice": "Audio du récitateur indisponible. Lecture avec le récitateur par défaut ({name}).",
+  "@tilawatReciterFallbackNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tilawatSleepChooseDuration": "Choisir la durée",
+  "tilawatSleepOneHour": "1 heure",
+  "tilawatSleepOneHourThirty": "1 h 30",
+  "tilawatSleepTwoHours": "2 heures",
+  "tilawatSleepActiveRemaining": "{minutes} min restantes",
+  "@tilawatSleepActiveRemaining": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

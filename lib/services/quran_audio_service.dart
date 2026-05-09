@@ -10,25 +10,57 @@ class AudioResolutionResult {
   final bool usingRemote;
   final String? localPath;
   final String? remoteUrl;
+  final String requestedReciter;
+  final String effectiveReciter;
+  final bool usedDefaultReciterFallback;
 
   const AudioResolutionResult({
     required this.usingLocal,
     required this.usingRemote,
     this.localPath,
     this.remoteUrl,
+    required this.requestedReciter,
+    required this.effectiveReciter,
+    this.usedDefaultReciterFallback = false,
   });
 }
 
 class QuranAudioService {
   static List<dynamic>? _cachedSurahs;
-  static const String _fallbackBaseUrl = 'https://server12.mp3quran.net/maher';
-  static const Map<String, String> _reciterBaseUrls = {
-    'ماهر المعيقلي': 'https://server12.mp3quran.net/maher',
-    // Temporary mapping to a known-live Quran endpoint to avoid runtime 404s.
-    'عبد الباسط عبد الصمد': 'https://server12.mp3quran.net/maher',
-    'مشاري العفاسي': 'https://server8.mp3quran.net/afs',
-    'سعد الغامدي': 'https://server7.mp3quran.net/s_gmd',
+
+  /// App default when remote for selected reciter is unavailable (after mirrors).
+  static const String defaultReciterName = 'ماهر المعيقلي';
+
+  /// Ordered base URL prefixes (no trailing slash). Multiple entries = mirrors for same reciter.
+  static const Map<String, List<String>> _reciterBaseUrlLists = {
+    defaultReciterName: [
+      'https://server12.mp3quran.net/maher',
+    ],
+    'عبد الباسط عبد الصمد': [
+      'https://server7.mp3quran.net/basit',
+      'https://server7.mp3quran.net/download/basit',
+    ],
+    'مشاري العفاسي': [
+      'https://server8.mp3quran.net/afs',
+    ],
+    'سعد الغامدي': [
+      'https://server7.mp3quran.net/s_gmd',
+    ],
   };
+
+  /// Short ASCII slug for filenames / IndexedDB keys (per-reciter offline storage).
+  static String reciterStorageSlug(String reciter) {
+    const slugByName = <String, String>{
+      'ماهر المعيقلي': 'maher',
+      'عبد الباسط عبد الصمد': 'abdulbasit',
+      'مشاري العفاسي': 'afasy',
+      'سعد الغامدي': 'ghamdi',
+    };
+    return slugByName[reciter] ?? 'r${reciter.hashCode.abs()}';
+  }
+
+  static String tilawatCacheId(int surahNumber, String reciter) =>
+      '${surahNumber}_${reciterStorageSlug(reciter)}';
 
   static Future<List<dynamic>> loadSurahs() async {
     if (_cachedSurahs != null) return _cachedSurahs!;
@@ -41,38 +73,52 @@ class QuranAudioService {
     throw const FormatException('Invalid surah audio catalog format');
   }
 
-  static String resolveRemoteUrl(Map surah, String reciter) {
+  static String _paddedSurahFileName(Map surah) {
     final surahNumber = surah['number'] as int?;
+    return surahNumber?.toString().padLeft(3, '0') ?? '';
+  }
+
+  /// Remote MP3 URLs to try in order for [reciter] and this [surah].
+  static List<String> remoteUrlCandidatesForSurah(Map surah, String reciter) {
+    final padded = _paddedSurahFileName(surah);
+    if (padded.isEmpty) return const [];
+
+    final bases = _reciterBaseUrlLists[reciter];
+    if (bases != null) {
+      return bases.map((b) => '$b/$padded.mp3').toList();
+    }
+
     final rawAudio = surah['audio']?.toString().trim() ?? '';
-    final padded = surahNumber?.toString().padLeft(3, '0') ?? '';
-    final reciterBase = _reciterBaseUrls[reciter];
-
-    // Domain guard: Quran playback must always resolve through Quran audio datasets.
-    if (reciterBase != null && padded.isNotEmpty) {
-      return '$reciterBase/$padded.mp3';
-    }
-
     if (rawAudio.contains('{reciter}')) {
-      return rawAudio.replaceAll('{reciter}', reciter.toLowerCase().replaceAll(' ', '-'));
+      final u = rawAudio.replaceAll(
+        '{reciter}',
+        reciter.toLowerCase().replaceAll(' ', '-'),
+      );
+      return u.isNotEmpty ? [u] : const [];
     }
 
-    // Keep only known Quran hosts from catalog data; reject unrelated domains.
-    final isTrustedQuranHost =
-        rawAudio.contains('mp3quran.net') ||
+    final isTrustedQuranHost = rawAudio.contains('mp3quran.net') ||
         rawAudio.contains('download.quranicaudio.com') ||
         rawAudio.contains('everyayah.com');
 
-    // Prevent placeholder/demo URLs from breaking runtime playback.
-    if (rawAudio.isEmpty ||
-        rawAudio.contains('your-api.com') ||
-        rawAudio.contains('example.com') ||
-        !isTrustedQuranHost) {
-      if (padded.isNotEmpty) {
-        return '$_fallbackBaseUrl/$padded.mp3';
-      }
-      return '';
+    if (rawAudio.isNotEmpty &&
+        !rawAudio.contains('your-api.com') &&
+        !rawAudio.contains('example.com') &&
+        isTrustedQuranHost) {
+      return [rawAudio];
     }
-    return rawAudio;
+
+    return const [];
+  }
+
+  /// First candidate URL (for downloads / display). No silent cross-reciter substitution.
+  static String resolveRemoteUrl(Map surah, String reciter) {
+    final list = remoteUrlCandidatesForSurah(surah, reciter);
+    return list.isNotEmpty ? list.first : '';
+  }
+
+  static Future<void> _trySetUrl(AudioPlayer player, String url) async {
+    await player.setUrl(url);
   }
 
   static Future<AudioResolutionResult> setPlayerSourceWithFallback({
@@ -82,34 +128,83 @@ class QuranAudioService {
     required String reciter,
     required DownloadProvider downloadProvider,
   }) async {
-    final localPath = await downloadProvider.getLocalFilePath(surahNumber);
-    final remoteUrl = resolveRemoteUrl(surah, reciter);
+    final requestedReciter = reciter;
+    final localPath =
+        await downloadProvider.getLocalFilePath(surahNumber, reciter);
 
     if (localPath != null) {
       try {
-        await player.setFilePath(localPath);
+        if (kIsWeb && localPath.startsWith('blob:')) {
+          await player.setUrl(localPath);
+        } else {
+          await player.setFilePath(localPath);
+        }
+        final remoteFirst = resolveRemoteUrl(surah, reciter);
+        debugPrint(
+          '[Tilawat] surah=$surahNumber local=true requested=$requestedReciter effective=$requestedReciter',
+        );
         return AudioResolutionResult(
           usingLocal: true,
           usingRemote: false,
           localPath: localPath,
-          remoteUrl: remoteUrl,
+          remoteUrl: remoteFirst.isEmpty ? null : remoteFirst,
+          requestedReciter: requestedReciter,
+          effectiveReciter: requestedReciter,
         );
       } catch (e) {
         debugPrint('Local audio failed for surah $surahNumber: $e');
       }
     }
 
-    if (remoteUrl.isNotEmpty) {
-      await player.setUrl(remoteUrl);
-      return AudioResolutionResult(
-        usingLocal: false,
-        usingRemote: true,
-        localPath: localPath,
-        remoteUrl: remoteUrl,
-      );
+    Future<AudioResolutionResult?> tryUrlsForReciter(
+      String tryReciter,
+      String effectiveLabel, {
+      required bool usedFallback,
+    }) async {
+      final urls = remoteUrlCandidatesForSurah(surah, tryReciter);
+      for (final url in urls) {
+        if (url.isEmpty) continue;
+        try {
+          await _trySetUrl(player, url);
+          debugPrint(
+            '[Tilawat] surah=$surahNumber local=false url=$url '
+            'requested=$requestedReciter effective=$effectiveLabel fallback=$usedFallback',
+          );
+          return AudioResolutionResult(
+            usingLocal: false,
+            usingRemote: true,
+            remoteUrl: url,
+            localPath: localPath,
+            requestedReciter: requestedReciter,
+            effectiveReciter: effectiveLabel,
+            usedDefaultReciterFallback: usedFallback,
+          );
+        } catch (e) {
+          debugPrint('[Tilawat] setUrl failed surah=$surahNumber url=$url err=$e');
+        }
+      }
+      return null;
     }
 
-    throw Exception('No valid local or remote source for surah $surahNumber');
+    final primary = await tryUrlsForReciter(
+      requestedReciter,
+      requestedReciter,
+      usedFallback: false,
+    );
+    if (primary != null) return primary;
+
+    if (requestedReciter != defaultReciterName) {
+      final fb = await tryUrlsForReciter(
+        defaultReciterName,
+        defaultReciterName,
+        usedFallback: true,
+      );
+      if (fb != null) return fb;
+    }
+
+    throw Exception(
+      'No valid local or remote source for surah $surahNumber (reciter: $requestedReciter)',
+    );
   }
 
   static Future<bool> isLikelyAccessibleLocalPath(String path) async {

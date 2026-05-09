@@ -27,4 +27,5 @@ class AppShadows {
 
 class AppMotion {
   static const Duration fast = Duration(milliseconds: 200);
+  static const Duration medium = Duration(milliseconds: 320);
 }

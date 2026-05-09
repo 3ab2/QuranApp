@@ -63,12 +63,77 @@
   "tafsirBrowseSurahs": "السور",
   "tafsirAyahNumber": "الآية",
   "tafsirGo": "انتقال",
-  "tafsirSearchHint": "ابحث في نص الآية أو اسم السورة أو التفسير المحفوظ…",
-  "tafsirSearchCacheHint": "بحث التفسير يشمل السور التي فتحتها سابقًا (مخزنة على الجهاز).",
-  "tafsirSearchEmpty": "لا نتائج. جرّب كلمات أخرى أو افتح سورة مرة لتحميل تفسيرها.",
+  "tafsirSearchHint": "آية، تفسير، سورة، أو موضوع علمي…",
+  "tafsirSearchCacheHint": "يشمل الصفحة والسور المحفوظة ومواضيع الإعجاز.",
+  "tafsirSearchEmpty": "لا نتائج. جرّب كلمات أخرى أو افتح سورة لتحميل تفسيرها.",
+  "tafsirJumpInvalidAyah": "أدخل رقم آية صالح لهذه السورة.",
+  "tafsirJumpNotInFeed": "هذه الآية غير موجودة في القائمة. قد لا تتوفر في المصدر لهذه السورة.",
   "miraclesOpenTafsir": "فتح التفسير الميسر",
   "miraclesContinueInTafsirPage": "متابعة القراءة في صفحة التفسير",
   "miraclesLoading": "جاري التحميل…",
   "miraclesTafsirPreview": "معاينة التفسير",
-  "miraclesModerateNote": "ملاحظات تعليمية موجزة؛ راجع أهل العلم للعقيدة والفقه."
+  "miraclesModerateNote": "ملاحظات تعليمية موجزة؛ راجع أهل العلم للعقيدة والفقه.",
+  "quranContinueReading": "متابعة",
+  "quranBookmarkSaved": "تم حفظ موضع القراءة.",
+  "quranSurahPickerHint": "ابحث عن سورة…",
+  "quranSurahNumberLabel": "سورة",
+  "quranMadaniShort": "مدنية",
+  "quranMakkiShort": "مكية",
+  "quranSearchClose": "إغلاق البحث",
+  "quranSearchOpen": "بحث في القرآن",
+  "quranSaveBookmark": "حفظ موضع القراءة",
+  "quranLineSpacingIncrease": "زيادة تباعد الأسطر",
+  "quranLineSpacingDecrease": "تقليل تباعد الأسطر",
+  "quranMushafModeToggle": "عرض المصحف (قريبًا)",
+  "quranReaderSearchHint": "نص الآية أو اسم السورة أو الرقم…",
+  "quranSearchEmpty": "لا نتائج. جرّب كلمات أخرى أو رقم السورة.",
+  "quranBackToHome": "الرئيسية",
+  "tilawatDownloadComplete": "تم حفظ السورة للاستماع دون اتصال.",
+  "tilawatDownloadFailed": "فشل التحميل. تحقق من الاتصال.",
+  "tilawatDownloaded": "تم التحميل",
+  "tilawatDownloadForOffline": "تحميل للاستماع دون اتصال",
+  "tilawatAutoPlayNext": "تشغيل السورة التالية تلقائيًا",
+  "tilawatSleepTimer": "مؤقت النوم",
+  "tilawatSleepOff": "إيقاف",
+  "tilawatSleepMinutes": "{minutes} د",
+  "@tilawatSleepMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tilawatSleepEndsAt": "يتوقف التشغيل حوالي {time}",
+  "@tilawatSleepEndsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tilawatContinueListening": "متابعة الاستماع",
+  "tilawatTooltipSleepTimer": "مؤقت النوم — اختر وقت إيقاف التشغيل",
+  "tilawatTooltipDownload": "تحميل للاستماع دون اتصال",
+  "tilawatTooltipAutoNext": "تشغيل السورة التالية تلقائيًا",
+  "tilawatTooltipRepeatOne": "تكرار هذه السورة",
+  "tilawatReciterFallbackNotice": "تعذر تحميل صوت القارئ المختار. سيتم التشغيل بالقارئ الافتراضي ({name}).",
+  "@tilawatReciterFallbackNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tilawatSleepChooseDuration": "اختر المدة",
+  "tilawatSleepOneHour": "ساعة",
+  "tilawatSleepOneHourThirty": "ساعة ونصف",
+  "tilawatSleepTwoHours": "ساعتان",
+  "tilawatSleepActiveRemaining": "متبقي {minutes} د",
+  "@tilawatSleepActiveRemaining": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

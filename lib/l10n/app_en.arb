@@ -63,12 +63,77 @@
   "tafsirBrowseSurahs": "Surahs",
   "tafsirAyahNumber": "Ayah",
   "tafsirGo": "Go",
-  "tafsirSearchHint": "Search ayah text, surah name, or cached tafsir…",
-  "tafsirSearchCacheHint": "Tafsir keyword matches include chapters you already opened (saved on device).",
-  "tafsirSearchEmpty": "No results. Try other words or open a surah once to cache its tafsir.",
+  "tafsirSearchHint": "Ayah, tafsir, surah, or scientific topic…",
+  "tafsirSearchCacheHint": "Tafsir search includes this page, cached surahs, and miracle topics.",
+  "tafsirSearchEmpty": "No results. Try different words or open a surah to load its tafsir.",
+  "tafsirJumpInvalidAyah": "Enter a valid ayah number for this surah.",
+  "tafsirJumpNotInFeed": "This ayah is not in the current list. It may be missing from the source for this surah.",
   "miraclesOpenTafsir": "Open Al-Muyassar tafsir",
   "miraclesContinueInTafsirPage": "Continue reading on the Tafsir page",
   "miraclesLoading": "Loading…",
   "miraclesTafsirPreview": "Tafsir preview",
-  "miraclesModerateNote": "Short educational notes only; consult qualified scholars for creed and law."
+  "miraclesModerateNote": "Short educational notes only; consult qualified scholars for creed and law.",
+  "quranContinueReading": "Continue",
+  "quranBookmarkSaved": "Reading position saved.",
+  "quranSurahPickerHint": "Find surah…",
+  "quranSurahNumberLabel": "Surah",
+  "quranMadaniShort": "Madani",
+  "quranMakkiShort": "Makki",
+  "quranSearchClose": "Close search",
+  "quranSearchOpen": "Search Quran",
+  "quranSaveBookmark": "Save reading position",
+  "quranLineSpacingIncrease": "Increase line spacing",
+  "quranLineSpacingDecrease": "Decrease line spacing",
+  "quranMushafModeToggle": "Mushaf layout (coming soon)",
+  "quranReaderSearchHint": "Ayah text, surah name, or number…",
+  "quranSearchEmpty": "No matches. Try other words or a surah number.",
+  "quranBackToHome": "Home",
+  "tilawatDownloadComplete": "Surah saved for offline listening.",
+  "tilawatDownloadFailed": "Download failed. Check your connection.",
+  "tilawatDownloaded": "Downloaded",
+  "tilawatDownloadForOffline": "Download for offline",
+  "tilawatAutoPlayNext": "Auto-play next surah",
+  "tilawatSleepTimer": "Sleep timer",
+  "tilawatSleepOff": "Off",
+  "tilawatSleepMinutes": "{minutes} min",
+  "@tilawatSleepMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tilawatSleepEndsAt": "Playback stops around {time}",
+  "@tilawatSleepEndsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tilawatContinueListening": "Continue listening",
+  "tilawatTooltipSleepTimer": "Sleep timer — choose when playback stops",
+  "tilawatTooltipDownload": "Download for offline listening",
+  "tilawatTooltipAutoNext": "Automatically play the next surah",
+  "tilawatTooltipRepeatOne": "Repeat this surah",
+  "tilawatReciterFallbackNotice": "Reciter audio not available. Switching to default reciter ({name}).",
+  "@tilawatReciterFallbackNotice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tilawatSleepChooseDuration": "Choose duration",
+  "tilawatSleepOneHour": "1 hour",
+  "tilawatSleepOneHourThirty": "1 hour 30 minutes",
+  "tilawatSleepTwoHours": "2 hours",
+  "tilawatSleepActiveRemaining": "{minutes} min remaining",
+  "@tilawatSleepActiveRemaining": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -164,9 +164,15 @@ class _AudioDetailsPageState extends State<AudioDetailsPage> {
                         const SizedBox(height: 20),
                         Consumer<DownloadProvider>(
                           builder: (context, downloadProvider, child) {
-                            final surahNumber = widget.currentIndex + 1;
-                            final isDownloaded = downloadProvider.isDownloaded[widget.currentIndex] == true;
-                            final isDownloading = downloadProvider.isDownloading[widget.currentIndex] == true;
+                            final surahNumber = widget.surah['number'] as int;
+                            final isDownloaded = downloadProvider.isDownloaded(
+                              surahNumber,
+                              widget.reciterName,
+                            );
+                            final isDownloading = downloadProvider.isDownloading(
+                              surahNumber,
+                              widget.reciterName,
+                            );
 
                             return IconButton(
                               iconSize: 48,
@@ -181,7 +187,11 @@ class _AudioDetailsPageState extends State<AudioDetailsPage> {
                                       : Icon(Icons.cloud_download, color: cs.onSurface),
                               onPressed: isDownloaded || isDownloading
                                   ? null
-                                  : () => downloadProvider.downloadSurah(context, surahNumber),
+                                  : () => downloadProvider.downloadSurah(
+                                        surahNumber: surahNumber,
+                                        surah: widget.surah,
+                                        reciter: widget.reciterName,
+                                      ),
                             );
                           },
                         ),
