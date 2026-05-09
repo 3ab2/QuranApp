@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import '../providers/download_provider.dart';
@@ -35,18 +36,25 @@ class AudioDetailsPage extends StatefulWidget {
 
 class _AudioDetailsPageState extends State<AudioDetailsPage> {
   late bool _isPlaying;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
 
   @override
   void initState() {
     super.initState();
     _isPlaying = widget.isPlaying;
-    widget.audioPlayer.onPlayerStateChanged.listen((state) {
+    _playerStateSubscription = widget.audioPlayer.playerStateStream.listen((state) {
       if (mounted) {
         setState(() {
-          _isPlaying = state == PlayerState.playing;
+          _isPlaying = state.playing;
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _playerStateSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -80,8 +88,11 @@ class _AudioDetailsPageState extends State<AudioDetailsPage> {
             // Background Image with Blur
             Positioned.fill(
               child: Image.asset(
-                '../../assets/images/lhdan.jpg',
+                'assets/images/lhdan.jpg',
                 fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: cs.surface,
+                ),
               ),
             ),
             Positioned.fill(
@@ -185,11 +196,11 @@ class _AudioDetailsPageState extends State<AudioDetailsPage> {
                       children: [
                         // Progress Bar
                         StreamBuilder<Duration>(
-                          stream: widget.audioPlayer.onPositionChanged,
+                          stream: widget.audioPlayer.positionStream,
                           builder: (context, positionSnapshot) {
                             final position = positionSnapshot.data ?? Duration.zero;
-                            return StreamBuilder<Duration>(
-                              stream: widget.audioPlayer.onDurationChanged,
+                            return StreamBuilder<Duration?>(
+                              stream: widget.audioPlayer.durationStream,
                               builder: (context, durationSnapshot) {
                                 final total = durationSnapshot.data ?? Duration.zero;
                                 return Column(

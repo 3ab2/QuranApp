@@ -13,6 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   http: ^1.2.1
   just_audio: ^0.9.36
   geolocator: 13.0.4
@@ -22,12 +24,13 @@ dependencies:
   path_provider: ^2.1.0
   arabic_numbers: ^1.0.0
   flutter_qiblah: ^3.0.0
-  intl: ^0.19.0
+  intl: 0.20.2
   get: ^4.6.5
   provider: ^6.1.2
   shared_preferences: ^2.2.2
   audioplayers: ^5.2.0
   timezone: ^0.9.2
+  flutter_timezone: ^5.0.2
   google_fonts: ^6.1.0
   hijri: ^3.0.0
   dio: ^5.4.0
@@ -41,12 +44,14 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/data/
-    - assets/fonts/
-    - assets/sounds/fajr_adhan.mp3
-    - assets/sounds/dhuhr_adhan.mp3
-    - assets/sounds/asr_adhan.mp3
-    - assets/sounds/maghrib_adhan.mp3
-    - assets/sounds/isha_adhan.mp3 
+    - assets/sounds/adhan/
+    - assets/sounds/adhan/fajr.mp3
+    - assets/sounds/adhan/dhuhr.mp3
+    - assets/sounds/adhan/asr.mp3
+    - assets/sounds/adhan/maghrib.mp3
+    - assets/sounds/adhan/isha.mp3
+    - assets/sounds/adhan/default_adhan.mp3

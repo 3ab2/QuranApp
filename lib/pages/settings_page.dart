@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:quran_app/l10n/app_localizations.dart';
 import '../widgets/top_bar.dart';
-import '../widgets/back_button_widget.dart';
 import '../providers/settings_provider.dart';
+import '../widgets/common_ui.dart';
+import '../ui/app_tokens.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final settings = Provider.of<SettingsProvider>(context);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -21,41 +24,22 @@ class SettingsPage extends StatelessWidget {
       'سعد الغامدي',
     ];
 
-    List<String> languages = [
-      'العربية',
-      'English',
-    ];
+    const languages = ['العربية', 'English', 'Français'];
+    final selectedLanguage = languages.contains(settings.selectedLanguage)
+        ? settings.selectedLanguage
+        : 'العربية';
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: Directionality.of(context),
       child: Scaffold(
         // Use scaffold background from theme
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
-              const SizedBox(height: 20),
-              // Back Button and Page Title
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    const BackButtonWidget(),
-                    Expanded(
-                      child: Text(
-                        'الإعدادات',
-                        style: GoogleFonts.amiri(
-                          color: cs.onSurface,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.lg),
+              AppPageHeader(title: l10n.settingsTitle),
+              const SizedBox(height: AppSpacing.lg),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(16),
@@ -75,7 +59,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                       child: SwitchListTile(
                         title: Text(
-                          'تفعيل الأذان',
+                          l10n.settingsAdhanEnabled,
                           style: GoogleFonts.amiri(
                             color: cs.onSurface,
                             fontWeight: FontWeight.bold,
@@ -101,7 +85,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                       child: SwitchListTile(
                         title: Text(
-                          'الوضع الليلي',
+                          l10n.settingsDarkMode,
                           style: GoogleFonts.amiri(
                             color: cs.onSurface,
                             fontWeight: FontWeight.bold,
@@ -127,7 +111,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                       child: SwitchListTile(
                         title: Text(
-                          'تذكير بالصلاة',
+                          l10n.settingsPrayerReminder,
                           style: GoogleFonts.amiri(
                             color: cs.onSurface,
                             fontWeight: FontWeight.bold,
@@ -140,7 +124,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'اختيار القارئ',
+                      l10n.settingsSelectReciter,
                       style: GoogleFonts.amiri(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -173,7 +157,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'اختيار اللغة',
+                      l10n.settingsSelectLanguage,
                       style: GoogleFonts.amiri(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -189,14 +173,20 @@ class SettingsPage extends StatelessWidget {
                         border: Border.all(color: cs.secondary),
                       ),
                       child: DropdownButton<String>(
-                        value: settings.selectedLanguage,
+                        value: selectedLanguage,
                         isExpanded: true,
                         underline: const SizedBox(),
                         items: languages.map((lang) {
+                          final display = switch (lang) {
+                            'العربية' => l10n.languageArabic,
+                            'English' => l10n.languageEnglish,
+                            'Français' => l10n.languageFrench,
+                            _ => lang,
+                          };
                           return DropdownMenuItem<String>(
                             value: lang,
                             child: Text(
-                              lang,
+                              display,
                               style: GoogleFonts.amiri(color: cs.onSurface),
                             ),
                           );
@@ -206,7 +196,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'مستوى الصوت',
+                      l10n.settingsVolume,
                       style: GoogleFonts.amiri(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -257,7 +247,7 @@ class SettingsPage extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'تم حذف البيانات المؤقتة',
+                                l10n.settingsTempDataDeleted,
                                 style: GoogleFonts.amiri(),
                               ),
                               backgroundColor: theme.colorScheme.error,
@@ -266,7 +256,7 @@ class SettingsPage extends StatelessWidget {
                         },
                         icon: const Icon(Icons.delete),
                         label: Text(
-                          'حذف البيانات المؤقتة',
+                          l10n.settingsClearTempData,
                           style: GoogleFonts.amiri(),
                         ),
                         style: ElevatedButton.styleFrom(

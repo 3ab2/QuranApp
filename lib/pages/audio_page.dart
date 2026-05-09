@@ -1,13 +1,16 @@
-import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:quran_app/l10n/app_localizations.dart';
 import '../widgets/top_bar.dart';
-import '../widgets/back_button_widget.dart';
+import '../widgets/common_ui.dart';
 import '../providers/settings_provider.dart';
+import '../providers/download_provider.dart';
+import '../services/quran_audio_service.dart';
+import '../ui/app_tokens.dart';
 
 class AudioPage extends StatefulWidget {
   const AudioPage({super.key});
@@ -25,6 +28,8 @@ class _AudioPageState extends State<AudioPage> {
   String selectedReciter = 'ماهر المعيقلي';
   double volume = 0.7;
   late SettingsProvider settings;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
+  String? _loadError;
 
   @override
   void initState() {
@@ -32,7 +37,8 @@ class _AudioPageState extends State<AudioPage> {
     loadSurahs();
     restoreLastPlayed();
     _loadSettings();
-    _audioPlayer.playerStateStream.listen((state) {
+    _playerStateSubscription = _audioPlayer.playerStateStream.listen((state) {
+      if (!mounted) return;
       setState(() {
         isPlaying = state.playing;
       });
@@ -47,6 +53,7 @@ class _AudioPageState extends State<AudioPage> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       selectedReciter = prefs.getString('selectedReciter') ?? 'ماهر المعيقلي';
       volume = prefs.getDouble('volume') ?? 0.7;
@@ -55,30 +62,54 @@ class _AudioPageState extends State<AudioPage> {
   }
 
   Future<void> loadSurahs() async {
-    final jsonString = await rootBundle.loadString('assets/data/surahs.json');
-    final data = json.decode(jsonString);
-    setState(() {
-      surahs = data;
-    });
+    try {
+      final data = await QuranAudioService.loadSurahs();
+      if (!mounted) return;
+      setState(() {
+        surahs = data;
+        _loadError = null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = 'load_failed';
+      });
+    }
   }
 
   Future<void> playSurah(int index, {Duration? position}) async {
-    final surah = surahs[index];
-    // Use selected reciter from settings
+    if (surahs.isEmpty || index < 0 || index >= surahs.length) return;
+    final surah = Map<String, dynamic>.from(surahs[index]);
     final reciter = settings.selectedReciter;
-    // Assuming audio URLs are structured like 'https://example.com/{reciter}/{surah_number}.mp3'
-    // Adjust based on actual API structure
-    final url = surah['audio'].replaceAll('{reciter}', reciter.toLowerCase().replaceAll(' ', '-'));
-    await _audioPlayer.setUrl(url);
-    if (position != null) {
-      await _audioPlayer.seek(position);
+    final downloadProvider = context.read<DownloadProvider>();
+    try {
+      await _audioPlayer.stop();
+      final result = await QuranAudioService.setPlayerSourceWithFallback(
+        player: _audioPlayer,
+        surahNumber: surah['number'] as int,
+        surah: surah,
+        reciter: reciter,
+        downloadProvider: downloadProvider,
+      );
+      if (position != null) {
+        await _audioPlayer.seek(position);
+      }
+      await _audioPlayer.play();
+      if (!mounted) return;
+      setState(() {
+        currentIndex = index;
+        isPlaying = true;
+      });
+      if (result.usingLocal) {
+        final l10n = AppLocalizations.of(context)!;
+        AppFeedback.showInfo(context, l10n.audioLocalPlayback);
+      }
+      saveLastPlayed(index, position: position ?? Duration.zero);
+    } catch (_) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      AppFeedback.showError(context, l10n.audioPlayError);
     }
-    await _audioPlayer.play();
-    setState(() {
-      currentIndex = index;
-      isPlaying = true;
-    });
-    saveLastPlayed(index, position: position ?? Duration.zero);
   }
 
   Future<void> saveLastPlayed(int index, {Duration position = Duration.zero}) async {
@@ -92,6 +123,7 @@ class _AudioPageState extends State<AudioPage> {
     final lastSurah = prefs.getInt('lastSurah');
     final lastPositionMs = prefs.getInt('lastPosition');
     if (lastSurah != null && lastPositionMs != null) {
+      if (!mounted) return;
       setState(() {
         currentIndex = lastSurah;
         lastPosition = Duration(milliseconds: lastPositionMs);
@@ -103,66 +135,40 @@ class _AudioPageState extends State<AudioPage> {
 
   @override
   void dispose() {
+    _playerStateSubscription?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: Directionality.of(context),
       child: Scaffold(
         // Themed background
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
-              const SizedBox(height: 20),
-              
-              // Back Button and Page Title
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    const BackButtonWidget(),
-                    Expanded(
-                      child: Text(
-                        'الاستماع للتلاوة',
-                        style: GoogleFonts.amiri(
-                          color: cs.onSurface,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.lg),
+              AppPageHeader(title: l10n.audioPageTitle),
+              const SizedBox(height: AppSpacing.lg),
               Expanded(
-                child: surahs.isEmpty
-                    ? Center(child: CircularProgressIndicator(color: cs.primary))
-                    : ListView.builder(
+                child: AnimatedSwitcher(
+                  duration: AppMotion.fast,
+                  child: _loadError != null
+                      ? AppErrorView(message: l10n.audioLoadError, onRetry: loadSurahs)
+                      : surahs.isEmpty
+                      ? AppLoadingView(label: '${l10n.audioPageTitle}...')
+                      : ListView.builder(
                         itemCount: surahs.length,
                         itemBuilder: (context, index) {
                           final surah = surahs[index];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: theme.cardColor,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.shadowColor.withValues(alpha: 0.08),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
+                          return AppCard(
                             child: ListTile(
                               title: Text(
                                 surah['name'],
@@ -201,6 +207,7 @@ class _AudioPageState extends State<AudioPage> {
                           );
                         },
                       ),
+                ),
               ),
             ],
           ),

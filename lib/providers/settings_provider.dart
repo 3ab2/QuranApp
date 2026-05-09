@@ -40,6 +40,23 @@ class SettingsProvider extends ChangeNotifier {
   String get selectedReciter => _selectedReciter;
   String get selectedLanguage => _selectedLanguage;
   double get volume => _volume;
+  Locale get locale {
+    switch (_selectedLanguage) {
+      case 'English':
+      case 'Anglais':
+      case 'الإنجليزية':
+        return const Locale('en');
+      case 'Français':
+      case 'French':
+      case 'الفرنسية':
+        return const Locale('fr');
+      case 'العربية':
+      case 'Arabic':
+      case 'Arabe':
+      default:
+        return const Locale('ar');
+    }
+  }
 
   // Soft, eye-friendly palettes
   ThemeData getThemeData() {

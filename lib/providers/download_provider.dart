@@ -275,12 +275,24 @@ class DownloadProvider with ChangeNotifier {
   }
 
   Future<String?> getLocalFilePath(int surahNumber) async {
-    if (!isDownloaded[surahNumber - 1]!) return null;
+    if (isDownloaded[surahNumber - 1] != true) return null;
     if (kIsWeb) {
-      return _blobUrls[surahNumber];
+      final blobUrl = _blobUrls[surahNumber];
+      if (blobUrl == null) {
+        isDownloaded[surahNumber - 1] = false;
+        notifyListeners();
+      }
+      return blobUrl;
     } else {
       final localPath = await _getLocalPath();
       final filePath = path.join(localPath, '$surahNumber.mp3');
+      if (!await File(filePath).exists()) {
+        isDownloaded[surahNumber - 1] = false;
+        _downloadedSurahs.remove(surahNumber);
+        await _saveDownloadedSurahs();
+        notifyListeners();
+        return null;
+      }
       return filePath;
     }
   }

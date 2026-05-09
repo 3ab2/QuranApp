@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quran_app/l10n/app_localizations.dart';
 import '../widgets/top_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
     );
     _fadeController.forward().then((_) {
+      if (!mounted) return;
       setState(() {
         _showButtons = true;
       });
@@ -51,6 +53,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
@@ -101,43 +104,43 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       _buildButton(
                         context,
                         icon: Icons.menu_book,
-                        label: 'القرآن',
+                        label: l10n.homeQuran,
                         route: '/quran',
                         cs: cs,
                       ),
                       _buildButton(
                         context,
+                        icon: Icons.library_books,
+                        label: l10n.homeTafsir,
+                        route: '/tafsir',
+                        cs: cs,
+                      ),
+                      _buildButton(
+                        context,
                         icon: Icons.headphones,
-                        label: 'التلاوات',
+                        label: l10n.homeAudio,
                         route: '/audio',
                         cs: cs,
                       ),
                       _buildButton(
                         context,
                         icon: Icons.auto_stories,
-                        label: 'قصص الأنبياء',
+                        label: l10n.homeStories,
                         route: '/stories',
                         cs: cs,
                       ),
                       _buildButton(
                         context,
                         icon: Icons.access_time,
-                        label: 'الأذان',
+                        label: l10n.homeAdhan,
                         route: '/adhan',
                         cs: cs,
                       ),
                       _buildButton(
                         context,
                         icon: Icons.science,
-                        label: 'المعجزات',
+                        label: l10n.homeMiracles,
                         route: '/scientific-miracles',
-                        cs: cs,
-                      ),
-                      _buildButton(
-                        context,
-                        icon: Icons.settings,
-                        label: 'الإعدادات',
-                        route: '/settings',
                         cs: cs,
                       ),
                     ],

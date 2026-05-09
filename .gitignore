@@ -13,3 +13,28 @@ tabs/
 # Ignore session files/folders
 session/
 sessions/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+**/doc/api/
+
+# Generated platform ephemeral
+**/linux/flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

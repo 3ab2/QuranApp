@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quran_app/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/quran_service.dart';
 import '../widgets/top_bar.dart';
@@ -89,6 +90,9 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
   String searchQuery = '';
   bool isSearching = false;
   Set<String> favorites = {};
+  int? selectedAyah;
+
+  String _normalize(String value) => value.toLowerCase().trim();
 
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -109,6 +113,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
   Future<void> loadData() async {
     verses = await QuranService.getVersesBySurah(widget.surahNumber);
     filteredVerses = verses;
+    if (!mounted) return;
     setState(() {
       loaded = true;
     });
@@ -123,6 +128,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
 
   Future<void> _loadPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       fontSize = prefs.getDouble('fontSize') ?? 22.0;
       favorites = (prefs.getStringList('favorites') ?? []).toSet();
@@ -141,6 +147,7 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final gold = cs.secondary;
     final darkGreen = cs.primary;
@@ -190,12 +197,21 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                           fontSize = max(14.0, fontSize - 2);
                         });
                         _saveFontSize();
+                      } else if (value == 'open_tafsir') {
+                        Navigator.pushNamed(
+                          context,
+                          '/tafsir',
+                          arguments: {
+                            'surahNumber': widget.surahNumber,
+                            'ayahNumber': selectedAyah ?? 1,
+                          },
+                        );
                       }
-                      // Handle other menu actions
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'increase_font', child: Text('Increase Font Size')),
-                      const PopupMenuItem(value: 'decrease_font', child: Text('Decrease Font Size')),
+                      PopupMenuItem(value: 'increase_font', child: Text(l10n.surahIncreaseFont)),
+                      PopupMenuItem(value: 'decrease_font', child: Text(l10n.surahDecreaseFont)),
+                      PopupMenuItem(value: 'open_tafsir', child: Text(l10n.surahOpenTafsirCurrentAyah)),
                       // Add more menu items
                     ],
                   ),
@@ -204,13 +220,18 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                         ? TextField(
                             autofocus: true,
                             onChanged: (value) {
+                              final query = _normalize(value);
                               setState(() {
                                 searchQuery = value;
-                                filteredVerses = verses.where((v) => v['text'].toLowerCase().contains(searchQuery.toLowerCase())).toList();
+                                filteredVerses = verses.where((v) {
+                                  final text = _normalize(v['text']?.toString() ?? '');
+                                  final verseKey = _normalize(v['verse_key']?.toString() ?? '');
+                                  return query.isEmpty || text.contains(query) || verseKey.contains(query);
+                                }).toList();
                               });
                             },
-                            decoration: const InputDecoration(
-                              hintText: 'Search verses...',
+                    decoration: InputDecoration(
+                              hintText: l10n.surahSearchHint,
                               border: InputBorder.none,
                             ),
                           )
@@ -296,7 +317,9 @@ class SurahDetailPageState extends State<SurahDetailPage> with SingleTickerProvi
                                         ),
                                         recognizer: TapGestureRecognizer()
                                           ..onTap = () {
+                                            final ayah = int.tryParse(verse['verse_key'].split(':')[1]);
                                             setState(() {
+                                              selectedAyah = ayah;
                                               if (isFav) {
                                                 favorites.remove(verse['verse_key']);
                                               } else {
