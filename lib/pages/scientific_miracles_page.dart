@@ -28,20 +28,22 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
   List<ScientificMiracle> miracles = [];
   List<ScientificMiracle> filtered = [];
   Timer? _debounce;
-  String search = '';
   String? selectedCategory;
   bool _loading = true;
 
   String _normalize(String value) {
     var t = value.trim().toLowerCase();
     t = t.replaceAll('\u0640', '');
+    // Improve Arabic matching when user types without full vocalization.
+    t = t.replaceAll(RegExp(r'[\u064B-\u0652\u0670]'), '');
     return t;
   }
 
   double _score(ScientificMiracle m, String q) {
     if (q.isEmpty) return 1;
     final hay = _normalize(
-      '${m.title} ${m.verse} ${m.surahName} ${m.scientificExplanation} ${m.categoryDisplay} ${m.topicTags.join(' ')}',
+      '${m.title} ${m.verse} ${m.surahName} ${m.scientificExplanation} '
+      '${m.tafsirSummary} ${m.categoryDisplay} ${m.topicTags.join(' ')}',
     );
     if (hay == q) return 120;
     if (hay.startsWith(q)) return 95;
@@ -55,7 +57,16 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(_onSearchControllerTick);
     loadData();
+  }
+
+  void _onSearchControllerTick() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 240), () {
+      if (!mounted) return;
+      _applyFilter();
+    });
   }
 
   Future<void> loadData() async {
@@ -80,7 +91,8 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
   }
 
   void _applyFilter() {
-    final query = _normalize(search);
+    if (!mounted) return;
+    final query = _normalize(_searchController.text);
     var list = miracles.where((m) {
       final matchesCat =
           selectedCategory == null || m.categoryDisplay == selectedCategory;
@@ -92,12 +104,6 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
       list.sort((a, b) => _score(b, query).compareTo(_score(a, query)));
     }
     setState(() => filtered = list);
-  }
-
-  void _onSearchChanged(String val) {
-    search = val;
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 320), _applyFilter);
   }
 
   List<String> get categories =>
@@ -143,10 +149,10 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
       builder: (ctx) {
         return Padding(
           padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.paddingOf(ctx).bottom + 16,
-            top: 8,
+            left: AppSpacing.pageH,
+            right: AppSpacing.pageH,
+            bottom: MediaQuery.paddingOf(ctx).bottom + AppSpacing.md,
+            top: AppSpacing.sm,
           ),
           child: DraggableScrollableSheet(
             expand: false,
@@ -190,26 +196,19 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                       : excerpt;
                   return ListView(
                     controller: scrollController,
-                    padding: const EdgeInsets.only(bottom: 24),
+                    padding: const EdgeInsets.only(bottom: AppSpacing.listBottom),
                     children: [
                       Text(
                         l10n.miraclesTafsirPreview,
-                        style: GoogleFonts.amiri(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: cs.onSurface,
-                        ),
+                        style: AppTypography.sectionTitle(cs),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         '$name ﴿${entry.ayahNumber}﴾',
                         textDirection: TextDirection.rtl,
-                        style: GoogleFonts.amiri(
-                          fontSize: 14,
-                          color: cs.onSurface.withValues(alpha: 0.65),
-                        ),
+                        style: AppTypography.caption(cs, opacity: 0.68),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.md),
                       SelectableText(
                         displayTafsir,
                         textDirection: TextDirection.rtl,
@@ -219,7 +218,7 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                           color: cs.onSurface.withValues(alpha: 0.92),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppSpacing.lg),
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -251,6 +250,7 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _searchController.removeListener(_onSearchControllerTick);
     _searchController.dispose();
     super.dispose();
   }
@@ -261,219 +261,206 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final bottomPad = bottomInset + AppSpacing.listBottom;
+
     return Directionality(
       textDirection: Directionality.of(context),
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
               const SizedBox(height: AppSpacing.lg),
-              const AppPageHeader(title: 'الإعجاز العلمي في القرآن'),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                child: Text(
-                  l10n.miraclesModerateNote,
-                  textAlign: TextAlign.center,
-                  textDirection: TextDirection.rtl,
-                  style: GoogleFonts.amiri(
-                    fontSize: 12,
-                    color: cs.onSurface.withValues(alpha: 0.65),
-                  ),
-                ),
+              AppPageHeader(
+                title: l10n.miraclesPageTitle,
+                subtitle: l10n.miraclesModerateNote,
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.afterHeader),
               Expanded(
                 child: _loading
                     ? AppLoadingView(label: l10n.miraclesLoading)
-                    : Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: 'ابحث عن آية أو موضوع أو وصف علمي…',
-                                prefixIcon: const Icon(Icons.search),
-                                border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(18)),
-                                ),
-                                filled: true,
-                                fillColor: theme.cardColor,
+                    : CustomScrollView(
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.pageH,
+                              0,
+                              AppSpacing.pageH,
+                              AppSpacing.sm,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: AppSearchTextField(
+                                controller: _searchController,
+                                hintText: l10n.miraclesSearchHint,
+                                textDirection: TextDirection.rtl,
                               ),
-                              onChanged: _onSearchChanged,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height: 48,
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: ChoiceChip(
-                                    label: Text(
-                                      'الكل',
-                                      style: GoogleFonts.amiri(color: cs.onSurface),
-                                    ),
-                                    selected: selectedCategory == null,
-                                    selectedColor: cs.primary,
-                                    backgroundColor: theme.cardColor,
-                                    onSelected: (_) {
-                                      setState(() => selectedCategory = null);
-                                      _applyFilter();
-                                    },
-                                  ),
+                          SliverToBoxAdapter(
+                            child: SizedBox(
+                              height: 44,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
                                 ),
-                                ...categories.map(
-                                  (cat) => Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                                    child: ChoiceChip(
-                                      label: Text(
-                                        cat,
-                                        style: GoogleFonts.amiri(
-                                          color: selectedCategory == cat
-                                              ? cs.onPrimary
-                                              : cs.onSurface,
-                                        ),
-                                      ),
-                                      selected: selectedCategory == cat,
-                                      selectedColor: cs.primary,
-                                      backgroundColor: theme.cardColor,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs,
+                                    ),
+                                    child: AppFilterChoiceChip(
+                                      label: l10n.miraclesFilterAll,
+                                      selected: selectedCategory == null,
+                                      colorScheme: cs,
                                       onSelected: (_) {
-                                        setState(() => selectedCategory = cat);
+                                        setState(() => selectedCategory = null);
                                         _applyFilter();
                                       },
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: filtered.isEmpty
-                                ? Center(
-                                    child: Text(
-                                      'لا توجد نتائج',
-                                      style: GoogleFonts.amiri(
-                                        fontSize: 18,
-                                        color: cs.onSurface,
+                                  ...categories.map(
+                                    (cat) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.xs,
+                                      ),
+                                      child: AppFilterChoiceChip(
+                                        label: cat,
+                                        selected: selectedCategory == cat,
+                                        colorScheme: cs,
+                                        onSelected: (_) {
+                                          setState(() => selectedCategory = cat);
+                                          _applyFilter();
+                                        },
                                       ),
                                     ),
-                                  )
-                                : ListView.builder(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    itemCount: filtered.length,
-                                    itemBuilder: (context, index) {
-                                      final miracle = filtered[index];
-                                      final surahNum = miracle.resolvedSurahNumber;
-                                      final showDistinctTitle = miracle.title
-                                              .trim()
-                                              .isNotEmpty &&
-                                          _normalize(miracle.title) !=
-                                              _normalize(miracle.verse);
-                                      return AppCard(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (filtered.isEmpty)
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: Padding(
+                                padding: EdgeInsets.only(bottom: bottomPad),
+                                child: Center(
+                                  child: Text(
+                                    l10n.miraclesEmptyResults,
+                                    textAlign: TextAlign.center,
+                                    textDirection: TextDirection.rtl,
+                                    style: AppTypography.listTitle(cs),
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            SliverPadding(
+                              padding: EdgeInsets.only(bottom: bottomPad),
+                              sliver: SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final miracle = filtered[index];
+                                    final surahNum = miracle.resolvedSurahNumber;
+                                    final showDistinctTitle = miracle.title
+                                            .trim()
+                                            .isNotEmpty &&
+                                        _normalize(miracle.title) !=
+                                            _normalize(miracle.verse);
+                                    return AppCard(
+                                      padding: const EdgeInsets.all(AppSpacing.md),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          if (showDistinctTitle) ...[
+                                            Text(
+                                              miracle.title,
+                                              style: AppTypography.listTitle(cs),
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                            const SizedBox(height: AppSpacing.sm),
+                                          ],
+                                          Text(
+                                            'سورة ${_surahNameAr(surahNum)} - آية ${miracle.primaryAyah}',
+                                            textDirection: TextDirection.rtl,
+                                            style: AppTypography.caption(cs, opacity: 0.72),
+                                          ),
+                                          if (miracle.verse.trim().isNotEmpty) ...[
+                                            const SizedBox(height: AppSpacing.xs + 2),
+                                            Text(
+                                              miracle.verse,
+                                              style: GoogleFonts.amiri(
+                                                fontSize: 16,
+                                                color: cs.primary,
+                                                fontWeight: showDistinctTitle
+                                                    ? FontWeight.w600
+                                                    : FontWeight.bold,
+                                              ),
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                          ],
+                                          const SizedBox(height: AppSpacing.sm),
+                                          Text(
+                                            miracle.scientificExplanation,
+                                            style: GoogleFonts.amiri(
+                                              fontSize: 15,
+                                              height: 1.45,
+                                              color: cs.onSurface.withValues(alpha: 0.85),
+                                            ),
+                                            textDirection: TextDirection.rtl,
+                                          ),
+                                          const SizedBox(height: AppSpacing.sm + 2),
+                                          Wrap(
+                                            spacing: AppSpacing.sm,
+                                            runSpacing: AppSpacing.sm,
+                                            alignment: WrapAlignment.end,
                                             children: [
-                                              if (showDistinctTitle) ...[
-                                                Text(
-                                                  miracle.title,
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: AppSpacing.sm + 2,
+                                                  vertical: AppSpacing.xs,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: cs.primary.withValues(alpha: 0.14),
+                                                  borderRadius: AppRadius.chip,
+                                                ),
+                                                child: Text(
+                                                  miracle.categoryDisplay,
                                                   style: GoogleFonts.amiri(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18,
+                                                    fontSize: 13,
                                                     color: cs.onSurface,
                                                   ),
-                                                  textDirection: TextDirection.rtl,
-                                                ),
-                                                const SizedBox(height: 8),
-                                              ],
-                                              Text(
-                                                'سورة ${_surahNameAr(surahNum)} - آية ${miracle.primaryAyah}',
-                                                textDirection: TextDirection.rtl,
-                                                style: GoogleFonts.amiri(
-                                                  color: cs.onSurface
-                                                      .withValues(alpha: 0.7),
                                                 ),
                                               ),
-                                              if (miracle.verse.trim().isNotEmpty) ...[
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  miracle.verse,
-                                                  style: GoogleFonts.amiri(
-                                                    fontSize: 16,
-                                                    color: cs.primary,
-                                                    fontWeight: showDistinctTitle
-                                                        ? FontWeight.w600
-                                                        : FontWeight.bold,
-                                                  ),
-                                                  textDirection: TextDirection.rtl,
+                                              TextButton.icon(
+                                                onPressed: () => _previewTafsir(miracle),
+                                                icon: Icon(
+                                                  Icons.article_outlined,
+                                                  color: cs.primary,
+                                                  size: AppIconSizes.tile,
                                                 ),
-                                              ],
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                miracle.scientificExplanation,
-                                                style: GoogleFonts.amiri(
-                                                  fontSize: 15,
-                                                  color: cs.onSurface
-                                                      .withValues(alpha: 0.85),
+                                                label: Text(
+                                                  l10n.miraclesTafsirPreview,
+                                                  style: GoogleFonts.amiri(),
                                                 ),
-                                                textDirection: TextDirection.rtl,
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Wrap(
-                                                spacing: 8,
-                                                runSpacing: 8,
-                                                alignment: WrapAlignment.end,
-                                                children: [
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 4,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: cs.primary
-                                                          .withValues(alpha: 0.2),
-                                                      borderRadius:
-                                                          BorderRadius.circular(12),
-                                                    ),
-                                                    child: Text(
-                                                      miracle.categoryDisplay,
-                                                      style: GoogleFonts.amiri(
-                                                        fontSize: 13,
-                                                        color: cs.onSurface,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  TextButton.icon(
-                                                    onPressed: () =>
-                                                        _previewTafsir(miracle),
-                                                    icon: Icon(
-                                                      Icons.article_outlined,
-                                                      color: cs.primary,
-                                                      size: 20,
-                                                    ),
-                                                    label: Text(
-                                                      l10n.miraclesTafsirPreview,
-                                                      style: GoogleFonts.amiri(),
-                                                    ),
-                                                  ),
-                                                ],
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  childCount: filtered.length,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
               ),

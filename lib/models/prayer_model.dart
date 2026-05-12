@@ -43,12 +43,15 @@ class Location {
   final String country;
   final double latitude;
   final double longitude;
+  /// IANA timezone for prayer scheduling when this location is active (optional).
+  final String? timezoneId;
 
   Location({
     required this.city,
     required this.country,
     required this.latitude,
     required this.longitude,
+    this.timezoneId,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -57,6 +60,7 @@ class Location {
       country: json['country'] ?? '',
       latitude: json['latitude']?.toDouble() ?? 0.0,
       longitude: json['longitude']?.toDouble() ?? 0.0,
+      timezoneId: json['timezone_id']?.toString(),
     );
   }
 
@@ -66,6 +70,7 @@ class Location {
       'country': country,
       'latitude': latitude,
       'longitude': longitude,
+      if (timezoneId != null) 'timezone_id': timezoneId,
     };
   }
 }
@@ -75,20 +80,37 @@ class AdhanSettings {
   final int notificationBeforeMinutes;
   final bool autoLocation;
   final double volume;
+  /// e.g. bundled_default, mishary, makkah — see [kAdhanVoiceCatalog].
+  final String muezzinVoiceId;
+  /// Reserved for future native DND / audio ducking; stored for UX continuity.
+  final bool mosqueModeEnabled;
+  /// When [autoLocation] is false, this location drives prayer times & tz.
+  final Location? manualPrayerLocation;
 
   AdhanSettings({
     required this.adhanEnabled,
     required this.notificationBeforeMinutes,
     required this.autoLocation,
     required this.volume,
+    this.muezzinVoiceId = 'bundled_default',
+    this.mosqueModeEnabled = false,
+    this.manualPrayerLocation,
   });
 
   factory AdhanSettings.fromJson(Map<String, dynamic> json) {
+    Location? manual;
+    final rawManual = json['manual_prayer_location'];
+    if (rawManual is Map<String, dynamic>) {
+      manual = Location.fromJson(rawManual);
+    }
     return AdhanSettings(
       adhanEnabled: json['adhan_enabled'] ?? true,
       notificationBeforeMinutes: json['notification_before_minutes'] ?? 5,
       autoLocation: json['auto_location'] ?? true,
       volume: (json['volume'] as num?)?.toDouble() ?? 0.8,
+      muezzinVoiceId: json['muezzin_voice_id']?.toString() ?? 'bundled_default',
+      mosqueModeEnabled: json['mosque_mode_enabled'] == true,
+      manualPrayerLocation: manual,
     );
   }
 
@@ -98,7 +120,35 @@ class AdhanSettings {
       'notification_before_minutes': notificationBeforeMinutes,
       'auto_location': autoLocation,
       'volume': volume,
+      'muezzin_voice_id': muezzinVoiceId,
+      'mosque_mode_enabled': mosqueModeEnabled,
+      if (manualPrayerLocation != null)
+        'manual_prayer_location': manualPrayerLocation!.toJson(),
     };
+  }
+
+  AdhanSettings copyWith({
+    bool? adhanEnabled,
+    int? notificationBeforeMinutes,
+    bool? autoLocation,
+    double? volume,
+    String? muezzinVoiceId,
+    bool? mosqueModeEnabled,
+    Location? manualPrayerLocation,
+    bool clearManualPrayerLocation = false,
+  }) {
+    return AdhanSettings(
+      adhanEnabled: adhanEnabled ?? this.adhanEnabled,
+      notificationBeforeMinutes:
+          notificationBeforeMinutes ?? this.notificationBeforeMinutes,
+      autoLocation: autoLocation ?? this.autoLocation,
+      volume: volume ?? this.volume,
+      muezzinVoiceId: muezzinVoiceId ?? this.muezzinVoiceId,
+      mosqueModeEnabled: mosqueModeEnabled ?? this.mosqueModeEnabled,
+      manualPrayerLocation: clearManualPrayerLocation
+          ? null
+          : (manualPrayerLocation ?? this.manualPrayerLocation),
+    );
   }
 }
 

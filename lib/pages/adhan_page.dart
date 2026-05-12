@@ -1,13 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/prayer_model.dart';
+import '../prayer/adhan_voice_registry.dart';
+import '../prayer/mosque_mode_controller.dart';
+import '../prayer/prayer_live_clock.dart';
+import '../prayer/prayer_timeline.dart';
+import '../prayer/prayer_widget_data.dart';
 import '../services/prayer_service.dart';
-import '../widgets/top_bar.dart';
-import '../widgets/common_ui.dart';
 import '../ui/app_tokens.dart';
+import '../widgets/common_ui.dart';
+import '../widgets/prayer_location_picker_sheet.dart';
+import '../widgets/prayer_hero_dashboard.dart';
+import '../widgets/top_bar.dart';
+import 'adhan_immersive_page.dart';
+import 'prayer_qibla_page.dart';
 
 class AdhanPage extends StatefulWidget {
   const AdhanPage({super.key});
@@ -19,16 +31,56 @@ class AdhanPage extends StatefulWidget {
 class _AdhanPageState extends State<AdhanPage> {
   final PrayerService _prayerService = PrayerService();
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _previewPlayer = AudioPlayer();
+  final PrayerLiveClock _liveClock = PrayerLiveClock();
 
   PrayerTimes? _prayerTimes;
   AdhanSettings? _settings;
   bool _isLoading = true;
   String? _currentlyPlayingPrayer;
+  String _highlightSignature = '';
+  bool _heroExpanded = true;
 
   @override
   void initState() {
     super.initState();
+    _liveClock.addListener(_onLiveClock);
     _initializePage();
+  }
+
+  void _onLiveClock() {
+    if (!mounted) return;
+    final s = _liveClock.snapshot;
+    if (s != null) {
+      final k = '${s.currentPeriod.nameAr}|${s.nextPrayer.nameAr}';
+      if (k != _highlightSignature) {
+        setState(() => _highlightSignature = k);
+      }
+      if (s.phase == PrayerUrgencyPhase.approaching) {
+        MosqueModeController.onApproachingPrayerWindow(
+          enabled: _settings?.mosqueModeEnabled ?? false,
+          nextPrayerNameAr: s.nextPrayer.nameAr,
+          now: DateTime.now(),
+        );
+      }
+    }
+  }
+
+  Future<void> _applyLocationSettings(AdhanSettings s) async {
+    await _prayerService.saveSettings(s);
+    if (!mounted) return;
+    setState(() => _settings = s);
+    await _loadPrayerTimes();
+  }
+
+  Future<void> _openLocationPicker() async {
+    final s = _settings;
+    if (s == null) return;
+    await showPrayerLocationPickerSheet(
+      context: context,
+      currentSettings: s,
+      onApply: _applyLocationSettings,
+    );
   }
 
   Future<void> _initializePage() async {
@@ -39,6 +91,59 @@ class _AdhanPageState extends State<AdhanPage> {
       _settings = _prayerService.settings;
       _isLoading = false;
     });
+    _syncLiveClock();
+  }
+
+  void _syncLiveClock() {
+    final t = _prayerTimes;
+    if (t == null) {
+      _liveClock.stop();
+      return;
+    }
+    _liveClock.configure(
+      times: t,
+      preAlertMinutes: _settings?.notificationBeforeMinutes ?? 5,
+    );
+    _liveClock.start();
+    Future<void>.microtask(() => _persistWidgetSnapshot());
+  }
+
+  Future<void> _persistWidgetSnapshot() async {
+    final snap = _liveClock.snapshot;
+    if (snap == null) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final payload = PrayerWidgetData.build(
+        snapshot: snap,
+        cityLine: _prayerService.locationDisplayName,
+        now: DateTime.now(),
+      );
+      if (payload != null) {
+        await prefs.setString(
+          'prayer_widget_payload',
+          json.encode(payload.toJson()),
+        );
+      }
+    } catch (_) {}
+  }
+
+  String _prayerEnglishName(String prayerNameAr) {
+    switch (prayerNameAr) {
+      case 'الفجر':
+        return 'Fajr';
+      case 'الشروق':
+        return 'Sunrise';
+      case 'الظهر':
+        return 'Dhuhr';
+      case 'العصر':
+        return 'Asr';
+      case 'المغرب':
+        return 'Maghrib';
+      case 'العشاء':
+        return 'Isha';
+      default:
+        return prayerNameAr;
+    }
   }
 
   Future<void> _loadPrayerTimes() async {
@@ -57,347 +162,21 @@ class _AdhanPageState extends State<AdhanPage> {
           _prayerTimes = prayerTimes;
           _isLoading = false;
         });
+        _syncLiveClock();
       } else {
         // Si la localisation automatique échoue, montrer les options
         if (!mounted) return;
         setState(() {
           _isLoading = false;
         });
-        _showLocationDialog();
+        _openLocationPicker();
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
-      _showLocationDialog();
-    }
-  }
-
-  void _showLocationDialog() {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title:
-            const Text('تحديد الموقع', style: TextStyle(fontFamily: 'Amiri')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.location_on, size: 48, color: Colors.indigo),
-            const SizedBox(height: 16),
-            const Text(
-              'لم يتم تحديد موقعك تلقائيًا. يمكنك:',
-              style: TextStyle(fontFamily: 'Amiri'),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _requestLocationPermission();
-                },
-                icon: const Icon(Icons.gps_fixed),
-                label: const Text('استخدام GPS',
-                    style: TextStyle(fontFamily: 'Amiri')),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showManualLocationDialog();
-                },
-                icon: const Icon(Icons.edit_location),
-                label: const Text('إدخال الموقع يدويًا',
-                    style: TextStyle(fontFamily: 'Amiri')),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _useDefaultLocation();
-                },
-                icon: const Icon(Icons.location_city),
-                label: const Text('استخدام مكة المكرمة',
-                    style: TextStyle(fontFamily: 'Amiri')),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء', style: TextStyle(fontFamily: 'Amiri')),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _useDefaultLocation() async {
-    final defaultLocation = Location(
-      city: 'مكة المكرمة',
-      country: 'Saudi Arabia',
-      latitude: 21.4225,
-      longitude: 39.8262,
-    );
-
-    await _loadPrayerTimesWithCustomLocation(defaultLocation);
-  }
-
-  Future<void> _requestLocationPermission() async {
-    try {
-      final permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        await _loadPrayerTimes();
-      } else {
-        if (!mounted) return;
-        _showLocationDialog();
-      }
-    } catch (e) {
-      if (!mounted) return;
-      _showErrorSnackBar('خطأ في طلب إذن الموقع');
-    }
-  }
-
-  void _showManualLocationDialog() {
-    final TextEditingController cityController = TextEditingController();
-    final TextEditingController countryController = TextEditingController();
-    final TextEditingController latController = TextEditingController();
-    final TextEditingController lngController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('إدخال الموقع يدويًا',
-            style: TextStyle(fontFamily: 'Amiri')),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Villes communes
-              const Text('مدن شائعة:',
-                  style: TextStyle(
-                      fontFamily: 'Amiri', fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  _buildCityChip(
-                      'مكة المكرمة',
-                      'Saudi Arabia',
-                      21.4225,
-                      39.8262,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'المدينة المنورة',
-                      'Saudi Arabia',
-                      24.5247,
-                      39.5692,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'الرياض',
-                      'Saudi Arabia',
-                      24.7136,
-                      46.6753,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'جدة',
-                      'Saudi Arabia',
-                      21.5433,
-                      39.1679,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'القاهرة',
-                      'Egypt',
-                      30.0444,
-                      31.2357,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'الاسكندرية',
-                      'Egypt',
-                      31.2001,
-                      29.9187,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'الرباط',
-                      'Morocco',
-                      34.0209,
-                      -6.8416,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                  _buildCityChip(
-                      'الدار البيضاء',
-                      'Morocco',
-                      33.5731,
-                      -7.5898,
-                      cityController,
-                      countryController,
-                      latController,
-                      lngController),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 8),
-              TextField(
-                controller: cityController,
-                decoration: const InputDecoration(
-                  labelText: 'المدينة',
-                  labelStyle: TextStyle(fontFamily: 'Amiri'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: countryController,
-                decoration: const InputDecoration(
-                  labelText: 'البلد',
-                  labelStyle: TextStyle(fontFamily: 'Amiri'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: latController,
-                decoration: const InputDecoration(
-                  labelText: 'خط العرض (Latitude)',
-                  labelStyle: TextStyle(fontFamily: 'Amiri'),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: lngController,
-                decoration: const InputDecoration(
-                  labelText: 'خط الطول (Longitude)',
-                  labelStyle: TextStyle(fontFamily: 'Amiri'),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء', style: TextStyle(fontFamily: 'Amiri')),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final lat = double.tryParse(latController.text);
-              final lng = double.tryParse(lngController.text);
-
-              if (lat != null && lng != null) {
-                final customLocation = Location(
-                  city: cityController.text.isNotEmpty
-                      ? cityController.text
-                      : 'Unknown',
-                  country: countryController.text.isNotEmpty
-                      ? countryController.text
-                      : 'Unknown',
-                  latitude: lat,
-                  longitude: lng,
-                );
-
-                Navigator.pop(context);
-                await _loadPrayerTimesWithCustomLocation(customLocation);
-              } else {
-                _showErrorSnackBar('يرجى إدخال إحداثيات صحيحة');
-              }
-            },
-            child: const Text('حفظ', style: TextStyle(fontFamily: 'Amiri')),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCityChip(
-      String city,
-      String country,
-      double lat,
-      double lng,
-      TextEditingController cityController,
-      TextEditingController countryController,
-      TextEditingController latController,
-      TextEditingController lngController) {
-    return ActionChip(
-      label:
-          Text(city, style: const TextStyle(fontFamily: 'Amiri', fontSize: 12)),
-      onPressed: () {
-        cityController.text = city;
-        countryController.text = country;
-        latController.text = lat.toString();
-        lngController.text = lng.toString();
-      },
-    );
-  }
-
-  Future<void> _loadPrayerTimesWithCustomLocation(
-      Location customLocation) async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final prayerTimes =
-          await _prayerService.getPrayerTimes(customLocation: customLocation);
-      if (!mounted) return;
-      setState(() {
-        _prayerTimes = prayerTimes;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
-      _showErrorSnackBar('خطأ في تحميل أوقات الصلاة');
+      _openLocationPicker();
     }
   }
 
@@ -431,11 +210,27 @@ class _AdhanPageState extends State<AdhanPage> {
         } else {
           await _audioPlayer.setUrl(audioSource.uri);
         }
+        final vol = _settings?.volume ?? 0.8;
+        await _audioPlayer.setVolume(vol);
         await _audioPlayer.play();
         if (!mounted) return;
         setState(() {
           _currentlyPlayingPrayer = prayerName;
         });
+        if (!mounted) return;
+        await Navigator.of(context).push<void>(
+          PageRouteBuilder<void>(
+            fullscreenDialog: true,
+            opaque: true,
+            barrierDismissible: false,
+            pageBuilder: (ctx, _, __) => AdhanImmersivePage(
+              prayerNameAr: prayerName,
+              prayerNameEn: _prayerEnglishName(prayerName),
+              player: _audioPlayer,
+              prayerService: _prayerService,
+            ),
+          ),
+        );
       } catch (e) {
         if (!mounted) return;
         _showErrorSnackBar('خطأ في تشغيل الأذان');
@@ -446,111 +241,257 @@ class _AdhanPageState extends State<AdhanPage> {
   Future<void> _showSettingsDialog() async {
     final currentSettings = _prayerService.settings;
     if (currentSettings == null) return;
+    final l10n = AppLocalizations.of(context)!;
 
     bool adhanEnabled = currentSettings.adhanEnabled;
-    int notificationMinutes = currentSettings.notificationBeforeMinutes;
+    int notificationMinutes =
+        currentSettings.notificationBeforeMinutes.clamp(1, 120);
     double volume = currentSettings.volume;
+    String muezzinId = currentSettings.muezzinVoiceId;
+    bool mosqueMode = currentSettings.mosqueModeEnabled;
+    final minutesController =
+        TextEditingController(text: notificationMinutes.toString());
 
     await showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
+      builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('إعدادات الأذان',
-              style: TextStyle(fontFamily: 'Amiri')),
+          title: Text(
+            'إعدادات الأذان',
+            style: GoogleFonts.amiri(fontWeight: FontWeight.bold),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // تفعيل/تعطيل الأذان
                 SwitchListTile(
-                  title: const Text('تفعيل الأذان',
-                      style: TextStyle(fontFamily: 'Amiri')),
+                  title: Text('تفعيل الأذان', style: GoogleFonts.amiri()),
                   value: adhanEnabled,
                   onChanged: (value) {
-                    setDialogState(() {
-                      adhanEnabled = value;
-                    });
+                    setDialogState(() => adhanEnabled = value);
                   },
                 ),
-
-                const SizedBox(height: 16),
-
-                // دقائق الإشعار قبل الصلاة
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'دقائق الإشعار قبل الصلاة',
-                    labelStyle: TextStyle(fontFamily: 'Amiri'),
-                  ),
-                  keyboardType: TextInputType.number,
-                  initialValue: notificationMinutes.toString(),
-                  onChanged: (value) {
-                    notificationMinutes = int.tryParse(value) ?? 5;
-                  },
+                const SizedBox(height: 8),
+                Text(
+                  l10n.prayerSettingsReminder,
+                  style: GoogleFonts.amiri(fontWeight: FontWeight.w600),
                 ),
-
-                const SizedBox(height: 16),
-
-                // مستوى الصوت
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Text('مستوى الصوت: ${(volume * 100).round()}%',
-                        style: const TextStyle(fontFamily: 'Amiri')),
-                    Slider(
-                      value: volume,
-                      min: 0.0,
-                      max: 1.0,
-                      divisions: 10,
-                      onChanged: (value) {
+                    ChoiceChip(
+                      label: Text(l10n.prayerReminderPreset5),
+                      selected: notificationMinutes == 5,
+                      onSelected: (_) {
                         setDialogState(() {
-                          volume = value;
+                          notificationMinutes = 5;
+                          minutesController.text = '5';
+                        });
+                      },
+                    ),
+                    ChoiceChip(
+                      label: Text(l10n.prayerReminderPreset10),
+                      selected: notificationMinutes == 10,
+                      onSelected: (_) {
+                        setDialogState(() {
+                          notificationMinutes = 10;
+                          minutesController.text = '10';
+                        });
+                      },
+                    ),
+                    ChoiceChip(
+                      label: Text(l10n.prayerReminderPreset15),
+                      selected: notificationMinutes == 15,
+                      onSelected: (_) {
+                        setDialogState(() {
+                          notificationMinutes = 15;
+                          minutesController.text = '15';
                         });
                       },
                     ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: minutesController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: l10n.prayerReminderCustomHint,
+                    labelStyle: GoogleFonts.amiri(fontSize: 13),
+                  ),
+                  onChanged: (v) {
+                    final n = int.tryParse(v.trim());
+                    if (n != null) {
+                      setDialogState(() {
+                        notificationMinutes = n.clamp(1, 120);
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.prayerMuezzinVoice,
+                  style: GoogleFonts.amiri(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                ...kAdhanVoiceCatalog.map(
+                  (v) => RadioListTile<String>(
+                    dense: true,
+                    title: Text(
+                      Localizations.localeOf(context).languageCode == 'ar'
+                          ? v.labelAr
+                          : Localizations.localeOf(context).languageCode == 'fr'
+                              ? v.labelFr
+                              : v.labelEn,
+                      style: GoogleFonts.amiri(fontSize: 14),
+                    ),
+                    value: v.id,
+                    groupValue: muezzinId,
+                    onChanged: (val) {
+                      if (val == null) return;
+                      setDialogState(() => muezzinId = val);
+                    },
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    try {
+                      await _previewPlayer.stop();
+                      final draft = AdhanSettings(
+                        adhanEnabled: adhanEnabled,
+                        notificationBeforeMinutes:
+                            notificationMinutes.clamp(1, 120),
+                        autoLocation: currentSettings.autoLocation,
+                        volume: volume,
+                        muezzinVoiceId: muezzinId,
+                        mosqueModeEnabled: mosqueMode,
+                        manualPrayerLocation:
+                            currentSettings.manualPrayerLocation,
+                      );
+                      final src = await _prayerService.resolveAdhanAudioSource(
+                        'الفجر',
+                        forSettings: draft,
+                      );
+                      if (src == null) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'ملفات الأذان غير متوفرة',
+                                style: GoogleFonts.amiri(),
+                              ),
+                            ),
+                          );
+                        }
+                        return;
+                      }
+                      if (src.isAsset) {
+                        await _previewPlayer.setAsset(src.uri);
+                      } else {
+                        await _previewPlayer.setUrl(src.uri);
+                      }
+                      await _previewPlayer.setVolume(volume);
+                      await _previewPlayer.play();
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'تعذّر المعاينة',
+                              style: GoogleFonts.amiri(),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.play_circle_outline),
+                  label: Text(l10n.prayerPreviewVoice, style: GoogleFonts.amiri()),
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  title:
+                      Text(l10n.prayerMosqueMode, style: GoogleFonts.amiri()),
+                  subtitle: Text(
+                    l10n.prayerMosqueModeHelp,
+                    style: GoogleFonts.amiri(fontSize: 12),
+                  ),
+                  value: mosqueMode,
+                  onChanged: (v) => setDialogState(() => mosqueMode = v),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'مستوى الصوت: ${(volume * 100).round()}%',
+                  style: GoogleFonts.amiri(),
+                ),
+                Slider(
+                  value: volume,
+                  min: 0.0,
+                  max: 1.0,
+                  divisions: 10,
+                  onChanged: (value) {
+                    setDialogState(() => volume = value);
+                  },
                 ),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('إلغاء', style: TextStyle(fontFamily: 'Amiri')),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text('إلغاء', style: GoogleFonts.amiri()),
             ),
             ElevatedButton(
               onPressed: () async {
+                final parsed =
+                    int.tryParse(minutesController.text.trim()) ??
+                        notificationMinutes;
                 final newSettings = AdhanSettings(
                   adhanEnabled: adhanEnabled,
-                  notificationBeforeMinutes: notificationMinutes,
+                  notificationBeforeMinutes: parsed.clamp(1, 120),
                   autoLocation: currentSettings.autoLocation,
                   volume: volume,
+                  muezzinVoiceId: muezzinId,
+                  mosqueModeEnabled: mosqueMode,
+                  manualPrayerLocation:
+                      currentSettings.manualPrayerLocation,
                 );
 
                 await _prayerService.saveSettings(newSettings);
-                if (context.mounted) {
-                  setState(() {
-                    _settings = newSettings;
-                  });
-                  Navigator.pop(context);
-                }
+                if (!dialogContext.mounted) return;
+                setState(() {
+                  _settings = newSettings;
+                });
+                _syncLiveClock();
+                await _persistWidgetSnapshot();
+                if (!dialogContext.mounted) return;
+                Navigator.pop(dialogContext);
               },
-              child: const Text('حفظ', style: TextStyle(fontFamily: 'Amiri')),
+              child: Text('حفظ', style: GoogleFonts.amiri()),
             ),
           ],
         ),
       ),
     );
+
+    minutesController.dispose();
+    await _previewPlayer.stop();
   }
 
   Widget _buildPrayerCard(
-      String prayerName, String time, IconData icon, Color color) {
+    String prayerName,
+    String time,
+    IconData icon,
+    Color color, {
+    bool highlight = false,
+  }) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-      child: AppCard(
+    final card = AppCard(
         margin: EdgeInsets.zero,
         child: ListTile(
           contentPadding: const EdgeInsets.all(16),
@@ -606,8 +547,57 @@ class _AdhanPageState extends State<AdhanPage> {
             ],
           ),
         ),
+    );
+
+    return Container(
+      margin: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      decoration: highlight
+          ? BoxDecoration(
+              borderRadius: AppRadius.card,
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.9),
+                width: 2,
+              ),
+            )
+          : null,
+      child: card,
+    );
+  }
+
+  void _showAfterSalahSheet(AppLocalizations l10n) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.prayerAfterAdhkar,
+              style: GoogleFonts.amiri(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.prayerAfterAdhkarBody,
+              style: GoogleFonts.amiri(fontSize: 15, height: 1.45),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  bool _prayerRowHighlight(String prayerNameAr) {
+    final s = _liveClock.snapshot;
+    if (s == null) return false;
+    return s.currentPeriod.nameAr == prayerNameAr ||
+        s.nextPrayer.nameAr == prayerNameAr;
   }
 
   void _showPrayerInfo(String prayerName) {
@@ -648,158 +638,300 @@ class _AdhanPageState extends State<AdhanPage> {
       textDirection: Directionality.of(context),
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
-              const SizedBox(height: AppSpacing.lg),
-              AppPageHeader(
-                title: l10n.adhanPageTitle,
-                trailing: [
-                  IconButton(
-                    icon: Icon(Icons.settings,
-                        color: theme.colorScheme.onSurface),
-                    onPressed: _showSettingsDialog,
-                  ),
-                  IconButton(
-                    icon:
-                        Icon(Icons.refresh, color: theme.colorScheme.onSurface),
-                    onPressed: _loadPrayerTimes,
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, AppSpacing.sm, AppSpacing.pageH, AppSpacing.xs),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: l10n.quranBackToHome,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                      onPressed: () {
+                        final nav = Navigator.of(context);
+                        if (nav.canPop()) {
+                          nav.pop();
+                        } else {
+                          nav.pushNamedAndRemoveUntil('/', (route) => false);
+                        }
+                      },
+                      icon: const BackButtonIcon(),
+                      color: theme.colorScheme.primary,
+                    ),
+                    Expanded(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        onTap: _prayerTimes != null ? _openLocationPicker : null,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l10n.adhanPageTitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.pageTitle(theme.colorScheme),
+                              ),
+                              if (_prayerTimes != null)
+                                Text(
+                                  _prayerService.locationDisplayName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTypography.captionDense(
+                                    theme.colorScheme,
+                                    opacity: 0.75,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.storyRetry,
+                      onPressed: _loadPrayerTimes,
+                      icon: Icon(Icons.refresh_rounded, color: theme.colorScheme.primary),
+                    ),
+                    PopupMenuButton<String>(
+                      tooltip: l10n.settingsTitle,
+                      icon: Icon(Icons.more_vert, color: theme.colorScheme.primary),
+                      onSelected: (v) {
+                        if (v == 'settings') {
+                          _showSettingsDialog();
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          value: 'settings',
+                          child: ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.settings_outlined),
+                            title: Text(l10n.settingsTitle, style: GoogleFonts.amiri()),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.xs),
               Expanded(
                 child: _isLoading
                     ? AppLoadingView(label: l10n.adhanLoadingPrayerTimes)
                     : _prayerTimes == null
                         ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.location_off,
-                                    size: 64,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.6)),
-                                const SizedBox(height: 16),
-                                Text(
-                                  l10n.adhanLocationNotDetected,
-                                  style: GoogleFonts.amiri(
-                                    fontSize: 18,
-                                    color: theme.colorScheme.onSurface,
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.location_off,
+                                      size: 56,
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.55)),
+                                  const SizedBox(height: AppSpacing.md),
+                                  Text(
+                                    l10n.adhanLocationNotDetected,
+                                    style: GoogleFonts.amiri(
+                                      fontSize: 18,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    l10n.adhanLocationPrompt,
+                                    style: GoogleFonts.amiri(
+                                        color: theme.colorScheme.onSurface),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: AppSpacing.lg),
+                                  FilledButton.icon(
+                                    onPressed: _openLocationPicker,
+                                    icon: const Icon(Icons.location_on_outlined),
+                                    label: Text(
+                                      l10n.adhanLocationSettings,
+                                      style: GoogleFonts.amiri(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : RepaintBoundary(
+                            child: CustomScrollView(
+                              physics: const BouncingScrollPhysics(
+                                parent: AlwaysScrollableScrollPhysics(),
+                              ),
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: ListenableBuilder(
+                                    listenable: _liveClock,
+                                    builder: (context, _) {
+                                      final snap = _liveClock.snapshot;
+                                      if (snap == null) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      final cs = Theme.of(context).colorScheme;
+                                      if (!_heroExpanded) {
+                                        return AppCard(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            AppSpacing.pageH,
+                                            0,
+                                            AppSpacing.pageH,
+                                            AppSpacing.sm,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: AppSpacing.md,
+                                            vertical: AppSpacing.sm,
+                                          ),
+                                          child: InkWell(
+                                            borderRadius: AppRadius.card,
+                                            onTap: () => setState(() => _heroExpanded = true),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.schedule_rounded,
+                                                  color: cs.primary,
+                                                  size: 22,
+                                                ),
+                                                const SizedBox(width: AppSpacing.sm),
+                                                Expanded(
+                                                  child: Text(
+                                                    '${snap.nextPrayer.nameAr} · ${formatPrayerCountdownHms(snap.remaining)}',
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    textDirection: TextDirection.rtl,
+                                                    style: AppTypography.listTitle(cs),
+                                                  ),
+                                                ),
+                                                Icon(
+                                                  Icons.expand_more_rounded,
+                                                  color: cs.primary,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Align(
+                                            alignment: AlignmentDirectional.centerEnd,
+                                            child: IconButton(
+                                              visualDensity: VisualDensity.compact,
+                                              tooltip: l10n.quranSearchClose,
+                                              onPressed: () =>
+                                                  setState(() => _heroExpanded = false),
+                                              icon: Icon(
+                                                Icons.expand_less_rounded,
+                                                color: cs.primary,
+                                              ),
+                                            ),
+                                          ),
+                                          PrayerHeroCompact(
+                                            snapshot: snap,
+                                            locationLine:
+                                                '${_prayerService.locationDisplayName} · ${_prayerService.resolvedTimeZone}',
+                                            onOpenQibla: () {
+                                              Navigator.of(context).push<void>(
+                                                MaterialPageRoute<void>(
+                                                  builder: (_) =>
+                                                      const PrayerQiblaPage(),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  l10n.adhanLocationPrompt,
-                                  style: GoogleFonts.amiri(
-                                      color: theme.colorScheme.onSurface),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton.icon(
-                                  onPressed: _showLocationDialog,
-                                  icon: const Icon(Icons.settings),
-                                  label: Text(
-                                    l10n.adhanLocationSettings,
-                                    style: GoogleFonts.amiri(),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.colorScheme.primary,
-                                    foregroundColor:
-                                        theme.colorScheme.onPrimary,
+                                SliverToBoxAdapter(
+                                  child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 12),
+                                      horizontal: AppSpacing.md,
+                                      vertical: AppSpacing.xs,
+                                    ),
+                                    child: Align(
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      child: TextButton(
+                                        onPressed: () =>
+                                            _showAfterSalahSheet(l10n),
+                                        child: Text(
+                                          l10n.prayerAfterAdhkar,
+                                          style: GoogleFonts.amiri(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SliverPadding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: AppSpacing.lg,
+                                  ),
+                                  sliver: SliverList(
+                                    delegate: SliverChildListDelegate([
+                                      _buildPrayerCard(
+                                        'الفجر',
+                                        _prayerTimes!.fajr,
+                                        Icons.wb_sunny,
+                                        Colors.orange,
+                                        highlight: _prayerRowHighlight('الفجر'),
+                                      ),
+                                      _buildPrayerCard(
+                                        'الشروق',
+                                        _prayerTimes!.sunrise,
+                                        Icons.wb_sunny_outlined,
+                                        Colors.yellow,
+                                      ),
+                                      _buildPrayerCard(
+                                        'الظهر',
+                                        _prayerTimes!.dhuhr,
+                                        Icons.wb_sunny,
+                                        Colors.orange,
+                                        highlight:
+                                            _prayerRowHighlight('الظهر'),
+                                      ),
+                                      _buildPrayerCard(
+                                        'العصر',
+                                        _prayerTimes!.asr,
+                                        Icons.wb_sunny,
+                                        Colors.orange,
+                                        highlight: _prayerRowHighlight('العصر'),
+                                      ),
+                                      _buildPrayerCard(
+                                        'المغرب',
+                                        _prayerTimes!.maghrib,
+                                        Icons.nightlight,
+                                        Colors.purple,
+                                        highlight:
+                                            _prayerRowHighlight('المغرب'),
+                                      ),
+                                      _buildPrayerCard(
+                                        'العشاء',
+                                        _prayerTimes!.isha,
+                                        Icons.nightlight_round,
+                                        Colors.indigo,
+                                        highlight: _prayerRowHighlight('العشاء'),
+                                      ),
+                                    ]),
                                   ),
                                 ),
                               ],
                             ),
-                          )
-                        : Column(
-                            children: [
-                              // معلومات الموقع
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary
-                                      .withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: theme.colorScheme.secondary
-                                          .withValues(alpha: 0.4)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.location_on,
-                                        color: theme.colorScheme.onSurface),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            _prayerService.locationDisplayName,
-                                            style: GoogleFonts.amiri(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color:
-                                                  theme.colorScheme.onSurface,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Timezone: ${_prayerService.resolvedTimeZone}',
-                                            style: GoogleFonts.amiri(
-                                              color: theme.colorScheme.onSurface
-                                                  .withValues(alpha: 0.7),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // أوقات الصلاة
-                              Expanded(
-                                child: ListView(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
-                                  children: [
-                                    _buildPrayerCard(
-                                        'الفجر',
-                                        _prayerTimes!.fajr,
-                                        Icons.wb_sunny,
-                                        Colors.orange),
-                                    _buildPrayerCard(
-                                        'الشروق',
-                                        _prayerTimes!.sunrise,
-                                        Icons.wb_sunny_outlined,
-                                        Colors.yellow),
-                                    _buildPrayerCard(
-                                        'الظهر',
-                                        _prayerTimes!.dhuhr,
-                                        Icons.wb_sunny,
-                                        Colors.orange),
-                                    _buildPrayerCard('العصر', _prayerTimes!.asr,
-                                        Icons.wb_sunny, Colors.orange),
-                                    _buildPrayerCard(
-                                        'المغرب',
-                                        _prayerTimes!.maghrib,
-                                        Icons.nightlight,
-                                        Colors.purple),
-                                    _buildPrayerCard(
-                                        'العشاء',
-                                        _prayerTimes!.isha,
-                                        Icons.nightlight_round,
-                                        Colors.indigo),
-                                  ],
-                                ),
-                              ),
-                            ],
                           ),
               ),
             ],
@@ -811,6 +943,9 @@ class _AdhanPageState extends State<AdhanPage> {
 
   @override
   void dispose() {
+    _liveClock.removeListener(_onLiveClock);
+    _liveClock.dispose();
+    _previewPlayer.dispose();
     _audioPlayer.dispose();
     super.dispose();
   }

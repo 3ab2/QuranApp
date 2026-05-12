@@ -46,12 +46,19 @@
     }
   },
   "storyPlay": "تشغيل القصة",
+  "storyPauseAudio": "إيقاف مؤقت",
+  "playbackSpeedSheetTitle": "سرعة التشغيل",
+  "storyYoutubeStreamUnavailable": "تعذّر بدء بث السرد. تحقّق من الاتصال ثم أعد المحاولة.",
+  "storyYoutubeWebAudioUnavailable": "التشغيل الكامل للقصص في الخلفية غير متاح في متصفّح الويب. استخدم التطبيق على الهاتف أو الجهاز اللوحي.",
   "storyStop": "إيقاف الصوت",
   "storyAudioError": "تعذر تشغيل صوت القصة.",
   "storyNoAudio": "لا تتوفر رواية صوتية لهذه القصة",
   "storyLoadError": "القصص غير متاحة حاليًا.",
   "storyRetry": "إعادة المحاولة",
   "storyReadDone": "تمت القراءة",
+  "prophetStoriesSearchHint": "ابحث عن نبي أو قصة…",
+  "prophetStoriesSearchEmpty": "لا توجد قصص مطابقة. جرّب كلمات أخرى أو ألغِ تصفية السرد الصوتي.",
+  "prophetStoriesSearchOpenTooltip": "البحث في القصص",
   "surahSearchHint": "ابحث في الآيات...",
   "surahIncreaseFont": "تكبير الخط",
   "surahDecreaseFont": "تصغير الخط",
@@ -73,6 +80,10 @@
   "miraclesLoading": "جاري التحميل…",
   "miraclesTafsirPreview": "معاينة التفسير",
   "miraclesModerateNote": "ملاحظات تعليمية موجزة؛ راجع أهل العلم للعقيدة والفقه.",
+  "miraclesPageTitle": "الإعجاز العلمي في القرآن",
+  "miraclesSearchHint": "ابحث عن آية أو موضوع أو وصف علمي…",
+  "miraclesEmptyResults": "لا توجد نتائج",
+  "miraclesFilterAll": "الكل",
   "quranContinueReading": "متابعة",
   "quranBookmarkSaved": "تم حفظ موضع القراءة.",
   "quranSurahPickerHint": "ابحث عن سورة…",
@@ -135,5 +146,193 @@
         "type": "int"
       }
     }
-  }
+  },
+  "storyYoutubePlayerTitle": "سرد القصة",
+  "storyYoutubeUnavailable": "لا يوجد ربط حالي بسرد موثّق على يوتيوب لهذه القصة.",
+  "storyYoutubeInvalidChannel": "هذا الفيديو ليس من قناة معتمدة.",
+  "storyYoutubeLoadError": "تعذّر تحميل مشغّل يوتيوب. تحقّق من الاتصال وحاول مرة أخرى.",
+  "storyYoutubeNarrator": "المُرَوّي",
+  "storyYoutubePrevious": "القصة السابقة",
+  "storyYoutubeNext": "القصة التالية",
+  "storyYoutubeBackgroundHint": "يعتمد التشغيل في الخلفية على الجهاز؛ أبقِ التطبيق في التطبيقات الأخيرة لأفضل نتيجة.",
+  "storyYoutubeOpenPlayer": "الاستماع للقصة",
+  "storyYoutubeNoNarration": "لا يتوفر سرد صوتي/مرئي لهذه القصة.",
+  "storyYoutubeSleepTimer": "مؤقت النوم",
+  "storyYoutubeSleepOff": "إيقاف",
+  "storyYoutubeSleepMinutes": "إيقاف بعد {minutes} د",
+  "@storyYoutubeSleepMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "storyYoutubeSleepEnded": "أوقف مؤقت النوم التشغيل.",
+  "storyYoutubePlaybackSpeedLabel": "{speed}x",
+  "@storyYoutubePlaybackSpeedLabel": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "storyYoutubeCopyLink": "نسخ رابط الفيديو",
+  "storyYoutubeLinkCopied": "تم نسخ رابط يوتيوب.",
+  "storyYoutubeFullscreen": "ملء الشاشة",
+  "storyYoutubeDownloadHint": "استخدم أيقونة الرابط لنسخ عنوان المشاهدة. تنزيل فيديو يوتيوب للعمل دون اتصال غير متاح في هذا التطبيق.",
+  "prayerPhaseCalm": "الصلاة القادمة",
+  "prayerPhaseApproaching": "اقترب وقت الصلاة",
+  "prayerPhaseAtAdhan": "حان وقت الصلاة",
+  "prayerPhaseGrace": "خذ نفسًا هادئًا",
+  "prayerCountdownRemaining": "المتبقي: {hms}",
+  "@prayerCountdownRemaining": {
+    "placeholders": {
+      "hms": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerCurrentPeriod": "الفترة الحالية: {name}",
+  "@prayerCurrentPeriod": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerAtAdhanMoment": "وقت الأذان — ليّن القلب نحو الله",
+  "prayerOpenQibla": "القبلة",
+  "prayerAdhanStop": "إيقاف",
+  "prayerAdhanSnooze": "تأجيل",
+  "prayerAdhanMute": "كتم",
+  "prayerAdhanUnmute": "صوت",
+  "prayerImmersiveHint": "حركة خفيفة فقط — لأجواء روحانية هادئة",
+  "prayerQiblaTitle": "القبلة",
+  "prayerQiblaWebUnavailable": "بوصلة القبلة المباشرة تحتاج حساسات الجهاز وتتوفر في تطبيق الهاتف.",
+  "prayerQiblaLocationDisabled": "فعّل الموقع والأذونات لاستخدام بوصلة القبلة.",
+  "prayerQiblaError": "تعذّر قراءة البوصلة على هذا الجهاز.",
+  "prayerQiblaDistanceKm": "نحو {km} كم إلى الكعبة",
+  "@prayerQiblaDistanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "prayerQiblaAlignedHint": "أنت باتجاه القبلة — تقبّل الله صلاتك",
+  "prayerQiblaRotateHint": "درّب الجهاز برفق حتى تستقر الإشارة نحو الكعبة",
+  "prayerSettingsReminder": "تذكير قبل الصلاة",
+  "prayerReminderPreset5": "5 دقائق",
+  "prayerReminderPreset10": "10 دقائق",
+  "prayerReminderPreset15": "15 دقيقة",
+  "prayerReminderCustomHint": "مخصص (1–120 دقيقة)",
+  "prayerMuezzinVoice": "صوت المؤذّن / الأذان",
+  "prayerPreviewVoice": "استمع",
+  "prayerMosqueMode": "وضع المسجد (تجريبي)",
+  "prayerMosqueModeHelp": "عند التفعيل يُستدعى خطاف محجوز عند الاقتراب من الصلاة. الوضع الصامت الكامل يحتاج تكاملاً لاحقاً مع النظام.",
+  "prayerAfterAdhkar": "بعد الصلاة — أذكار قصيرة",
+  "prayerAfterAdhkarBody": "سبح الله (33)، والحمد لله (33)، والله أكبر (33) — أو اقرأ آية الكرسي بوقار.",
+  "prayerSpiritualTip0": "ادعُ الله برفق — وهو قريب.",
+  "prayerSpiritualTip1": "ركعتان من الضحى تنيران اليوم.",
+  "prayerSpiritualTip2": "توقّف قبل الصلاة — السكون عبادة.",
+  "prayerSpiritualTip3": "ليصل القلب قبل أن يقوم الجسد.",
+  "prayerLocationSheetTitle": "موقع الصلاة",
+  "prayerLocationAutoGps": "تلقائي (GPS)",
+  "prayerLocationAutoGpsSubtitle": "استخدام موقعك الحالي لأوقات الصلاة.",
+  "prayerLocationUseGpsNow": "استخدام الموقع الحالي",
+  "prayerLocationSearchCountry": "بحث عن دولة",
+  "prayerLocationSearchCity": "بحث عن مدينة",
+  "prayerLocationGpsDenied": "يلزم إذن الموقع للوضع التلقائي.",
+  "prayerLocationGpsFailed": "تعذّر قراءة موقعك. جرّب الاختيار اليدوي.",
+  "aboutSubtitle": "وضوح، ووقار، وإيقاع يومي هادئ مع كتاب الله.",
+  "aboutHeroMission": "رفيق هادئ للقراءة والاستماع والفهم والذكر.",
+  "aboutSectionMissionTitle": "الرسالة",
+  "aboutSectionMissionBody": "تقريب القرآن والتفسير الموثوق والاستماع الطيب من يومك — بلا ضجيج ولا فوضى.",
+  "aboutSectionVisionTitle": "الرؤية",
+  "aboutSectionVisionBody": "تجربة متوازنة روحياً: خط جميل، مصادر محترمة، وأدوات تخدم التركيز لا التشتت.",
+  "aboutSectionWhyTitle": "لماذا هذا التطبيق",
+  "aboutSectionWhyBody": "كثيرون يريدون مكاناً واحداً موثوقاً لمصحف التلاوة، وسياق التفسير، والتلاوات، والصلاة، والقصص بلطف — مبني على الأدب والوضوح.",
+  "aboutSectionPillarsTitle": "ماذا ستجد هنا",
+  "aboutPillarQuran": "قارئ قرآن مع بحث وعلامات وخط عربي مريح.",
+  "aboutPillarTafsir": "تفسير الميسّر بجانب الآيات لسياق أوضح.",
+  "aboutPillarTilawat": "تلاوات مع تنزيل للسفر وضعف الشبكة.",
+  "aboutPillarStories": "قصص الأنبياء بسياسة سرد محكمة ومراجع مختارة.",
+  "aboutSectionPrivacyTitle": "الخصوصية والاحترام",
+  "aboutSectionPrivacyBody": "نفضّل العمل محلياً حيث أمكن، وتجربة بلا مفاجآت، وخيارات محتوى تحترم حرمة النص وحدود أهل العلم.",
+  "aboutSectionOfflineTitle": "التصميم بروح «أوفلاين أولاً»",
+  "aboutSectionOfflineBody": "النص الأساسي والتنزيلات مخصصة لتعمل عند انقطاع الشبكة — ليبقى الذكر في المتناول.",
+  "aboutSectionLangTitle": "تعدد اللغات",
+  "aboutSectionLangBody": "واجهة بالعربية والإنجليزية والفرنسية لتسهيل التنقل على العائلات والطلاب.",
+  "aboutIllustrationCaption": "بارك الله فيكم لمشاركتنا هذا الطريق.",
+  "aboutAppVersion": "الإصدار {version}",
+  "@aboutAppVersion": {
+    "placeholders": {
+      "version": {}
+    }
+  },
+  "aboutCreditsLine": "صُنع بعناية للأمة. كل خير من الله، وما كان من خطأ فمنا.",
+  "helpSubtitle": "إجابات مختصرة وتنسيق هادئ — لتقضي وقتاً أقل في البحث وأكثر في النفع.",
+  "helpCardIntro": "استخدم الأقسام أدناه للتوجيه السريع، ثم افتح الأسئلة الشائعة للتفاصيل.",
+  "helpSectionGuides": "أدلة سريعة",
+  "helpGuideQuranTitle": "صفحة القرآن",
+  "helpGuideQuranBody": "افتح سورة، عدّل الخط والتباعد، ابحث في الآيات، وانتقل للتفسير من أدوات القارئ.",
+  "helpGuideTilawatTitle": "التلاوات",
+  "helpGuideTilawatBody": "اختر القارئ من الإعدادات، شغّل من صفحة الصوت، وسّع الشريط المصغّر، واستخدم المشغّل الكامل للسرعة والتكرار.",
+  "helpGuideDownloadTitle": "تنزيل السور",
+  "helpGuideDownloadBody": "استخدم تنزيل التلاوة حيث يتوفر؛ تُخزَّن الملفات للتشغيل دون اتصال عندما يسمح المضيف.",
+  "helpGuidePrayerNotifyTitle": "تنبيهات الصلاة",
+  "helpGuidePrayerNotifyBody": "فعّل التذكير من الإعدادات، وحدّد الموقع في الأذان، واسمح بالإشعارات لتصل التنبيهات بهدوء.",
+  "helpGuideBackgroundAudioTitle": "الصوت في الخلفية",
+  "helpGuideBackgroundAudioBody": "يمكن أن تستمر التلاوة أثناء التصفح؛ سرد القصص قد يكون محدوداً على المتصفح — استخدم التطبيق على الهاتف للاستماع الكامل.",
+  "helpGuideBookmarkTitle": "العلامات والموضع",
+  "helpGuideBookmarkBody": "احفظ موضع القراءة من صفحة السورة عند توفر الخيار؛ عُد لاحقاً من نقاط «متابعة القراءة» في صفحة القرآن.",
+  "helpSectionFaq": "الأسئلة الشائعة",
+  "helpFaqQuranTitle": "كيف أبحث داخل السورة؟",
+  "helpFaqQuranBody": "افتح السورة، فعّل البحث من شريط الأدوات، اكتب عبارة أو رقم سورة، ثم المس النتيجة للانتقال.",
+  "helpFaqTilawatTitle": "لماذا يتوقف الصوت عند مغادرة الصفحة؟",
+  "helpFaqTilawatBody": "إذا اختفى الشريط المصغّر أعد التشغيل من التلاوات؛ قد يوقف المتصفح الصوت ما لم تكن جلسة المشغّل نشطة.",
+  "helpFaqDownloadTitle": "لماذا فشل التنزيل؟",
+  "helpFaqDownloadBody": "تحقق من الاتصال والمساحة؛ قد يتعطل المضيف مؤقتاً — أعد المحاولة بعد دقائق.",
+  "helpFaqNotifyTitle": "لا تصلني تنبيهات الصلاة",
+  "helpFaqNotifyBody": "تأكد من إذن الإشعارات وتقييدات البطارية لدى بعض الشركات، وتحقق من الموقع أو المدينة اليدوية لصحة المواقيت.",
+  "helpFaqBgAudioTitle": "هل أستطيع سماع القصص في الخلفية على الويب؟",
+  "helpFaqBgAudioBody": "المتصفحات تحدّ الوسائط في الخلفية؛ ثبّت نسخة أندرويد للاستماع مع إطفاء الشاشة.",
+  "helpFaqBookmarkTitle": "أين تُحفظ علامتي؟",
+  "helpFaqBookmarkBody": "تُحفظ على هذا الجهاز لاستئناف القراءة محلياً — لا تُرفع إلى خادم.",
+  "helpFaqTroubleTitle": "إصلاح أعطال عام",
+  "helpFaqTroubleBody": "أعد تشغيل التطبيق، وتأكد أن التاريخ والوقت تلقائيان، حدّث الإصدار، وإذا تكرر الخطأ لاحظ الصفحة التي كنت عليها قبل مراسلتنا.",
+  "rateSubtitle": "نجومكم ترفع الفريق وتدعم التحسين المستمر.",
+  "rateHeroTitle": "جزاكم الله خيراً",
+  "rateHeroBody": "إن نفعكم القرآن أو الصلاة، فتقييم لطيف ينشر النفع لمن يبحث.",
+  "rateStarsCaption": "خمس قلوب خلف خمس نجوم — شكراً لثقتكم.",
+  "rateBtnStore": "قيّم على متجر Play",
+  "rateBtnShare": "شارك التطبيق",
+  "rateBtnFeedback": "أرسل ملاحظة",
+  "rateSnackStoreFail": "تعذّر فتح المتجر من هذا الجهاز.",
+  "rateSnackShareFail": "تعذّر فتح نافذة المشاركة.",
+  "rateSnackMailFail": "تعذّر فتح تطبيق البريد على هذا الجهاز.",
+  "rateShareText": "جرّب تطبيق القرآن: {url}",
+  "@rateShareText": {
+    "placeholders": {
+      "url": {}
+    }
+  },
+  "rateFeedbackSubject": "ملاحظات تطبيق القرآن",
+  "sourcesSubtitle": "الشفافية تبني الثقة — هكذا يصلك المحتوى.",
+  "sourcesIntro": "نفضّل مضيفين معروفين وواجهات برمجية موثقة ونصوص موضّحة المصدر. عند الشك نكون محافظين.",
+  "sourcesTrustLine": "مسارات مختارة — لا تجريف مجهول.",
+  "sourcesVisitWebsite": "الموقع الرسمي",
+  "sourcesQuranTitle": "نص القرآن (المصحف)",
+  "sourcesQuranBody": "الآيات العربية مضمّنة في التطبيق من مجموعة بخط عثماني يتماشى مع إصدارات Tanzil المعتمدة بشكل واسع.",
+  "sourcesTafsirTitle": "التفسير (الميسّر)",
+  "sourcesTafsirBody": "يُجلب تفسير الميسّر العربي عبر واجهات Quran.com العامة مع معرفات الطبعات الموثقة لدى الخدمة.",
+  "sourcesPrayerTitle": "أوقات الصلاة",
+  "sourcesPrayerBody": "تُرسل الإحداثيات وطريقة الحساب إلى واجهة Aladhan (الشبكة الإسلامية) لعرض المواقيت حسب موقعك.",
+  "sourcesAudioTitle": "صوت التلاوة",
+  "sourcesAudioBody": "البث والتنزيل يستخدمان مرايا قارئ موثوقة مثل MP3 Quran ومصادر مشابهة لـ Quranicaudio في فهرس السور.",
+  "sourcesStoriesTitle": "قصص الأنبياء (السرد)",
+  "sourcesStoriesBody": "سرد يوتيوب مقيّد بسياسة قنوات مسموحة؛ كل قصة تفضّل ربط فيديو واحد موثّق.",
+  "sourcesMiraclesTitle": "قسم المعجزات العلمية",
+  "sourcesMiraclesBody": "مواضيع مختارة بصياغة معتدلة وروابط آيات صريحة؛ تلميحات تعليمية — وليست فتوى أو كتاب عقيدة.",
+  "sourcesOpenLinkFailed": "تعذّر فتح هذا الرابط على هذا الجهاز."
 }

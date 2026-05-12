@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
+import 'package:quran_app/models/prayer_model.dart';
+import 'package:quran_app/prayer/prayer_timeline.dart';
 import 'package:quran_app/services/prayer_service.dart';
 
 void main() {
@@ -56,6 +58,16 @@ void main() {
       expect(preAlert.minute, 25);
     });
 
+    test('computes pre-adhan alert with custom debug lead', () {
+      final prayerTime = DateTime(2026, 5, 9, 18, 30);
+      final preAlert = PrayerService.computePreAlertDateTime(
+        prayerTime,
+        lead: const Duration(minutes: 1),
+      );
+      expect(preAlert.hour, 18);
+      expect(preAlert.minute, 29);
+    });
+
     test(
         'keeps pre-adhan alert on previous day for just-after-midnight prayers',
         () {
@@ -67,6 +79,27 @@ void main() {
       expect(preAlert.day, 9);
       expect(preAlert.hour, 23);
       expect(preAlert.minute, 58);
+    });
+  });
+
+  group('Prayer dashboard snapshot', () {
+    test('next prayer is earliest upcoming slot', () {
+      final times = PrayerTimes(
+        fajr: '04:30',
+        sunrise: '06:00',
+        dhuhr: '12:30',
+        asr: '15:45',
+        maghrib: '18:30',
+        isha: '20:00',
+      );
+      final now = DateTime(2026, 5, 9, 11, 0);
+      final snap = computePrayerDashboard(
+        now: now,
+        times: times,
+        preAlertMinutes: 5,
+      );
+      expect(snap.nextPrayer.nameEn, 'Dhuhr');
+      expect(snap.currentPeriod.nameEn, 'Fajr');
     });
   });
 

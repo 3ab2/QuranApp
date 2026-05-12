@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
+
 import '../widgets/top_bar.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/common_ui.dart';
@@ -32,113 +33,71 @@ class SettingsPage extends StatelessWidget {
     return Directionality(
       textDirection: Directionality.of(context),
       child: Scaffold(
-        // Use scaffold background from theme
         body: SafeArea(
           child: Column(
             children: [
               const TopBar(),
               const SizedBox(height: AppSpacing.lg),
               AppPageHeader(title: l10n.settingsTitle),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.afterHeader),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.pageH,
+                    0,
+                    AppSpacing.pageH,
+                    AppSpacing.listBottom,
+                  ),
                   children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.shadowColor.withValues(alpha: 0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                       child: SwitchListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
+                        ),
                         title: Text(
                           l10n.settingsAdhanEnabled,
-                          style: GoogleFonts.amiri(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTypography.listTitle(cs),
                         ),
                         value: settings.isAdhanEnabled,
-                        activeColor: cs.primary,
                         onChanged: (val) => settings.setAdhanEnabled(val),
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.shadowColor.withValues(alpha: 0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                       child: SwitchListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
+                        ),
                         title: Text(
                           l10n.settingsDarkMode,
-                          style: GoogleFonts.amiri(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTypography.listTitle(cs),
                         ),
                         value: settings.isDarkMode,
-                        activeColor: cs.primary,
                         onChanged: (val) => settings.setDarkMode(val),
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.shadowColor.withValues(alpha: 0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                       child: SwitchListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
+                        ),
                         title: Text(
                           l10n.settingsPrayerReminder,
-                          style: GoogleFonts.amiri(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTypography.listTitle(cs),
                         ),
                         value: settings.isReminderEnabled,
-                        activeColor: cs.primary,
                         onChanged: (val) => settings.setReminderEnabled(val),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      l10n.settingsSelectReciter,
-                      style: GoogleFonts.amiri(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: cs.secondary),
-                      ),
+                    AppSectionTitle(text: l10n.settingsSelectReciter),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                       child: DropdownButton<String>(
                         value: settings.selectedReciter,
                         isExpanded: true,
@@ -148,30 +107,20 @@ class SettingsPage extends StatelessWidget {
                             value: reciter,
                             child: Text(
                               reciter,
-                              style: GoogleFonts.amiri(color: cs.onSurface),
+                              style: GoogleFonts.amiri(
+                                color: cs.onSurface,
+                                fontSize: 16,
+                              ),
                             ),
                           );
                         }).toList(),
                         onChanged: (value) => settings.setSelectedReciter(value!),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      l10n.settingsSelectLanguage,
-                      style: GoogleFonts.amiri(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: cs.secondary),
-                      ),
+                    AppSectionTitle(text: l10n.settingsSelectLanguage),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                       child: DropdownButton<String>(
                         value: selectedLanguage,
                         isExpanded: true,
@@ -187,35 +136,24 @@ class SettingsPage extends StatelessWidget {
                             value: lang,
                             child: Text(
                               display,
-                              style: GoogleFonts.amiri(color: cs.onSurface),
+                              style: GoogleFonts.amiri(
+                                color: cs.onSurface,
+                                fontSize: 16,
+                              ),
                             ),
                           );
                         }).toList(),
                         onChanged: (value) => settings.setSelectedLanguage(value!),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      l10n.settingsVolume,
-                      style: GoogleFonts.amiri(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.shadowColor.withValues(alpha: 0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                    AppSectionTitle(text: l10n.settingsVolume),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                        AppSpacing.md,
+                        AppSpacing.md,
                       ),
                       child: Slider(
                         value: settings.volume,
@@ -228,22 +166,24 @@ class SettingsPage extends StatelessWidget {
                         onChanged: (val) => settings.setVolume(val),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.shadowColor.withValues(alpha: 0.08),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppCard(
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        leading: Icon(Icons.delete_outline_rounded, color: cs.error),
+                        title: Text(
+                          l10n.settingsClearTempData,
+                          style: GoogleFonts.amiri(
+                            color: cs.error,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          // Clear temporary data logic
+                        ),
+                        onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -254,19 +194,6 @@ class SettingsPage extends StatelessWidget {
                             ),
                           );
                         },
-                        icon: const Icon(Icons.delete),
-                        label: Text(
-                          l10n.settingsClearTempData,
-                          style: GoogleFonts.amiri(),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.error,
-                          foregroundColor: theme.colorScheme.onError,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
                       ),
                     ),
                   ],

@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
-import '../app_navigator.dart';
+import '../app_navigator.dart'
+    show storyNarrationFullPlayerRouteName, tilawatFullPlayerRouteName;
 
 /// Single instance — do not recreate on every [MaterialApp] rebuild.
 final tilawatNavigatorObserver = TilawatNavigatorObserver._();
@@ -21,7 +22,8 @@ class TilawatNavigatorObserver extends NavigatorObserver {
         );
         return;
       }
-      if (route.settings.name == tilawatFullPlayerRouteName) {
+      if (route.settings.name == tilawatFullPlayerRouteName ||
+          route.settings.name == storyNarrationFullPlayerRouteName) {
         FocusManager.instance.primaryFocus?.unfocus(
           disposition: UnfocusDisposition.previouslyFocusedChild,
         );

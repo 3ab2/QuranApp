@@ -236,12 +236,11 @@ class _QuranPageState extends State<QuranPage> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      padding: const EdgeInsets.fromLTRB(AppSpacing.pageH, 0, AppSpacing.pageH, AppSpacing.sm),
                       child: TextField(
-                        decoration: InputDecoration(
+                        decoration: AppInputDecorations.compactOutline(
+                          ctx,
                           hintText: l10n.quranSurahPickerHint,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          isDense: true,
                         ),
                         onChanged: (v) => setModal(() => filter = v),
                       ),
@@ -594,12 +593,14 @@ class _QuranPageState extends State<QuranPage> {
                         controller: _searchController,
                         focusNode: _searchFocus,
                         onChanged: _onSearchChanged,
-                        decoration: InputDecoration(
+                        decoration: AppInputDecorations.searchField(
+                          context,
                           hintText: l10n.quranReaderSearchHint,
-                          filled: true,
-                          fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.35),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          isDense: true,
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            size: AppIconSizes.md,
+                            color: cs.primary.withValues(alpha: 0.85),
+                          ),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         ),
                       ),

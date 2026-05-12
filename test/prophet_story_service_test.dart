@@ -28,7 +28,8 @@ void main() {
           'lessons': ['Repentance is accepted.'],
           'events': [],
         },
-        'audio_url': 'https://stories.example.org/audio/adam.mp3',
+        'audio_url':
+            'https://archive.org/download/Islamic_Tape-250_uP_bY_mUSLEm/adam_1.mp3',
       });
 
       expect(story.id, 'adam');
@@ -36,7 +37,10 @@ void main() {
       expect(story.fullContent, _fullContent);
       expect(story.timeline.single.title, 'Creation');
       expect(story.lessons.single.content, 'Repentance is accepted.');
-      expect(story.audioUrl, 'https://stories.example.org/audio/adam.mp3');
+      expect(
+        story.narrationUrl,
+        'https://archive.org/download/Islamic_Tape-250_uP_bY_mUSLEm/adam_1.mp3',
+      );
     });
 
     test('requires full content instead of summaries', () {
@@ -64,7 +68,8 @@ void main() {
                 'prophet_name': 'Adam',
                 'title': 'Story of Adam',
                 'full_content': _fullContent,
-                'audio_url': 'https://stories.example.org/audio/adam.mp3',
+                'audio_url':
+                    'https://archive.org/download/Islamic_Tape-250_uP_bY_mUSLEm/adam_1.mp3',
               },
             ],
           }),
@@ -74,8 +79,10 @@ void main() {
       final stories = await service.getStories();
 
       expect(stories, hasLength(1));
-      expect(stories.single.audioUrl,
-          'https://stories.example.org/audio/adam.mp3');
+      expect(
+        stories.single.narrationUrl,
+        'https://archive.org/download/Islamic_Tape-250_uP_bY_mUSLEm/adam_1.mp3',
+      );
     });
 
     test('removes Quran recitation audio from stories', () async {
@@ -96,7 +103,7 @@ void main() {
 
       final stories = await service.getStories();
 
-      expect(stories.single.audioUrl, isNull);
+      expect(stories.single.narrationUrl, isNull);
       expect(stories.single.hasAudio, isFalse);
     });
 
@@ -179,7 +186,7 @@ void main() {
       expect(adam.events, isNotEmpty);
       expect(adam.timeline, isNotEmpty);
       expect(adam.lessons, isNotEmpty);
-      expect(stories.every((story) => story.audioUrl == null), isTrue);
+      expect(stories.every((story) => story.narrationUrl == null), isTrue);
     });
   });
 }

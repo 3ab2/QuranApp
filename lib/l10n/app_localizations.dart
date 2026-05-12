@@ -340,6 +340,30 @@ abstract class AppLocalizations {
   /// **'Play story'**
   String get storyPlay;
 
+  /// No description provided for @storyPauseAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get storyPauseAudio;
+
+  /// No description provided for @playbackSpeedSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback speed'**
+  String get playbackSpeedSheetTitle;
+
+  /// No description provided for @storyYoutubeStreamUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the narration stream. Check your connection and try again.'**
+  String get storyYoutubeStreamUnavailable;
+
+  /// No description provided for @storyYoutubeWebAudioUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Story narration in the background is not available in the web browser. Use the app on a phone or tablet for full playback.'**
+  String get storyYoutubeWebAudioUnavailable;
+
   /// No description provided for @storyStop.
   ///
   /// In en, this message translates to:
@@ -375,6 +399,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Read completed'**
   String get storyReadDone;
+
+  /// No description provided for @prophetStoriesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by prophet name or story…'**
+  String get prophetStoriesSearchHint;
+
+  /// No description provided for @prophetStoriesSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No prophet stories match. Try different words or turn off the narration filter.'**
+  String get prophetStoriesSearchEmpty;
+
+  /// No description provided for @prophetStoriesSearchOpenTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search stories'**
+  String get prophetStoriesSearchOpenTooltip;
 
   /// No description provided for @surahSearchHint.
   ///
@@ -501,6 +543,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Short educational notes only; consult qualified scholars for creed and law.'**
   String get miraclesModerateNote;
+
+  /// No description provided for @miraclesPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scientific miracles in the Qur\'an'**
+  String get miraclesPageTitle;
+
+  /// No description provided for @miraclesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search verse, topic, or scientific explanation…'**
+  String get miraclesSearchHint;
+
+  /// No description provided for @miraclesEmptyResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get miraclesEmptyResults;
+
+  /// No description provided for @miraclesFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get miraclesFilterAll;
 
   /// No description provided for @quranContinueReading.
   ///
@@ -711,6 +777,864 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes} min remaining'**
   String tilawatSleepActiveRemaining(int minutes);
+
+  /// No description provided for @storyYoutubePlayerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Story narration'**
+  String get storyYoutubePlayerTitle;
+
+  /// No description provided for @storyYoutubeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No verified YouTube narration is linked for this story yet.'**
+  String get storyYoutubeUnavailable;
+
+  /// No description provided for @storyYoutubeInvalidChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'This video is not from an approved channel.'**
+  String get storyYoutubeInvalidChannel;
+
+  /// No description provided for @storyYoutubeLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the YouTube player. Check your connection and try again.'**
+  String get storyYoutubeLoadError;
+
+  /// No description provided for @storyYoutubeNarrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrator'**
+  String get storyYoutubeNarrator;
+
+  /// No description provided for @storyYoutubePrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous story'**
+  String get storyYoutubePrevious;
+
+  /// No description provided for @storyYoutubeNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next story'**
+  String get storyYoutubeNext;
+
+  /// No description provided for @storyYoutubeBackgroundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Background playback depends on your device; keep the app in recent apps for best results.'**
+  String get storyYoutubeBackgroundHint;
+
+  /// No description provided for @storyYoutubeOpenPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen to the story'**
+  String get storyYoutubeOpenPlayer;
+
+  /// No description provided for @storyYoutubeNoNarration.
+  ///
+  /// In en, this message translates to:
+  /// **'No narration available for this story.'**
+  String get storyYoutubeNoNarration;
+
+  /// No description provided for @storyYoutubeSleepTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timer'**
+  String get storyYoutubeSleepTimer;
+
+  /// No description provided for @storyYoutubeSleepOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get storyYoutubeSleepOff;
+
+  /// No description provided for @storyYoutubeSleepMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop after {minutes} min'**
+  String storyYoutubeSleepMinutes(int minutes);
+
+  /// No description provided for @storyYoutubeSleepEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timer stopped playback.'**
+  String get storyYoutubeSleepEnded;
+
+  /// No description provided for @storyYoutubePlaybackSpeedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{speed}x'**
+  String storyYoutubePlaybackSpeedLabel(String speed);
+
+  /// No description provided for @storyYoutubeCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy video link'**
+  String get storyYoutubeCopyLink;
+
+  /// No description provided for @storyYoutubeLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube link copied to clipboard.'**
+  String get storyYoutubeLinkCopied;
+
+  /// No description provided for @storyYoutubeFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get storyYoutubeFullscreen;
+
+  /// No description provided for @storyYoutubeDownloadHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the link icon to copy the watch URL. Offline download of YouTube video is not available in this app.'**
+  String get storyYoutubeDownloadHint;
+
+  /// No description provided for @prayerPhaseCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Next prayer'**
+  String get prayerPhaseCalm;
+
+  /// No description provided for @prayerPhaseApproaching.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer is approaching'**
+  String get prayerPhaseApproaching;
+
+  /// No description provided for @prayerPhaseAtAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'It is now time for prayer'**
+  String get prayerPhaseAtAdhan;
+
+  /// No description provided for @prayerPhaseGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Take this moment with calm'**
+  String get prayerPhaseGrace;
+
+  /// No description provided for @prayerCountdownRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining: {hms}'**
+  String prayerCountdownRemaining(String hms);
+
+  /// No description provided for @prayerCurrentPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Current period: {name}'**
+  String prayerCurrentPeriod(String name);
+
+  /// No description provided for @prayerAtAdhanMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'The adhan moment — refocus gently on Allah'**
+  String get prayerAtAdhanMoment;
+
+  /// No description provided for @prayerOpenQibla.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla'**
+  String get prayerOpenQibla;
+
+  /// No description provided for @prayerAdhanStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get prayerAdhanStop;
+
+  /// No description provided for @prayerAdhanSnooze.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get prayerAdhanSnooze;
+
+  /// No description provided for @prayerAdhanMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get prayerAdhanMute;
+
+  /// No description provided for @prayerAdhanUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get prayerAdhanUnmute;
+
+  /// No description provided for @prayerImmersiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft motion only — designed for a peaceful heart'**
+  String get prayerImmersiveHint;
+
+  /// No description provided for @prayerQiblaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla'**
+  String get prayerQiblaTitle;
+
+  /// No description provided for @prayerQiblaWebUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Live compass qibla uses device sensors and is available in the mobile app.'**
+  String get prayerQiblaWebUnavailable;
+
+  /// No description provided for @prayerQiblaLocationDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location services and grant permission to use the compass qibla.'**
+  String get prayerQiblaLocationDisabled;
+
+  /// No description provided for @prayerQiblaError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read compass data on this device.'**
+  String get prayerQiblaError;
+
+  /// No description provided for @prayerQiblaDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'About {km} km to the Kaaba'**
+  String prayerQiblaDistanceKm(String km);
+
+  /// No description provided for @prayerQiblaAlignedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You are aligned — may Allah accept your prayer'**
+  String get prayerQiblaAlignedHint;
+
+  /// No description provided for @prayerQiblaRotateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn slowly until the needle steadies toward the Kaaba'**
+  String get prayerQiblaRotateHint;
+
+  /// No description provided for @prayerSettingsReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder before prayer'**
+  String get prayerSettingsReminder;
+
+  /// No description provided for @prayerReminderPreset5.
+  ///
+  /// In en, this message translates to:
+  /// **'5 min'**
+  String get prayerReminderPreset5;
+
+  /// No description provided for @prayerReminderPreset10.
+  ///
+  /// In en, this message translates to:
+  /// **'10 min'**
+  String get prayerReminderPreset10;
+
+  /// No description provided for @prayerReminderPreset15.
+  ///
+  /// In en, this message translates to:
+  /// **'15 min'**
+  String get prayerReminderPreset15;
+
+  /// No description provided for @prayerReminderCustomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom (1–120 min)'**
+  String get prayerReminderCustomHint;
+
+  /// No description provided for @prayerMuezzinVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Muezzin / Adhan voice'**
+  String get prayerMuezzinVoice;
+
+  /// No description provided for @prayerPreviewVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get prayerPreviewVoice;
+
+  /// No description provided for @prayerMosqueMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosque mode (experimental)'**
+  String get prayerMosqueMode;
+
+  /// No description provided for @prayerMosqueModeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When enabled, a reserved hook runs in the approaching window. Full silent/DND requires future OS integration.'**
+  String get prayerMosqueModeHelp;
+
+  /// No description provided for @prayerAfterAdhkar.
+  ///
+  /// In en, this message translates to:
+  /// **'After prayer — short dhikr'**
+  String get prayerAfterAdhkar;
+
+  /// No description provided for @prayerAfterAdhkarBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Say subhanAllah (33), alhamdulillah (33), Allahu akbar (33) — or recite Ayat al-Kursi with calm.'**
+  String get prayerAfterAdhkarBody;
+
+  /// No description provided for @prayerSpiritualTip0.
+  ///
+  /// In en, this message translates to:
+  /// **'Call upon Allah with ease — He is near.'**
+  String get prayerSpiritualTip0;
+
+  /// No description provided for @prayerSpiritualTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Two rakahs of duha bring light to the day.'**
+  String get prayerSpiritualTip1;
+
+  /// No description provided for @prayerSpiritualTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause before the prayer — silence is also worship.'**
+  String get prayerSpiritualTip2;
+
+  /// No description provided for @prayerSpiritualTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'Let your heart arrive before your body rises.'**
+  String get prayerSpiritualTip3;
+
+  /// No description provided for @prayerLocationSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer location'**
+  String get prayerLocationSheetTitle;
+
+  /// No description provided for @prayerLocationAutoGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic (GPS)'**
+  String get prayerLocationAutoGps;
+
+  /// No description provided for @prayerLocationAutoGpsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your current position for prayer times.'**
+  String get prayerLocationAutoGpsSubtitle;
+
+  /// No description provided for @prayerLocationUseGpsNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Use current position'**
+  String get prayerLocationUseGpsNow;
+
+  /// No description provided for @prayerLocationSearchCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Search country'**
+  String get prayerLocationSearchCountry;
+
+  /// No description provided for @prayerLocationSearchCity.
+  ///
+  /// In en, this message translates to:
+  /// **'Search city'**
+  String get prayerLocationSearchCity;
+
+  /// No description provided for @prayerLocationGpsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required for automatic mode.'**
+  String get prayerLocationGpsDenied;
+
+  /// No description provided for @prayerLocationGpsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read your position. Try manual selection.'**
+  String get prayerLocationGpsFailed;
+
+  /// No description provided for @aboutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clarity, reverence, and a calm daily rhythm with the Book of Allah.'**
+  String get aboutSubtitle;
+
+  /// No description provided for @aboutHeroMission.
+  ///
+  /// In en, this message translates to:
+  /// **'A quiet companion for reading, listening, understanding, and remembering.'**
+  String get aboutHeroMission;
+
+  /// No description provided for @aboutSectionMissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission'**
+  String get aboutSectionMissionTitle;
+
+  /// No description provided for @aboutSectionMissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring the Qur\'an, trusted explanation, and wholesome listening closer to your day — without noise or clutter.'**
+  String get aboutSectionMissionBody;
+
+  /// No description provided for @aboutSectionVisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vision'**
+  String get aboutSectionVisionTitle;
+
+  /// No description provided for @aboutSectionVisionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A spiritually aligned experience: beautiful typography, respectful sources, and tools that support focus rather than distraction.'**
+  String get aboutSectionVisionBody;
+
+  /// No description provided for @aboutSectionWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why this app'**
+  String get aboutSectionWhyTitle;
+
+  /// No description provided for @aboutSectionWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Many people want one trustworthy place for Mushaf reading, tafsir context, tilawat, prayer awareness, and gentle storytelling — built with adab and clarity.'**
+  String get aboutSectionWhyBody;
+
+  /// No description provided for @aboutSectionPillarsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you will find here'**
+  String get aboutSectionPillarsTitle;
+
+  /// No description provided for @aboutPillarQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Qur\'an reader with search, bookmarks, and readable Arabic layout.'**
+  String get aboutPillarQuran;
+
+  /// No description provided for @aboutPillarTafsir.
+  ///
+  /// In en, this message translates to:
+  /// **'Al-Muyassar tafsir stream for context beside the ayat.'**
+  String get aboutPillarTafsir;
+
+  /// No description provided for @aboutPillarTilawat.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations with offline downloads for travel and low connectivity.'**
+  String get aboutPillarTilawat;
+
+  /// No description provided for @aboutPillarStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Prophet stories with careful narration policy and curated references.'**
+  String get aboutPillarStories;
+
+  /// No description provided for @aboutSectionPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy and respect'**
+  String get aboutSectionPrivacyTitle;
+
+  /// No description provided for @aboutSectionPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We design for local-first use where possible, minimal surprises, and content choices that respect sacred text and scholars\' boundaries.'**
+  String get aboutSectionPrivacyBody;
+
+  /// No description provided for @aboutSectionOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline-first mindset'**
+  String get aboutSectionOfflineTitle;
+
+  /// No description provided for @aboutSectionOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Core text and downloads are meant to work when networks fail — so remembrance stays within reach.'**
+  String get aboutSectionOfflineBody;
+
+  /// No description provided for @aboutSectionLangTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multilingual interface'**
+  String get aboutSectionLangTitle;
+
+  /// No description provided for @aboutSectionLangBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic, English, and French UI so families and students can navigate comfortably.'**
+  String get aboutSectionLangBody;
+
+  /// No description provided for @aboutIllustrationCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Barakallahu feekum for walking this path with us.'**
+  String get aboutIllustrationCaption;
+
+  /// No description provided for @aboutAppVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String aboutAppVersion(Object version);
+
+  /// No description provided for @aboutCreditsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Crafted with care for the Ummah. All good is from Allah; any mistake is ours.'**
+  String get aboutCreditsLine;
+
+  /// No description provided for @helpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Short answers, calm layout — so you spend less time searching and more time benefiting.'**
+  String get helpSubtitle;
+
+  /// No description provided for @helpCardIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the sections below for quick orientation, then open the FAQ for finer details.'**
+  String get helpCardIntro;
+
+  /// No description provided for @helpSectionGuides.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick guides'**
+  String get helpSectionGuides;
+
+  /// No description provided for @helpGuideQuranTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qur\'an page'**
+  String get helpGuideQuranTitle;
+
+  /// No description provided for @helpGuideQuranBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a surah, adjust font and spacing, search ayat, and jump to tafsir from the reader tools.'**
+  String get helpGuideQuranBody;
+
+  /// No description provided for @helpGuideTilawatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tilawat (recitations)'**
+  String get helpGuideTilawatTitle;
+
+  /// No description provided for @helpGuideTilawatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a reciter in Settings, play from the audio page, expand the mini-player, and use the full player for speed and repeat controls.'**
+  String get helpGuideTilawatBody;
+
+  /// No description provided for @helpGuideDownloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download surahs'**
+  String get helpGuideDownloadTitle;
+
+  /// No description provided for @helpGuideDownloadBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the download action on tilawat where available; files are stored for offline playback when the reciter mirror allows it.'**
+  String get helpGuideDownloadBody;
+
+  /// No description provided for @helpGuidePrayerNotifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer notifications'**
+  String get helpGuidePrayerNotifyTitle;
+
+  /// No description provided for @helpGuidePrayerNotifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable reminders in Settings, set location in the Adhan section, and allow notification permission so gentle alerts can arrive in time.'**
+  String get helpGuidePrayerNotifyBody;
+
+  /// No description provided for @helpGuideBackgroundAudioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Background audio'**
+  String get helpGuideBackgroundAudioTitle;
+
+  /// No description provided for @helpGuideBackgroundAudioBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tilawat can continue while you browse; story narration may be limited on web browsers — use the mobile app for full background listening.'**
+  String get helpGuideBackgroundAudioBody;
+
+  /// No description provided for @helpGuideBookmarkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get helpGuideBookmarkTitle;
+
+  /// No description provided for @helpGuideBookmarkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your reading position from the surah reader when offered; return later from the continue-reading entry points on the Qur\'an page.'**
+  String get helpGuideBookmarkBody;
+
+  /// No description provided for @helpSectionFaq.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQ'**
+  String get helpSectionFaq;
+
+  /// No description provided for @helpFaqQuranTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I search within a surah?'**
+  String get helpFaqQuranTitle;
+
+  /// No description provided for @helpFaqQuranBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the surah, enable search from the reader toolbar, type a phrase or surah number, then tap a result to scroll there.'**
+  String get helpFaqQuranBody;
+
+  /// No description provided for @helpFaqTilawatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why does audio stop when I leave a page?'**
+  String get helpFaqTilawatTitle;
+
+  /// No description provided for @helpFaqTilawatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If the mini-player is hidden, start playback again from Tilawat; on web, the browser may pause audio unless the mini-player session is active.'**
+  String get helpFaqTilawatBody;
+
+  /// No description provided for @helpFaqDownloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why did a download fail?'**
+  String get helpFaqDownloadTitle;
+
+  /// No description provided for @helpFaqDownloadBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and storage; some mirrors may be temporarily unavailable — try again after a few minutes.'**
+  String get helpFaqDownloadBody;
+
+  /// No description provided for @helpFaqNotifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'I do not receive prayer alerts'**
+  String get helpFaqNotifyTitle;
+
+  /// No description provided for @helpFaqNotifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm OS notification permission, disable battery restrictions for the app if your vendor blocks alarms, and verify location or manual city selection for correct times.'**
+  String get helpFaqNotifyBody;
+
+  /// No description provided for @helpFaqBgAudioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I play stories in the background on the website?'**
+  String get helpFaqBgAudioTitle;
+
+  /// No description provided for @helpFaqBgAudioBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Browsers limit background media; install the Android build for narration that continues while the screen is off.'**
+  String get helpFaqBgAudioBody;
+
+  /// No description provided for @helpFaqBookmarkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where is my bookmark stored?'**
+  String get helpFaqBookmarkTitle;
+
+  /// No description provided for @helpFaqBookmarkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is kept on this device so you can resume reading locally — it is not uploaded to a server.'**
+  String get helpFaqBookmarkBody;
+
+  /// No description provided for @helpFaqTroubleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'General troubleshooting'**
+  String get helpFaqTroubleTitle;
+
+  /// No description provided for @helpFaqTroubleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart the app, confirm date and time are automatic, update to the latest version, and if an error repeats note the page you were on before contacting us.'**
+  String get helpFaqTroubleBody;
+
+  /// No description provided for @rateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stars lift the team and keep improvements coming.'**
+  String get rateSubtitle;
+
+  /// No description provided for @rateHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jazakum Allahu khayran'**
+  String get rateHeroTitle;
+
+  /// No description provided for @rateHeroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If this app helped your Qur\'an or salah, sharing a kind rating spreads benefit to others who are searching.'**
+  String get rateHeroBody;
+
+  /// No description provided for @rateStarsCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Five hearts behind five stars — thank you for your trust.'**
+  String get rateStarsCaption;
+
+  /// No description provided for @rateBtnStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate on Play Store'**
+  String get rateBtnStore;
+
+  /// No description provided for @rateBtnShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the app'**
+  String get rateBtnShare;
+
+  /// No description provided for @rateBtnFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get rateBtnFeedback;
+
+  /// No description provided for @rateSnackStoreFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the store from this device.'**
+  String get rateSnackStoreFail;
+
+  /// No description provided for @rateSnackShareFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the share sheet.'**
+  String get rateSnackShareFail;
+
+  /// No description provided for @rateSnackMailFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open your email app from this device.'**
+  String get rateSnackMailFail;
+
+  /// No description provided for @rateShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Try this Qur\'an app: {url}'**
+  String rateShareText(Object url);
+
+  /// No description provided for @rateFeedbackSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran app feedback'**
+  String get rateFeedbackSubject;
+
+  /// No description provided for @sourcesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparency builds trust — here is how content reaches you.'**
+  String get sourcesSubtitle;
+
+  /// No description provided for @sourcesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'We prefer established hosts, documented APIs, and clearly attributed texts. When in doubt, we stay conservative.'**
+  String get sourcesIntro;
+
+  /// No description provided for @sourcesTrustLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Curated pathways — not anonymous scrapers.'**
+  String get sourcesTrustLine;
+
+  /// No description provided for @sourcesVisitWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Official site'**
+  String get sourcesVisitWebsite;
+
+  /// No description provided for @sourcesQuranTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qur\'an text (Mushaf)'**
+  String get sourcesQuranTitle;
+
+  /// No description provided for @sourcesQuranBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic ayat are bundled in-app from a Uthmani-style dataset aligned with widely reviewed Tanzil-class releases for faithful typography.'**
+  String get sourcesQuranBody;
+
+  /// No description provided for @sourcesTafsirTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tafsir (Al-Muyassar)'**
+  String get sourcesTafsirTitle;
+
+  /// No description provided for @sourcesTafsirBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic Al-Muyassar commentary is retrieved via Quran.com public APIs with edition identifiers documented by the service.'**
+  String get sourcesTafsirBody;
+
+  /// No description provided for @sourcesPrayerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer times'**
+  String get sourcesPrayerTitle;
+
+  /// No description provided for @sourcesPrayerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates and calculation method are sent to Aladhan (Islamic Network) timings API; results are displayed for your chosen location.'**
+  String get sourcesPrayerBody;
+
+  /// No description provided for @sourcesAudioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitation audio'**
+  String get sourcesAudioTitle;
+
+  /// No description provided for @sourcesAudioBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Streams and downloads use reputable reciter mirrors such as MP3 Quran and Quranicaudio-style hosts referenced in the surah catalog.'**
+  String get sourcesAudioBody;
+
+  /// No description provided for @sourcesStoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prophet stories (narration)'**
+  String get sourcesStoriesTitle;
+
+  /// No description provided for @sourcesStoriesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube narration is restricted to an allow-listed channel policy; each story prefers a single verified video mapping.'**
+  String get sourcesStoriesBody;
+
+  /// No description provided for @sourcesMiraclesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scientific miracles section'**
+  String get sourcesMiraclesTitle;
+
+  /// No description provided for @sourcesMiraclesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics are curated with moderate wording and explicit ayah links; they are educational pointers — not a fatwa or creed textbook.'**
+  String get sourcesMiraclesBody;
+
+  /// No description provided for @sourcesOpenLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this link on this device.'**
+  String get sourcesOpenLinkFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 
 import '../models/prophet_story.dart';
 import 'story_audio_policy.dart';
+import 'story_narration_registry.dart';
 
 const String kDefaultProphetStoriesAsset = 'assets/data/prophet_stories.json';
 const int kMinimumFullStoryLength = 280;
@@ -169,10 +171,25 @@ class ProphetStoryService {
   Future<List<ProphetStory>> _loadStories() async {
     final stories = await dataSource.fetchStories();
     final seenIds = <String>{};
+    final seenProphetKeys = <String, String>{};
     final normalizedStories = stories.map((story) {
       final normalized = _enforceStoryContract(story);
       if (!seenIds.add(normalized.id)) {
+        _debugDuplicate(
+            'Duplicate story id detected: "${normalized.id}" (blocked).');
         throw FormatException('Duplicate story id "${normalized.id}"');
+      }
+      final prophetKey = _normalizeProphetKey(normalized.prophetName);
+      if (prophetKey.isNotEmpty) {
+        final existingId = seenProphetKeys[prophetKey];
+        if (existingId != null) {
+          _debugDuplicate(
+              'Duplicate prophet name/slug detected: "${normalized.prophetName}" '
+              '(story ids "$existingId" and "${normalized.id}") (blocked).');
+          throw FormatException(
+              'Duplicate prophet name "${normalized.prophetName}" detected');
+        }
+        seenProphetKeys[prophetKey] = normalized.id;
       }
       return normalized;
     }).toList(growable: false);
@@ -221,10 +238,81 @@ class ProphetStoryService {
       throw FormatException(
           'Story ${story.id} full_content is too short for production');
     }
-    if (!isAllowedProphetStoryAudioUrl(story.audioUrl)) {
-      return story.copyWith(clearAudioUrl: true);
+    if (!isAllowedProphetStoryAudioUrl(story.narrationUrl)) {
+      return story.copyWith(clearNarrationUrl: true);
     }
     return story;
+  }
+
+  String _normalizeProphetKey(String input) {
+    final lowered = input.toLowerCase().trim();
+    return lowered.replaceAll(RegExp(r'[\s\-_]+'), '');
+  }
+
+  void _debugDuplicate(String message) {
+    if (kDebugMode) {
+      debugPrint('[ProphetStoryService] $message');
+    }
+  }
+}
+
+class StoryNarrationInfo {
+  final String url;
+  final String? narratorName;
+  final int? declaredDurationSeconds;
+
+  const StoryNarrationInfo({
+    required this.url,
+    this.narratorName,
+    this.declaredDurationSeconds,
+  });
+}
+
+extension ProphetStoryNarrationResolver on ProphetStoryService {
+  Future<StoryNarrationInfo?> resolveNarrationForStory(String id) async {
+    final story = await getStoryById(id);
+    final registryEntry = kTrustedStoryNarrationRegistry[id];
+    final raw = (story.narrationUrl ?? registryEntry?['url']?.toString())?.trim();
+    final narratorName =
+        story.narratorName ?? registryEntry?['narrator']?.toString();
+    final declaredDuration = story.narrationDurationSeconds ??
+        (registryEntry?['duration'] is int
+            ? registryEntry!['duration'] as int
+            : int.tryParse('${registryEntry?['duration'] ?? ''}'));
+    if (raw == null || raw.isEmpty) return null;
+    if (!isAllowedProphetStoryAudioUrl(raw)) return null;
+    final reachable = await _verifyNarrationReachable(raw);
+    if (!reachable) return null;
+    return StoryNarrationInfo(
+      url: raw,
+      narratorName: narratorName,
+      declaredDurationSeconds: declaredDuration,
+    );
+  }
+
+  Future<bool> _verifyNarrationReachable(String url) async {
+    // Browser CORS policies can block probe requests even when media playback
+    // might still work through the audio pipeline. Skip URL probing on web.
+    if (kIsWeb) return true;
+
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme) return false;
+    final client = http.Client();
+    try {
+      final head = await client
+          .head(uri, headers: const {'Range': 'bytes=0-1'})
+          .timeout(const Duration(seconds: 8));
+      if (head.statusCode >= 200 && head.statusCode < 400) return true;
+
+      final get = await client
+          .get(uri, headers: const {'Range': 'bytes=0-1'})
+          .timeout(const Duration(seconds: 8));
+      return get.statusCode >= 200 && get.statusCode < 400;
+    } catch (_) {
+      return false;
+    } finally {
+      client.close();
+    }
   }
 }
 

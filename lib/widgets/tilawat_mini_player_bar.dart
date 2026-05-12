@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
 import '../app_navigator.dart';
+import '../pages/story_narration_full_player_page.dart';
 import '../pages/tilawat_full_player_page.dart';
 import '../providers/tilawat_audio_controller.dart';
 
@@ -30,27 +31,38 @@ class TilawatMiniPlayerBar extends StatelessWidget {
     final tilawat = context.watch<TilawatAudioController>();
     if (!tilawat.showMiniPlayer) return const SizedBox.shrink();
 
-    final surah = tilawat.currentSurahMap;
-    if (surah == null) return const SizedBox.shrink();
-
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final bottom = MediaQuery.paddingOf(context).bottom;
-    final idx = tilawat.currentSurahIndex!;
-    final canPrev = idx > 0;
-    final canNext = idx < tilawat.surahs.length - 1;
+
+    final bool story = tilawat.isStoryNarrationSession;
+    final surah = tilawat.currentSurahMap;
+    if (!story && surah == null) return const SizedBox.shrink();
+
+    final idx = tilawat.currentSurahIndex ?? 0;
+    final canPrev = story
+        ? tilawat.storySkipHasPrevious
+        : idx > 0;
+    final canNext = story
+        ? tilawat.storySkipHasNext
+        : idx < tilawat.surahs.length - 1;
 
     final muted = cs.onSurface.withValues(alpha: 0.28);
 
     // Web: keep the shell bar out of reading-order focus traversal to avoid
     // "inactive element" crashes when the browser tab regains focus (Flutter 3.22+).
     Widget bar = Material(
-      elevation: 10,
-      shadowColor: Colors.black.withValues(alpha: 0.18),
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.12),
       color: cs.surfaceContainerHighest.withValues(alpha: 0.97),
       child: InkWell(
         onTap: () {
-          appNavigatorKey.currentState?.push(TilawatFullPlayerPage.route());
+          if (tilawat.isStoryNarrationSession) {
+            appNavigatorKey.currentState
+                ?.push(StoryNarrationFullPlayerPage.route());
+          } else {
+            appNavigatorKey.currentState?.push(TilawatFullPlayerPage.route());
+          }
         },
         child: Padding(
           padding: EdgeInsets.fromLTRB(14, 10, 14, 8 + bottom),
@@ -108,7 +120,9 @@ class TilawatMiniPlayerBar extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  surah['name']?.toString() ?? '',
+                                  story
+                                      ? (tilawat.activeStoryTitle ?? '')
+                                      : (surah!['name']?.toString() ?? ''),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
@@ -122,7 +136,9 @@ class TilawatMiniPlayerBar extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  tilawat.currentReciterLabel,
+                                  story
+                                      ? (tilawat.activeStoryNarratorLabel ?? '')
+                                      : tilawat.currentReciterLabel,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
@@ -138,7 +154,9 @@ class TilawatMiniPlayerBar extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
                           Icon(
-                            Icons.mosque_rounded,
+                            story
+                                ? Icons.auto_stories_rounded
+                                : Icons.mosque_rounded,
                             size: _mosqueSize,
                             color: cs.primary.withValues(alpha: 0.72),
                           ),
@@ -299,7 +317,8 @@ class TilawatAppShell extends StatelessWidget {
   final Widget child;
 
   static bool _isBarVisible(TilawatAudioController tilawat) =>
-      tilawat.showMiniPlayer && tilawat.currentSurahMap != null;
+      tilawat.showMiniPlayer &&
+      (tilawat.currentSurahMap != null || tilawat.isStoryNarrationSession);
 
   @override
   Widget build(BuildContext context) {

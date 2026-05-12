@@ -133,6 +133,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get storyPlay => 'تشغيل القصة';
 
   @override
+  String get storyPauseAudio => 'إيقاف مؤقت';
+
+  @override
+  String get playbackSpeedSheetTitle => 'سرعة التشغيل';
+
+  @override
+  String get storyYoutubeStreamUnavailable =>
+      'تعذّر بدء بث السرد. تحقّق من الاتصال ثم أعد المحاولة.';
+
+  @override
+  String get storyYoutubeWebAudioUnavailable =>
+      'التشغيل الكامل للقصص في الخلفية غير متاح في متصفّح الويب. استخدم التطبيق على الهاتف أو الجهاز اللوحي.';
+
+  @override
   String get storyStop => 'إيقاف الصوت';
 
   @override
@@ -149,6 +163,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get storyReadDone => 'تمت القراءة';
+
+  @override
+  String get prophetStoriesSearchHint => 'ابحث عن نبي أو قصة…';
+
+  @override
+  String get prophetStoriesSearchEmpty =>
+      'لا توجد قصص مطابقة. جرّب كلمات أخرى أو ألغِ تصفية السرد الصوتي.';
+
+  @override
+  String get prophetStoriesSearchOpenTooltip => 'البحث في القصص';
 
   @override
   String get surahSearchHint => 'ابحث في الآيات...';
@@ -217,6 +241,18 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get miraclesModerateNote =>
       'ملاحظات تعليمية موجزة؛ راجع أهل العلم للعقيدة والفقه.';
+
+  @override
+  String get miraclesPageTitle => 'الإعجاز العلمي في القرآن';
+
+  @override
+  String get miraclesSearchHint => 'ابحث عن آية أو موضوع أو وصف علمي…';
+
+  @override
+  String get miraclesEmptyResults => 'لا توجد نتائج';
+
+  @override
+  String get miraclesFilterAll => 'الكل';
 
   @override
   String get quranContinueReading => 'متابعة';
@@ -330,4 +366,490 @@ class AppLocalizationsAr extends AppLocalizations {
   String tilawatSleepActiveRemaining(int minutes) {
     return 'متبقي $minutes د';
   }
+
+  @override
+  String get storyYoutubePlayerTitle => 'سرد القصة';
+
+  @override
+  String get storyYoutubeUnavailable =>
+      'لا يوجد ربط حالي بسرد موثّق على يوتيوب لهذه القصة.';
+
+  @override
+  String get storyYoutubeInvalidChannel => 'هذا الفيديو ليس من قناة معتمدة.';
+
+  @override
+  String get storyYoutubeLoadError =>
+      'تعذّر تحميل مشغّل يوتيوب. تحقّق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get storyYoutubeNarrator => 'المُرَوّي';
+
+  @override
+  String get storyYoutubePrevious => 'القصة السابقة';
+
+  @override
+  String get storyYoutubeNext => 'القصة التالية';
+
+  @override
+  String get storyYoutubeBackgroundHint =>
+      'يعتمد التشغيل في الخلفية على الجهاز؛ أبقِ التطبيق في التطبيقات الأخيرة لأفضل نتيجة.';
+
+  @override
+  String get storyYoutubeOpenPlayer => 'الاستماع للقصة';
+
+  @override
+  String get storyYoutubeNoNarration => 'لا يتوفر سرد صوتي/مرئي لهذه القصة.';
+
+  @override
+  String get storyYoutubeSleepTimer => 'مؤقت النوم';
+
+  @override
+  String get storyYoutubeSleepOff => 'إيقاف';
+
+  @override
+  String storyYoutubeSleepMinutes(int minutes) {
+    return 'إيقاف بعد $minutes د';
+  }
+
+  @override
+  String get storyYoutubeSleepEnded => 'أوقف مؤقت النوم التشغيل.';
+
+  @override
+  String storyYoutubePlaybackSpeedLabel(String speed) {
+    return '${speed}x';
+  }
+
+  @override
+  String get storyYoutubeCopyLink => 'نسخ رابط الفيديو';
+
+  @override
+  String get storyYoutubeLinkCopied => 'تم نسخ رابط يوتيوب.';
+
+  @override
+  String get storyYoutubeFullscreen => 'ملء الشاشة';
+
+  @override
+  String get storyYoutubeDownloadHint =>
+      'استخدم أيقونة الرابط لنسخ عنوان المشاهدة. تنزيل فيديو يوتيوب للعمل دون اتصال غير متاح في هذا التطبيق.';
+
+  @override
+  String get prayerPhaseCalm => 'الصلاة القادمة';
+
+  @override
+  String get prayerPhaseApproaching => 'اقترب وقت الصلاة';
+
+  @override
+  String get prayerPhaseAtAdhan => 'حان وقت الصلاة';
+
+  @override
+  String get prayerPhaseGrace => 'خذ نفسًا هادئًا';
+
+  @override
+  String prayerCountdownRemaining(String hms) {
+    return 'المتبقي: $hms';
+  }
+
+  @override
+  String prayerCurrentPeriod(String name) {
+    return 'الفترة الحالية: $name';
+  }
+
+  @override
+  String get prayerAtAdhanMoment => 'وقت الأذان — ليّن القلب نحو الله';
+
+  @override
+  String get prayerOpenQibla => 'القبلة';
+
+  @override
+  String get prayerAdhanStop => 'إيقاف';
+
+  @override
+  String get prayerAdhanSnooze => 'تأجيل';
+
+  @override
+  String get prayerAdhanMute => 'كتم';
+
+  @override
+  String get prayerAdhanUnmute => 'صوت';
+
+  @override
+  String get prayerImmersiveHint => 'حركة خفيفة فقط — لأجواء روحانية هادئة';
+
+  @override
+  String get prayerQiblaTitle => 'القبلة';
+
+  @override
+  String get prayerQiblaWebUnavailable =>
+      'بوصلة القبلة المباشرة تحتاج حساسات الجهاز وتتوفر في تطبيق الهاتف.';
+
+  @override
+  String get prayerQiblaLocationDisabled =>
+      'فعّل الموقع والأذونات لاستخدام بوصلة القبلة.';
+
+  @override
+  String get prayerQiblaError => 'تعذّر قراءة البوصلة على هذا الجهاز.';
+
+  @override
+  String prayerQiblaDistanceKm(String km) {
+    return 'نحو $km كم إلى الكعبة';
+  }
+
+  @override
+  String get prayerQiblaAlignedHint => 'أنت باتجاه القبلة — تقبّل الله صلاتك';
+
+  @override
+  String get prayerQiblaRotateHint =>
+      'درّب الجهاز برفق حتى تستقر الإشارة نحو الكعبة';
+
+  @override
+  String get prayerSettingsReminder => 'تذكير قبل الصلاة';
+
+  @override
+  String get prayerReminderPreset5 => '5 دقائق';
+
+  @override
+  String get prayerReminderPreset10 => '10 دقائق';
+
+  @override
+  String get prayerReminderPreset15 => '15 دقيقة';
+
+  @override
+  String get prayerReminderCustomHint => 'مخصص (1–120 دقيقة)';
+
+  @override
+  String get prayerMuezzinVoice => 'صوت المؤذّن / الأذان';
+
+  @override
+  String get prayerPreviewVoice => 'استمع';
+
+  @override
+  String get prayerMosqueMode => 'وضع المسجد (تجريبي)';
+
+  @override
+  String get prayerMosqueModeHelp =>
+      'عند التفعيل يُستدعى خطاف محجوز عند الاقتراب من الصلاة. الوضع الصامت الكامل يحتاج تكاملاً لاحقاً مع النظام.';
+
+  @override
+  String get prayerAfterAdhkar => 'بعد الصلاة — أذكار قصيرة';
+
+  @override
+  String get prayerAfterAdhkarBody =>
+      'سبح الله (33)، والحمد لله (33)، والله أكبر (33) — أو اقرأ آية الكرسي بوقار.';
+
+  @override
+  String get prayerSpiritualTip0 => 'ادعُ الله برفق — وهو قريب.';
+
+  @override
+  String get prayerSpiritualTip1 => 'ركعتان من الضحى تنيران اليوم.';
+
+  @override
+  String get prayerSpiritualTip2 => 'توقّف قبل الصلاة — السكون عبادة.';
+
+  @override
+  String get prayerSpiritualTip3 => 'ليصل القلب قبل أن يقوم الجسد.';
+
+  @override
+  String get prayerLocationSheetTitle => 'موقع الصلاة';
+
+  @override
+  String get prayerLocationAutoGps => 'تلقائي (GPS)';
+
+  @override
+  String get prayerLocationAutoGpsSubtitle =>
+      'استخدام موقعك الحالي لأوقات الصلاة.';
+
+  @override
+  String get prayerLocationUseGpsNow => 'استخدام الموقع الحالي';
+
+  @override
+  String get prayerLocationSearchCountry => 'بحث عن دولة';
+
+  @override
+  String get prayerLocationSearchCity => 'بحث عن مدينة';
+
+  @override
+  String get prayerLocationGpsDenied => 'يلزم إذن الموقع للوضع التلقائي.';
+
+  @override
+  String get prayerLocationGpsFailed =>
+      'تعذّر قراءة موقعك. جرّب الاختيار اليدوي.';
+
+  @override
+  String get aboutSubtitle => 'وضوح، ووقار، وإيقاع يومي هادئ مع كتاب الله.';
+
+  @override
+  String get aboutHeroMission => 'رفيق هادئ للقراءة والاستماع والفهم والذكر.';
+
+  @override
+  String get aboutSectionMissionTitle => 'الرسالة';
+
+  @override
+  String get aboutSectionMissionBody =>
+      'تقريب القرآن والتفسير الموثوق والاستماع الطيب من يومك — بلا ضجيج ولا فوضى.';
+
+  @override
+  String get aboutSectionVisionTitle => 'الرؤية';
+
+  @override
+  String get aboutSectionVisionBody =>
+      'تجربة متوازنة روحياً: خط جميل، مصادر محترمة، وأدوات تخدم التركيز لا التشتت.';
+
+  @override
+  String get aboutSectionWhyTitle => 'لماذا هذا التطبيق';
+
+  @override
+  String get aboutSectionWhyBody =>
+      'كثيرون يريدون مكاناً واحداً موثوقاً لمصحف التلاوة، وسياق التفسير، والتلاوات، والصلاة، والقصص بلطف — مبني على الأدب والوضوح.';
+
+  @override
+  String get aboutSectionPillarsTitle => 'ماذا ستجد هنا';
+
+  @override
+  String get aboutPillarQuran => 'قارئ قرآن مع بحث وعلامات وخط عربي مريح.';
+
+  @override
+  String get aboutPillarTafsir => 'تفسير الميسّر بجانب الآيات لسياق أوضح.';
+
+  @override
+  String get aboutPillarTilawat => 'تلاوات مع تنزيل للسفر وضعف الشبكة.';
+
+  @override
+  String get aboutPillarStories =>
+      'قصص الأنبياء بسياسة سرد محكمة ومراجع مختارة.';
+
+  @override
+  String get aboutSectionPrivacyTitle => 'الخصوصية والاحترام';
+
+  @override
+  String get aboutSectionPrivacyBody =>
+      'نفضّل العمل محلياً حيث أمكن، وتجربة بلا مفاجآت، وخيارات محتوى تحترم حرمة النص وحدود أهل العلم.';
+
+  @override
+  String get aboutSectionOfflineTitle => 'التصميم بروح «أوفلاين أولاً»';
+
+  @override
+  String get aboutSectionOfflineBody =>
+      'النص الأساسي والتنزيلات مخصصة لتعمل عند انقطاع الشبكة — ليبقى الذكر في المتناول.';
+
+  @override
+  String get aboutSectionLangTitle => 'تعدد اللغات';
+
+  @override
+  String get aboutSectionLangBody =>
+      'واجهة بالعربية والإنجليزية والفرنسية لتسهيل التنقل على العائلات والطلاب.';
+
+  @override
+  String get aboutIllustrationCaption => 'بارك الله فيكم لمشاركتنا هذا الطريق.';
+
+  @override
+  String aboutAppVersion(Object version) {
+    return 'الإصدار $version';
+  }
+
+  @override
+  String get aboutCreditsLine =>
+      'صُنع بعناية للأمة. كل خير من الله، وما كان من خطأ فمنا.';
+
+  @override
+  String get helpSubtitle =>
+      'إجابات مختصرة وتنسيق هادئ — لتقضي وقتاً أقل في البحث وأكثر في النفع.';
+
+  @override
+  String get helpCardIntro =>
+      'استخدم الأقسام أدناه للتوجيه السريع، ثم افتح الأسئلة الشائعة للتفاصيل.';
+
+  @override
+  String get helpSectionGuides => 'أدلة سريعة';
+
+  @override
+  String get helpGuideQuranTitle => 'صفحة القرآن';
+
+  @override
+  String get helpGuideQuranBody =>
+      'افتح سورة، عدّل الخط والتباعد، ابحث في الآيات، وانتقل للتفسير من أدوات القارئ.';
+
+  @override
+  String get helpGuideTilawatTitle => 'التلاوات';
+
+  @override
+  String get helpGuideTilawatBody =>
+      'اختر القارئ من الإعدادات، شغّل من صفحة الصوت، وسّع الشريط المصغّر، واستخدم المشغّل الكامل للسرعة والتكرار.';
+
+  @override
+  String get helpGuideDownloadTitle => 'تنزيل السور';
+
+  @override
+  String get helpGuideDownloadBody =>
+      'استخدم تنزيل التلاوة حيث يتوفر؛ تُخزَّن الملفات للتشغيل دون اتصال عندما يسمح المضيف.';
+
+  @override
+  String get helpGuidePrayerNotifyTitle => 'تنبيهات الصلاة';
+
+  @override
+  String get helpGuidePrayerNotifyBody =>
+      'فعّل التذكير من الإعدادات، وحدّد الموقع في الأذان، واسمح بالإشعارات لتصل التنبيهات بهدوء.';
+
+  @override
+  String get helpGuideBackgroundAudioTitle => 'الصوت في الخلفية';
+
+  @override
+  String get helpGuideBackgroundAudioBody =>
+      'يمكن أن تستمر التلاوة أثناء التصفح؛ سرد القصص قد يكون محدوداً على المتصفح — استخدم التطبيق على الهاتف للاستماع الكامل.';
+
+  @override
+  String get helpGuideBookmarkTitle => 'العلامات والموضع';
+
+  @override
+  String get helpGuideBookmarkBody =>
+      'احفظ موضع القراءة من صفحة السورة عند توفر الخيار؛ عُد لاحقاً من نقاط «متابعة القراءة» في صفحة القرآن.';
+
+  @override
+  String get helpSectionFaq => 'الأسئلة الشائعة';
+
+  @override
+  String get helpFaqQuranTitle => 'كيف أبحث داخل السورة؟';
+
+  @override
+  String get helpFaqQuranBody =>
+      'افتح السورة، فعّل البحث من شريط الأدوات، اكتب عبارة أو رقم سورة، ثم المس النتيجة للانتقال.';
+
+  @override
+  String get helpFaqTilawatTitle => 'لماذا يتوقف الصوت عند مغادرة الصفحة؟';
+
+  @override
+  String get helpFaqTilawatBody =>
+      'إذا اختفى الشريط المصغّر أعد التشغيل من التلاوات؛ قد يوقف المتصفح الصوت ما لم تكن جلسة المشغّل نشطة.';
+
+  @override
+  String get helpFaqDownloadTitle => 'لماذا فشل التنزيل؟';
+
+  @override
+  String get helpFaqDownloadBody =>
+      'تحقق من الاتصال والمساحة؛ قد يتعطل المضيف مؤقتاً — أعد المحاولة بعد دقائق.';
+
+  @override
+  String get helpFaqNotifyTitle => 'لا تصلني تنبيهات الصلاة';
+
+  @override
+  String get helpFaqNotifyBody =>
+      'تأكد من إذن الإشعارات وتقييدات البطارية لدى بعض الشركات، وتحقق من الموقع أو المدينة اليدوية لصحة المواقيت.';
+
+  @override
+  String get helpFaqBgAudioTitle =>
+      'هل أستطيع سماع القصص في الخلفية على الويب؟';
+
+  @override
+  String get helpFaqBgAudioBody =>
+      'المتصفحات تحدّ الوسائط في الخلفية؛ ثبّت نسخة أندرويد للاستماع مع إطفاء الشاشة.';
+
+  @override
+  String get helpFaqBookmarkTitle => 'أين تُحفظ علامتي؟';
+
+  @override
+  String get helpFaqBookmarkBody =>
+      'تُحفظ على هذا الجهاز لاستئناف القراءة محلياً — لا تُرفع إلى خادم.';
+
+  @override
+  String get helpFaqTroubleTitle => 'إصلاح أعطال عام';
+
+  @override
+  String get helpFaqTroubleBody =>
+      'أعد تشغيل التطبيق، وتأكد أن التاريخ والوقت تلقائيان، حدّث الإصدار، وإذا تكرر الخطأ لاحظ الصفحة التي كنت عليها قبل مراسلتنا.';
+
+  @override
+  String get rateSubtitle => 'نجومكم ترفع الفريق وتدعم التحسين المستمر.';
+
+  @override
+  String get rateHeroTitle => 'جزاكم الله خيراً';
+
+  @override
+  String get rateHeroBody =>
+      'إن نفعكم القرآن أو الصلاة، فتقييم لطيف ينشر النفع لمن يبحث.';
+
+  @override
+  String get rateStarsCaption => 'خمس قلوب خلف خمس نجوم — شكراً لثقتكم.';
+
+  @override
+  String get rateBtnStore => 'قيّم على متجر Play';
+
+  @override
+  String get rateBtnShare => 'شارك التطبيق';
+
+  @override
+  String get rateBtnFeedback => 'أرسل ملاحظة';
+
+  @override
+  String get rateSnackStoreFail => 'تعذّر فتح المتجر من هذا الجهاز.';
+
+  @override
+  String get rateSnackShareFail => 'تعذّر فتح نافذة المشاركة.';
+
+  @override
+  String get rateSnackMailFail => 'تعذّر فتح تطبيق البريد على هذا الجهاز.';
+
+  @override
+  String rateShareText(Object url) {
+    return 'جرّب تطبيق القرآن: $url';
+  }
+
+  @override
+  String get rateFeedbackSubject => 'ملاحظات تطبيق القرآن';
+
+  @override
+  String get sourcesSubtitle => 'الشفافية تبني الثقة — هكذا يصلك المحتوى.';
+
+  @override
+  String get sourcesIntro =>
+      'نفضّل مضيفين معروفين وواجهات برمجية موثقة ونصوص موضّحة المصدر. عند الشك نكون محافظين.';
+
+  @override
+  String get sourcesTrustLine => 'مسارات مختارة — لا تجريف مجهول.';
+
+  @override
+  String get sourcesVisitWebsite => 'الموقع الرسمي';
+
+  @override
+  String get sourcesQuranTitle => 'نص القرآن (المصحف)';
+
+  @override
+  String get sourcesQuranBody =>
+      'الآيات العربية مضمّنة في التطبيق من مجموعة بخط عثماني يتماشى مع إصدارات Tanzil المعتمدة بشكل واسع.';
+
+  @override
+  String get sourcesTafsirTitle => 'التفسير (الميسّر)';
+
+  @override
+  String get sourcesTafsirBody =>
+      'يُجلب تفسير الميسّر العربي عبر واجهات Quran.com العامة مع معرفات الطبعات الموثقة لدى الخدمة.';
+
+  @override
+  String get sourcesPrayerTitle => 'أوقات الصلاة';
+
+  @override
+  String get sourcesPrayerBody =>
+      'تُرسل الإحداثيات وطريقة الحساب إلى واجهة Aladhan (الشبكة الإسلامية) لعرض المواقيت حسب موقعك.';
+
+  @override
+  String get sourcesAudioTitle => 'صوت التلاوة';
+
+  @override
+  String get sourcesAudioBody =>
+      'البث والتنزيل يستخدمان مرايا قارئ موثوقة مثل MP3 Quran ومصادر مشابهة لـ Quranicaudio في فهرس السور.';
+
+  @override
+  String get sourcesStoriesTitle => 'قصص الأنبياء (السرد)';
+
+  @override
+  String get sourcesStoriesBody =>
+      'سرد يوتيوب مقيّد بسياسة قنوات مسموحة؛ كل قصة تفضّل ربط فيديو واحد موثّق.';
+
+  @override
+  String get sourcesMiraclesTitle => 'قسم المعجزات العلمية';
+
+  @override
+  String get sourcesMiraclesBody =>
+      'مواضيع مختارة بصياغة معتدلة وروابط آيات صريحة؛ تلميحات تعليمية — وليست فتوى أو كتاب عقيدة.';
+
+  @override
+  String get sourcesOpenLinkFailed => 'تعذّر فتح هذا الرابط على هذا الجهاز.';
 }

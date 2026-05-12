@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 
 import '../providers/tilawat_audio_controller.dart';
+import '../ui/app_tokens.dart';
 import '../widgets/top_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -81,8 +82,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       if (snap.data != true) return const SizedBox.shrink();
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                          horizontal: AppSpacing.pageH,
+                          vertical: AppSpacing.sm,
                         ),
                         child: Align(
                           alignment: AlignmentDirectional.centerStart,
@@ -99,7 +100,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       );
                     },
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                 ],
               ),
             ),
@@ -126,13 +127,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       );
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.lg),
                   if (_showButtons)
                     SlideTransition(
                       position: _slideAnimation,
                       child: Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
+                        spacing: AppSpacing.md,
+                        runSpacing: AppSpacing.md,
                         alignment: WrapAlignment.center,
                         children: [
                           _buildButton(
@@ -192,39 +193,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget _buildButton(BuildContext context, {required IconData icon, required String label, required String route, required ColorScheme cs}) {
     return InkWell(
       onTap: () => Navigator.pushNamed(context, route),
-      borderRadius: BorderRadius.circular(16),
-      splashColor: cs.primary.withValues(alpha: 0.3),
-      highlightColor: cs.secondary.withValues(alpha: 0.2),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      splashColor: cs.primary.withValues(alpha: 0.2),
+      highlightColor: cs.secondary.withValues(alpha: 0.12),
       child: Container(
-        width: 120,
-        height: 120,
+        width: 116,
+        height: 116,
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-            BoxShadow(
-              color: cs.primary.withValues(alpha: 0.15),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.08)),
+          boxShadow: AppShadows.cardElevated(context),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: cs.onSurface),
-            const SizedBox(height: 8),
+            Icon(icon, size: AppIconSizes.lg + 8, color: cs.onSurface.withValues(alpha: 0.88)),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               label,
               style: GoogleFonts.amiri(
                 color: cs.onSurface,
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),

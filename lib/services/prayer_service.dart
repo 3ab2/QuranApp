@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import '../models/prayer_model.dart';
+import '../prayer/prayer_notification_ids.dart';
 
 class PrayerService {
   static final PrayerService _instance = PrayerService._internal();
@@ -31,6 +33,71 @@ class PrayerService {
   Location? get location => _location;
   AdhanSettings? get settings => _settings;
   String get resolvedTimeZone => _resolvedTimeZone;
+
+  Duration _effectivePreAlertLead() {
+    final m = _settings?.notificationBeforeMinutes ?? 5;
+    return Duration(minutes: m.clamp(1, 120));
+  }
+
+  Future<void> _syncTimezoneForScheduling() async {
+    final s = _settings;
+    if (s != null &&
+        !s.autoLocation &&
+        s.manualPrayerLocation != null &&
+        (s.manualPrayerLocation!.timezoneId?.isNotEmpty ?? false)) {
+      await _applyLocationTimezone(s.manualPrayerLocation!);
+    } else {
+      await _configureLocalTimezone();
+    }
+  }
+
+  Future<void> _applyLocationTimezone(Location loc) async {
+    final id = loc.timezoneId;
+    if (id == null || id.isEmpty) {
+      await _configureLocalTimezone();
+      return;
+    }
+    try {
+      final l = tz.getLocation(id);
+      tz.setLocalLocation(l);
+      _resolvedTimeZone = id;
+    } catch (e) {
+      debugPrint('Invalid timezone id $id: $e');
+      await _configureLocalTimezone();
+    }
+  }
+
+  String _preAlertNotificationBody(
+    String prayerNameAr,
+    String prayerNameEn,
+    int leadMinutes,
+  ) {
+    return 'Prayer time is approaching — prepare for wudu. '
+        '$prayerNameEn in $leadMinutes min · $prayerNameAr';
+  }
+
+  NotificationDetails _preAlertNotificationDetails({
+    required String channelId,
+    required String channelName,
+    required String channelDescription,
+  }) {
+    return NotificationDetails(
+      android: AndroidNotificationDetails(
+        channelId,
+        channelName,
+        channelDescription: channelDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
+      ),
+      iOS: const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    );
+  }
 
   String get locationDisplayName {
     final location = _location;
@@ -55,6 +122,7 @@ class PrayerService {
     await _initializeNotifications();
     await _requestNotificationPermissions();
     await _loadSettings();
+    await _syncTimezoneForScheduling();
     await _restoreAndRescheduleIfPossible();
   }
 
@@ -133,6 +201,7 @@ class PrayerService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('adhan_settings', json.encode(settings.toJson()));
       _settings = settings;
+      await _syncTimezoneForScheduling();
       if (settings.adhanEnabled) {
         await _schedulePrayerNotifications();
       } else {
@@ -158,11 +227,29 @@ class PrayerService {
 
       // Pour simplifier, on utilise les coordonnées directement
       // Le nom de la ville peut être obtenu via une API externe si nécessaire
+      var city = '';
+      var country = '';
+      try {
+        final marks = await geocoding.placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+        if (marks.isNotEmpty) {
+          final p = marks.first;
+          city = p.locality ??
+              p.subAdministrativeArea ??
+              p.administrativeArea ??
+              '';
+          country = p.country ?? '';
+        }
+      } catch (_) {}
+
       _location = Location(
-        city: _resolvedTimeZone,
-        country: 'Device timezone',
+        city: city.isNotEmpty ? city : _resolvedTimeZone,
+        country: country.isNotEmpty ? country : '',
         latitude: position.latitude,
         longitude: position.longitude,
+        timezoneId: null,
       );
 
       return _location;
@@ -174,20 +261,45 @@ class PrayerService {
 
   Future<PrayerTimes?> getPrayerTimes({Location? customLocation}) async {
     try {
-      await _configureLocalTimezone();
-      Location? locationToUse = customLocation ?? _location;
-      locationToUse ??= await getCurrentLocation();
+      final settings = _settings;
+      Location? locationToUse = customLocation;
 
       if (locationToUse == null) {
-        // Utiliser des données par défaut si la localisation échoue
-        debugPrint('Utilisation des données par défaut pour مكة المكرمة');
-        _location = Location(
-          city: 'Unknown location (using device timezone)',
-          country: _resolvedTimeZone,
-          latitude: 21.4225,
-          longitude: 39.8262,
-        );
-        locationToUse = _location!;
+        if (settings != null &&
+            !settings.autoLocation &&
+            settings.manualPrayerLocation != null) {
+          locationToUse = settings.manualPrayerLocation;
+          await _applyLocationTimezone(locationToUse!);
+        } else {
+          await _configureLocalTimezone();
+          locationToUse = _location ?? await getCurrentLocation();
+          if (locationToUse == null &&
+              settings?.manualPrayerLocation != null) {
+            locationToUse = settings!.manualPrayerLocation;
+            await _applyLocationTimezone(locationToUse!);
+          }
+        }
+      } else {
+        if (locationToUse.timezoneId != null &&
+            locationToUse.timezoneId!.isNotEmpty) {
+          await _applyLocationTimezone(locationToUse);
+        } else {
+          await _configureLocalTimezone();
+        }
+      }
+
+      if (locationToUse == null) {
+        debugPrint('getPrayerTimes: no location available');
+        return null;
+      }
+
+      final cached = await _tryLoadSameDayPrayerCache(locationToUse);
+      if (cached != null) {
+        debugPrint('Prayer times: same-day cache hit (offline-first)');
+        if (_settings?.adhanEnabled == true) {
+          await _schedulePrayerNotifications();
+        }
+        return cached;
       }
 
       final url =
@@ -296,7 +408,7 @@ class PrayerService {
 
   Future<void> _schedulePrayerNotifications() async {
     if (_prayerTimes == null || _settings == null) return;
-    await _configureLocalTimezone();
+    await _syncTimezoneForScheduling();
     final hasPermission = await _hasNotificationPermission();
     if (!hasPermission) {
       debugPrint('Notification scheduling skipped: permission denied');
@@ -314,24 +426,24 @@ class PrayerService {
         prayerTime: time,
       );
 
-      final notificationTime =
-          PrayerService.computePreAlertDateTime(nextPrayerTime);
+      final lead = _effectivePreAlertLead();
+      final notificationTime = PrayerService.computePreAlertDateTime(
+        nextPrayerTime,
+        lead: lead,
+      );
+      final leadMinutes = lead.inMinutes;
 
       if (notificationTime.isAfter(now)) {
         await _notifications.zonedSchedule(
           _getPrePrayerNotificationId(prayerName),
-          'Prayer Reminder',
-          '$prayerNameEn in 5 minutes - prepare for prayer',
+          'Prayer reminder',
+          _preAlertNotificationBody(prayerName, prayerNameEn, leadMinutes),
           tz.TZDateTime.from(notificationTime, tz.local),
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'prayer_pre_alerts',
-              'Prayer Reminders',
-              channelDescription:
-                  'Pre-alert notifications 5 minutes before prayer times',
-              importance: Importance.high,
-              priority: Priority.high,
-            ),
+          _preAlertNotificationDetails(
+            channelId: 'prayer_pre_alerts',
+            channelName: 'Prayer Reminders',
+            channelDescription:
+                'Pre-alert notifications before prayer times (automatic timezone)',
           ),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
@@ -354,7 +466,19 @@ class PrayerService {
   }
 
   Future<void> _cancelPrayerNotifications() async {
-    for (final id in [1, 2, 3, 4, 5, 101, 102, 103, 104, 105]) {
+    for (final id in [
+      1,
+      2,
+      3,
+      4,
+      5,
+      101,
+      102,
+      103,
+      104,
+      105,
+      kPrayerSnoozeNotificationId,
+    ]) {
       await _notifications.cancel(id);
     }
   }
@@ -379,6 +503,13 @@ class PrayerService {
     if (_prayerTimes == null || _location == null) return;
     try {
       final prefs = await SharedPreferences.getInstance();
+      final today = tz.TZDateTime.now(tz.local);
+      final dayStr =
+          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final locKey =
+          '${_location!.latitude.toStringAsFixed(4)},${_location!.longitude.toStringAsFixed(4)}';
+      await prefs.setString('prayer_cache_day', dayStr);
+      await prefs.setString('prayer_cache_loc_key', locKey);
       await prefs.setString(
         'cached_prayer_times',
         json.encode({
@@ -397,10 +528,41 @@ class PrayerService {
           'country': _location!.country,
           'latitude': _location!.latitude,
           'longitude': _location!.longitude,
+          if (_location!.timezoneId != null)
+            'timezone_id': _location!.timezoneId,
         }),
       );
     } catch (e) {
       debugPrint('Failed to persist prayer snapshot: $e');
+    }
+  }
+
+  /// Same calendar day + same coordinates → reuse cached timings (offline).
+  Future<PrayerTimes?> _tryLoadSameDayPrayerCache(Location locationToUse) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final timesJson = prefs.getString('cached_prayer_times');
+      final cacheDay = prefs.getString('prayer_cache_day');
+      final cacheLoc = prefs.getString('prayer_cache_loc_key');
+      if (timesJson == null || cacheDay == null || cacheLoc == null) {
+        return null;
+      }
+      final today = tz.TZDateTime.now(tz.local);
+      final todayStr =
+          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final locKey =
+          '${locationToUse.latitude.toStringAsFixed(4)},${locationToUse.longitude.toStringAsFixed(4)}';
+      if (cacheDay != todayStr || cacheLoc != locKey) {
+        return null;
+      }
+      final map = json.decode(timesJson) as Map<String, dynamic>;
+      final pt = PrayerTimes.fromJson(map);
+      _prayerTimes = pt;
+      _location = locationToUse;
+      return pt;
+    } catch (e) {
+      debugPrint('Same-day prayer cache read failed: $e');
+      return null;
     }
   }
 
@@ -422,6 +584,7 @@ class PrayerService {
         country: location['country']?.toString() ?? 'Unknown',
         latitude: (location['latitude'] as num?)?.toDouble() ?? 0.0,
         longitude: (location['longitude'] as num?)?.toDouble() ?? 0.0,
+        timezoneId: location['timezone_id']?.toString(),
       );
       if (_settings?.adhanEnabled == true) {
         await _schedulePrayerNotifications();
@@ -444,17 +607,38 @@ class PrayerService {
     }
   }
 
-  Future<String?> resolveAdhanAssetPath(String prayerName) async {
+  Future<String?> resolveAdhanAssetPath(
+    String prayerName, {
+    AdhanSettings? forSettings,
+  }) async {
     await _loadAssetManifestIfNeeded();
+    final effectiveSettings = forSettings ?? _settings;
     const map = {
-      'الفجر': 'assets/sounds/adhan/fajr.mp3',
-      'الظهر': 'assets/sounds/adhan/dhuhr.mp3',
-      'العصر': 'assets/sounds/adhan/asr.mp3',
-      'المغرب': 'assets/sounds/adhan/maghrib.mp3',
-      'العشاء': 'assets/sounds/adhan/isha.mp3',
+      'الفجر': 'fajr.mp3',
+      'الظهر': 'dhuhr.mp3',
+      'العصر': 'asr.mp3',
+      'المغرب': 'maghrib.mp3',
+      'العشاء': 'isha.mp3',
     };
     const defaultAsset = 'assets/sounds/adhan/default_adhan.mp3';
-    final specificAsset = map[prayerName] ?? defaultAsset;
+    final file = map[prayerName] ?? 'default_adhan.mp3';
+    final voiceId = effectiveSettings?.muezzinVoiceId ?? 'bundled_default';
+
+    if (voiceId != 'bundled_default') {
+      final voicePath = 'assets/sounds/adhan/voices/$voiceId/$file';
+      if (_availableAssets!.contains(voicePath)) {
+        return voicePath;
+      }
+    }
+
+    final flatSpecific = 'assets/sounds/adhan/$file';
+    if (_availableAssets!.contains(flatSpecific)) {
+      return flatSpecific;
+    }
+
+    final specificAsset = map[prayerName] != null
+        ? 'assets/sounds/adhan/${map[prayerName]}'
+        : defaultAsset;
 
     if (_availableAssets!.contains(specificAsset)) {
       return specificAsset;
@@ -475,8 +659,12 @@ class PrayerService {
     return null;
   }
 
-  Future<AdhanAudioSource?> resolveAdhanAudioSource(String prayerName) async {
-    final asset = await resolveAdhanAssetPath(prayerName);
+  Future<AdhanAudioSource?> resolveAdhanAudioSource(
+    String prayerName, {
+    AdhanSettings? forSettings,
+  }) async {
+    final asset =
+        await resolveAdhanAssetPath(prayerName, forSettings: forSettings);
     if (asset != null) {
       return AdhanAudioSource.asset(asset);
     }
@@ -487,6 +675,36 @@ class PrayerService {
       return null;
     }
     return AdhanAudioSource.remote(remoteUrl);
+  }
+
+  /// One-shot reminder after snooze (does not reschedule the main pre-prayer chain).
+  Future<void> scheduleAdhanSnoozeReminder({
+    Duration delay = const Duration(minutes: 5),
+    required String prayerLabel,
+  }) async {
+    await _syncTimezoneForScheduling();
+    if (!await _hasNotificationPermission()) {
+      debugPrint('Snooze skipped: notification permission denied');
+      return;
+    }
+    await _notifications.cancel(kPrayerSnoozeNotificationId);
+    final when = tz.TZDateTime.now(tz.local).add(delay);
+    final details = _preAlertNotificationDetails(
+      channelId: 'prayer_snooze',
+      channelName: 'Adhan snooze',
+      channelDescription: 'Snoozed Adhan reminder',
+    );
+    await _notifications.zonedSchedule(
+      kPrayerSnoozeNotificationId,
+      'Adhan (snoozed)',
+      'Snoozed — $prayerLabel',
+      when,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+    debugPrint('Adhan snooze scheduled at $when');
   }
 
   @visibleForTesting
@@ -505,8 +723,11 @@ class PrayerService {
   }
 
   @visibleForTesting
-  static DateTime computePreAlertDateTime(DateTime prayerDateTime) {
-    return prayerDateTime.subtract(const Duration(minutes: 5));
+  static DateTime computePreAlertDateTime(
+    DateTime prayerDateTime, {
+    Duration lead = const Duration(minutes: 5),
+  }) {
+    return prayerDateTime.subtract(lead);
   }
 
   int _getPrePrayerNotificationId(String prayerName) {

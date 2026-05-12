@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +10,7 @@ import '../app_navigator.dart';
 import '../providers/download_provider.dart';
 import '../providers/tilawat_audio_controller.dart';
 import '../ui/app_tokens.dart';
+import '../widgets/media_full_player_chrome.dart';
 
 /// Presets shown in the sleep timer sheet (minutes).
 const List<int> _kTilawatSleepOptions = [10, 20, 30, 45, 60, 90, 120];
@@ -117,7 +117,7 @@ class _TilawatFullPlayerPageState extends State<TilawatFullPlayerPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _TilawatSleepSheetTile(
+                  MediaSleepSheetTile(
                     icon: Icons.timer_off_outlined,
                     label: l10n.tilawatSleepOff,
                     colorScheme: cs,
@@ -128,7 +128,7 @@ class _TilawatFullPlayerPageState extends State<TilawatFullPlayerPage> {
                   ),
                   for (final m in _kTilawatSleepOptions) ...[
                     const SizedBox(height: 6),
-                    _TilawatSleepSheetTile(
+                    MediaSleepSheetTile(
                       icon: m <= 30
                           ? Icons.bedtime_outlined
                           : Icons.timer_outlined,
@@ -183,10 +183,10 @@ class _TilawatFullPlayerPageState extends State<TilawatFullPlayerPage> {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            const _TilawatAtmosphereBackground(),
-            _TilawatBackgroundWatermark(
-              surahName: surah['name']?.toString() ?? '',
-              reciter: tilawat.currentReciterLabel,
+            const MediaAtmosphereBackground(),
+            MediaBackgroundWatermark(
+              title: surah['name']?.toString() ?? '',
+              subtitle: tilawat.currentReciterLabel,
             ),
             SafeArea(
               child: Column(
@@ -262,7 +262,7 @@ class _TilawatFullPlayerPageState extends State<TilawatFullPlayerPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Directionality(
                       textDirection: TextDirection.ltr,
-                      child: _MainTransportRow(
+                      child: MediaMainTransportRow(
                         colorScheme: cs,
                         canSkipPrevious: tilawat.currentSurahIndex! > 0,
                         canSkipNext: tilawat.currentSurahIndex! <
@@ -299,51 +299,6 @@ class _TilawatFullPlayerPageState extends State<TilawatFullPlayerPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TilawatSleepSheetTile extends StatelessWidget {
-  const _TilawatSleepSheetTile({
-    required this.icon,
-    required this.label,
-    required this.colorScheme,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final ColorScheme colorScheme;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Material(
-      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-      borderRadius: BorderRadius.circular(12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-          child: Row(
-            children: [
-              Icon(icon, size: 22, color: colorScheme.primary),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.start,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -419,156 +374,6 @@ class _TilawatSleepActiveSummaryState extends State<_TilawatSleepActiveSummary> 
   }
 }
 
-/// Symmetrical transport: previous (screen left) | play/pause (dominant) | next (screen right).
-class _MainTransportRow extends StatelessWidget {
-  const _MainTransportRow({
-    required this.colorScheme,
-    required this.canSkipPrevious,
-    required this.canSkipNext,
-    required this.isPlaying,
-    required this.onPrevious,
-    required this.onPlayPause,
-    required this.onNext,
-  });
-
-  final ColorScheme colorScheme;
-  final bool canSkipPrevious;
-  final bool canSkipNext;
-  final bool isPlaying;
-  final VoidCallback onPrevious;
-  final VoidCallback onPlayPause;
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    final sideActive = colorScheme.onSurface.withValues(alpha: 0.9);
-    final sideMuted = colorScheme.onSurface.withValues(alpha: 0.3);
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Center(
-            child: IconButton(
-              onPressed: canSkipPrevious ? onPrevious : null,
-              iconSize: 48,
-              padding: const EdgeInsets.all(12),
-              constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
-              style: IconButton.styleFrom(
-                foregroundColor:
-                    canSkipPrevious ? sideActive : sideMuted,
-              ),
-              icon: const Icon(Icons.skip_previous_rounded),
-            ),
-          ),
-        ),
-        IconButton(
-          onPressed: onPlayPause,
-          iconSize: 84,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 92, minHeight: 92),
-          icon: Icon(
-            isPlaying
-                ? Icons.pause_circle_filled_rounded
-                : Icons.play_circle_filled_rounded,
-            color: colorScheme.primary,
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: IconButton(
-              onPressed: canSkipNext ? onNext : null,
-              iconSize: 48,
-              padding: const EdgeInsets.all(12),
-              constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
-              style: IconButton.styleFrom(
-                foregroundColor: canSkipNext ? sideActive : sideMuted,
-              ),
-              icon: const Icon(Icons.skip_next_rounded),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Large soft watermark behind controls (does not receive pointer events).
-class _TilawatBackgroundWatermark extends StatelessWidget {
-  const _TilawatBackgroundWatermark({
-    required this.surahName,
-    required this.reciter,
-  });
-
-  final String surahName;
-  final String reciter;
-
-  @override
-  Widget build(BuildContext context) {
-    if (surahName.isEmpty) return const SizedBox.shrink();
-    final cs = Theme.of(context).colorScheme;
-    final blend = Color.lerp(cs.primary, cs.secondary, 0.4)!;
-
-    return IgnorePointer(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final w = constraints.maxWidth;
-          return Align(
-            alignment: const Alignment(0, -0.05),
-            child: ClipRect(
-              child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                child: Opacity(
-                  opacity: 0.95,
-                  child: Transform.rotate(
-                    angle: -0.045,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: w * 0.9,
-                          child: Text(
-                            surahName,
-                            textAlign: TextAlign.center,
-                            textDirection: TextDirection.rtl,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.amiri(
-                              fontSize: 88,
-                              fontWeight: FontWeight.w600,
-                              height: 1.02,
-                              color: blend.withValues(alpha: 0.1),
-                            ),
-                          ),
-                        ),
-                        if (reciter.isNotEmpty) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            reciter,
-                            textAlign: TextAlign.center,
-                            textDirection: TextDirection.rtl,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.amiri(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                              color: cs.secondary.withValues(alpha: 0.08),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
 class _TilawatSecondaryActionsBar extends StatelessWidget {
   const _TilawatSecondaryActionsBar({
     required this.l10n,
@@ -588,172 +393,82 @@ class _TilawatSecondaryActionsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        color: cs.surface.withValues(alpha: 0.42),
-        border: Border.all(
-          color: cs.outline.withValues(alpha: 0.18),
+    return MediaSecondaryActionsShell(
+      colorScheme: cs,
+      children: [
+        Tooltip(
+          message: l10n.tilawatTooltipSleepTimer,
+          child: MediaBarIconButton(
+            selected: tilawat.sleepTimerEndsAt != null,
+            icon: Icons.bedtime_outlined,
+            selectedIcon: Icons.bedtime_rounded,
+            onPressed: onOpenSleep,
+            colorScheme: cs,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Tooltip(
-              message: l10n.tilawatTooltipSleepTimer,
-              child: _BarIconButton(
-                selected: tilawat.sleepTimerEndsAt != null,
-                icon: Icons.bedtime_outlined,
-                selectedIcon: Icons.bedtime_rounded,
-                onPressed: onOpenSleep,
+        Consumer<DownloadProvider>(
+          builder: (context, dl, _) {
+            final rec = tilawat.currentReciterLabel;
+            final done = dl.isDownloaded(surahNum, rec);
+            final loading = dl.isDownloading(surahNum, rec);
+            final p = dl.downloadProgress(surahNum, rec);
+            return Tooltip(
+              message: done
+                  ? l10n.tilawatDownloaded
+                  : l10n.tilawatTooltipDownload,
+              child: MediaBarIconButton(
+                selected: done,
+                icon: Icons.download_rounded,
+                selectedIcon: Icons.offline_pin_rounded,
+                onPressed: done || loading
+                    ? null
+                    : () async {
+                        final ok = await dl.downloadSurah(
+                          surahNumber: surahNum,
+                          surah: surah,
+                          reciter: rec,
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              ok
+                                  ? l10n.tilawatDownloadComplete
+                                  : l10n.tilawatDownloadFailed,
+                            ),
+                          ),
+                        );
+                      },
                 colorScheme: cs,
+                isLoading: loading,
+                loadingProgress: p,
               ),
-            ),
-            Consumer<DownloadProvider>(
-              builder: (context, dl, _) {
-                final rec = tilawat.currentReciterLabel;
-                final done = dl.isDownloaded(surahNum, rec);
-                final loading = dl.isDownloading(surahNum, rec);
-                final p = dl.downloadProgress(surahNum, rec);
-                return Tooltip(
-                  message: done
-                      ? l10n.tilawatDownloaded
-                      : l10n.tilawatTooltipDownload,
-                  child: _BarIconButton(
-                    selected: done,
-                    icon: Icons.download_rounded,
-                    selectedIcon: Icons.offline_pin_rounded,
-                    onPressed: done || loading
-                        ? null
-                        : () async {
-                            final ok = await dl.downloadSurah(
-                              surahNumber: surahNum,
-                              surah: surah,
-                              reciter: rec,
-                            );
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  ok
-                                      ? l10n.tilawatDownloadComplete
-                                      : l10n.tilawatDownloadFailed,
-                                ),
-                              ),
-                            );
-                          },
-                    colorScheme: cs,
-                    isLoading: loading,
-                    loadingProgress: p,
-                  ),
-                );
-              },
-            ),
-            Tooltip(
-              message: l10n.tilawatTooltipAutoNext,
-              child: _BarIconButton(
-                selected: tilawat.autoPlayNext,
-                icon: Icons.playlist_play_rounded,
-                selectedIcon: Icons.playlist_play_rounded,
-                onPressed: () =>
-                    tilawat.setAutoPlayNext(!tilawat.autoPlayNext),
-                colorScheme: cs,
-              ),
-            ),
-            Tooltip(
-              message: l10n.tilawatTooltipRepeatOne,
-              child: _BarIconButton(
-                selected: tilawat.repeatCurrentSurah,
-                icon: Icons.repeat_one_rounded,
-                selectedIcon: Icons.repeat_one_rounded,
-                onPressed: () => tilawat.setRepeatCurrentSurah(
-                  !tilawat.repeatCurrentSurah,
-                ),
-                colorScheme: cs,
-              ),
-            ),
-          ],
+            );
+          },
         ),
-      ),
-    );
-  }
-}
-
-class _BarIconButton extends StatelessWidget {
-  const _BarIconButton({
-    required this.icon,
-    required this.selectedIcon,
-    required this.selected,
-    required this.onPressed,
-    required this.colorScheme,
-    this.isLoading = false,
-    this.loadingProgress,
-  });
-
-  final IconData icon;
-  final IconData selectedIcon;
-  final bool selected;
-  final VoidCallback? onPressed;
-  final ColorScheme colorScheme;
-  final bool isLoading;
-  final double? loadingProgress;
-
-  @override
-  Widget build(BuildContext context) {
-    final loading = isLoading;
-    final active = selected || loading;
-    final fg = active ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.55);
-    final bg = selected && !loading
-        ? colorScheme.primary.withValues(alpha: 0.14)
-        : Colors.transparent;
-
-    Widget child = Icon(
-      selected ? selectedIcon : icon,
-      size: 22,
-      color: loading
-          ? colorScheme.onSurface.withValues(alpha: 0.35)
-          : fg,
-    );
-
-    if (loading) {
-      child = SizedBox(
-        width: 28,
-        height: 28,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 26,
-              height: 26,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.2,
-                value: loadingProgress != null && loadingProgress! > 0 && loadingProgress! < 1
-                    ? loadingProgress
-                    : null,
-                color: colorScheme.primary,
-              ),
+        Tooltip(
+          message: l10n.tilawatTooltipAutoNext,
+          child: MediaBarIconButton(
+            selected: tilawat.autoPlayNext,
+            icon: Icons.playlist_play_rounded,
+            selectedIcon: Icons.playlist_play_rounded,
+            onPressed: () => tilawat.setAutoPlayNext(!tilawat.autoPlayNext),
+            colorScheme: cs,
+          ),
+        ),
+        Tooltip(
+          message: l10n.tilawatTooltipRepeatOne,
+          child: MediaBarIconButton(
+            selected: tilawat.repeatCurrentSurah,
+            icon: Icons.repeat_one_rounded,
+            selectedIcon: Icons.repeat_one_rounded,
+            onPressed: () => tilawat.setRepeatCurrentSurah(
+              !tilawat.repeatCurrentSurah,
             ),
-            Icon(icon, size: 14, color: colorScheme.primary.withValues(alpha: 0.9)),
-          ],
+            colorScheme: cs,
+          ),
         ),
-      );
-    }
-
-    return Material(
-      color: bg,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onPressed,
-        customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: Center(child: child),
-        ),
-      ),
+      ],
     );
   }
 }
@@ -800,74 +515,6 @@ class _FullProgressBar extends StatelessWidget {
               ),
             );
           },
-        );
-      },
-    );
-  }
-}
-
-class _TilawatAtmosphereBackground extends StatefulWidget {
-  const _TilawatAtmosphereBackground();
-
-  @override
-  State<_TilawatAtmosphereBackground> createState() =>
-      _TilawatAtmosphereBackgroundState();
-}
-
-class _TilawatAtmosphereBackgroundState
-    extends State<_TilawatAtmosphereBackground>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _c;
-
-  @override
-  void initState() {
-    super.initState();
-    _c = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 6),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (context, child) {
-        final t = _c.value;
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.lerp(
-                  const Color(0xFF0B5D3B),
-                  const Color(0xFF1A7A52),
-                  t,
-                )!,
-                Color.lerp(
-                  const Color(0xFFC9A227),
-                  const Color(0xFFE8D089),
-                  1 - t,
-                )!,
-                theme.colorScheme.surface,
-              ],
-              stops: const [0.0, 0.55, 1.0],
-            ),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              color: theme.colorScheme.surface.withValues(alpha: 0.25),
-            ),
-          ),
         );
       },
     );

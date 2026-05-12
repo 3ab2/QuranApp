@@ -6,7 +6,9 @@ class ProphetStory {
   final List<StorySection> timeline;
   final List<StorySection> lessons;
   final List<StorySection> events;
-  final String? audioUrl;
+  final String? narrationUrl;
+  final int? narrationDurationSeconds;
+  final String? narratorName;
 
   const ProphetStory({
     required this.id,
@@ -16,10 +18,16 @@ class ProphetStory {
     this.timeline = const [],
     this.lessons = const [],
     this.events = const [],
-    this.audioUrl,
+    this.narrationUrl,
+    this.narrationDurationSeconds,
+    this.narratorName,
   });
 
-  bool get hasAudio => audioUrl != null && audioUrl!.trim().isNotEmpty;
+  bool get hasNarration =>
+      narrationUrl != null && narrationUrl!.trim().isNotEmpty;
+  @Deprecated('Use narrationUrl')
+  String? get audioUrl => narrationUrl;
+  bool get hasAudio => hasNarration;
 
   ProphetStory copyWith({
     String? id,
@@ -29,8 +37,10 @@ class ProphetStory {
     List<StorySection>? timeline,
     List<StorySection>? lessons,
     List<StorySection>? events,
-    String? audioUrl,
-    bool clearAudioUrl = false,
+    String? narrationUrl,
+    int? narrationDurationSeconds,
+    String? narratorName,
+    bool clearNarrationUrl = false,
   }) {
     return ProphetStory(
       id: id ?? this.id,
@@ -40,7 +50,11 @@ class ProphetStory {
       timeline: timeline ?? this.timeline,
       lessons: lessons ?? this.lessons,
       events: events ?? this.events,
-      audioUrl: clearAudioUrl ? null : audioUrl ?? this.audioUrl,
+      narrationUrl:
+          clearNarrationUrl ? null : narrationUrl ?? this.narrationUrl,
+      narrationDurationSeconds:
+          narrationDurationSeconds ?? this.narrationDurationSeconds,
+      narratorName: narratorName ?? this.narratorName,
     );
   }
 
@@ -61,7 +75,18 @@ class ProphetStory {
       lessons:
           StorySection.listFromJson(json['lessons'] ?? sectionMap['lessons']),
       events: StorySection.listFromJson(json['events'] ?? sectionMap['events']),
-      audioUrl: _nullableString(json['audio_url'] ?? json['audioUrl']),
+      narrationUrl: _nullableString(
+        json['narration_url'] ??
+            json['narrationUrl'] ??
+            json['audio_url'] ??
+            json['audioUrl'],
+      ),
+      narrationDurationSeconds: _nullableInt(
+        json['narration_duration'] ??
+            json['narrationDuration'] ??
+            json['audio_duration'],
+      ),
+      narratorName: _nullableString(json['narrator_name'] ?? json['narratorName']),
     );
   }
 
@@ -76,7 +101,9 @@ class ProphetStory {
         'lessons': lessons.map((section) => section.toJson()).toList(),
         'events': events.map((section) => section.toJson()).toList(),
       },
-      'audio_url': audioUrl,
+      'narration_url': narrationUrl,
+      'narration_duration': narrationDurationSeconds,
+      'narrator_name': narratorName,
     };
   }
 
@@ -96,6 +123,12 @@ class ProphetStory {
   static String? _nullableString(Object? value) {
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;
+  }
+
+  static int? _nullableInt(Object? value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    return int.tryParse(value.toString().trim());
   }
 }
 

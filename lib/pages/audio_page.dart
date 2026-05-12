@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 
@@ -21,6 +20,17 @@ class _AudioPageState extends State<AudioPage> {
   String? _loadError;
   bool _handledRouteArgs = false;
 
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _searchOpen = false;
+
+  static const List<String> _reciters = [
+    'ماهر المعيقلي',
+    'عبد الباسط عبد الصمد',
+    'مشاري العفاسي',
+    'سعد الغامدي',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +40,13 @@ class _AudioPageState extends State<AudioPage> {
       if (!mounted) return;
       _tryResumeFromArguments();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _bootstrap() async {
@@ -53,14 +70,102 @@ class _AudioPageState extends State<AudioPage> {
     }
   }
 
+  void _toggleSearch() {
+    setState(() {
+      _searchOpen = !_searchOpen;
+      if (!_searchOpen) {
+        _searchController.clear();
+        _searchFocusNode.unfocus();
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _searchFocusNode.requestFocus();
+        });
+      }
+    });
+  }
+
+  void _openReciterSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final settings = context.read<SettingsProvider>();
+
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final bottomInset = MediaQuery.viewInsetsOf(ctx).bottom;
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.pageH,
+                AppSpacing.sm,
+                AppSpacing.pageH,
+                AppSpacing.lg,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.settingsSelectReciter,
+                    style: AppTypography.sectionTitle(cs),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ..._reciters.map(
+                    (r) => ListTile(
+                      title: Text(r, style: AppTypography.listTitle(cs), textDirection: TextDirection.rtl),
+                      trailing: settings.selectedReciter == r
+                          ? Icon(Icons.check_rounded, color: cs.primary)
+                          : null,
+                      onTap: () {
+                        settings.setSelectedReciter(r);
+                        Navigator.pop(ctx);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List<Map<String, dynamic>> _filteredSurahs(List<dynamic> surahs, String q) {
+    final t = q.trim().toLowerCase();
+    if (t.isEmpty) {
+      return surahs.cast<Map<String, dynamic>>();
+    }
+    return surahs
+        .cast<Map<String, dynamic>>()
+        .where((s) {
+          final name = (s['name'] ?? '').toString().toLowerCase();
+          final num = (s['number'] ?? '').toString();
+          return name.contains(t) || num.contains(t);
+        })
+        .toList();
+  }
+
   Future<void> _play(
     TilawatAudioController tilawat,
-    int index, {
+    int indexInFullList,
+    List<Map<String, dynamic>> displayList, {
     Duration? position,
   }) async {
     final l10n = AppLocalizations.of(context)!;
+    final surah = displayList[indexInFullList];
+    final num = surah['number'] as int;
+    final full = tilawat.surahs.cast<Map<String, dynamic>>();
+    final idx = full.indexWhere((e) => e['number'] == num);
+    if (idx < 0) return;
     try {
-      await tilawat.playSurahAt(index, position: position);
+      await tilawat.playSurahAt(idx, position: position);
     } catch (_) {
       if (!mounted) return;
       AppFeedback.showError(context, l10n.audioPlayError);
@@ -76,17 +181,107 @@ class _AudioPageState extends State<AudioPage> {
     final tilawat = context.watch<TilawatAudioController>();
 
     final surahs = tilawat.surahs;
+    final filtered = _filteredSurahs(surahs, _searchController.text);
 
     return Directionality(
       textDirection: Directionality.of(context),
       child: Scaffold(
+        backgroundColor: cs.surface,
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const TopBar(),
-              const SizedBox(height: AppSpacing.lg),
-              AppPageHeader(title: l10n.audioPageTitle),
-              const SizedBox(height: AppSpacing.lg),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, AppSpacing.sm, AppSpacing.pageH, AppSpacing.xs),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: l10n.quranBackToHome,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                      onPressed: () {
+                        final nav = Navigator.of(context);
+                        if (nav.canPop()) {
+                          nav.pop();
+                        } else {
+                          nav.pushNamedAndRemoveUntil('/', (route) => false);
+                        }
+                      },
+                      icon: const BackButtonIcon(),
+                      color: cs.primary,
+                    ),
+                    Expanded(
+                      child: Text(
+                        l10n.audioPageTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.pageTitle(cs),
+                      ),
+                    ),
+                    Material(
+                      color: cs.surfaceContainerHighest.withValues(alpha: 0.42),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        onTap: tilawat.surahsLoaded ? _openReciterSheet : null,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.record_voice_over_outlined, size: 18, color: cs.primary),
+                              const SizedBox(width: 4),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 100),
+                                child: Text(
+                                  settings.selectedReciter,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textDirection: TextDirection.rtl,
+                                  style: AppTypography.caption(cs, opacity: 0.9).copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              Icon(Icons.arrow_drop_down, color: cs.onSurface.withValues(alpha: 0.5)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: _searchOpen ? l10n.quranSearchClose : l10n.quranSearchOpen,
+                      onPressed: tilawat.surahsLoaded ? _toggleSearch : null,
+                      icon: Icon(_searchOpen ? Icons.close : Icons.search, color: cs.primary),
+                    ),
+                  ],
+                ),
+              ),
+              AnimatedSize(
+                duration: AppMotion.medium,
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                child: _searchOpen
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.pageH,
+                          0,
+                          AppSpacing.pageH,
+                          AppSpacing.sm,
+                        ),
+                        child: AppSearchTextField(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          hintText: l10n.quranSurahPickerHint,
+                          textDirection: TextDirection.rtl,
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
               Expanded(
                 child: AnimatedSwitcher(
                   duration: AppMotion.fast,
@@ -96,47 +291,62 @@ class _AudioPageState extends State<AudioPage> {
                           onRetry: _bootstrap,
                         )
                       : !tilawat.surahsLoaded
-                          ? AppLoadingView(label: '${l10n.audioPageTitle}...')
+                          ? AppLoadingView(label: l10n.audioPageTitle)
                           : surahs.isEmpty
                               ? AppErrorView(
                                   message: l10n.audioLoadError,
                                   onRetry: _bootstrap,
                                 )
                               : ListView.builder(
-                                  padding: const EdgeInsets.only(bottom: 24),
-                                  itemCount: surahs.length,
+                                  key: ValueKey<String>(_searchController.text),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    AppSpacing.pageH,
+                                    AppSpacing.xs,
+                                    AppSpacing.pageH,
+                                    AppSpacing.listBottom,
+                                  ),
+                                  itemCount: filtered.length,
                                   itemBuilder: (context, index) {
-                                    final surah =
-                                        surahs[index] as Map<String, dynamic>;
+                                    final surah = filtered[index];
                                     final num = surah['number'] as int;
-                                    return Selector<TilawatAudioController,
-                                        (int?, bool)>(
-                                      selector: (_, c) => (
-                                        c.currentSurahIndex,
-                                        c.currentSurahIndex == index &&
-                                            c.isPlaying,
-                                      ),
+                                    return Selector<TilawatAudioController, (int?, bool)>(
+                                      selector: (_, c) {
+                                        final full = c.surahs.cast<Map<String, dynamic>>();
+                                        final i = full.indexWhere((e) => e['number'] == num);
+                                        return (
+                                          c.currentSurahIndex,
+                                          i >= 0 &&
+                                              c.currentSurahIndex == i &&
+                                              c.isPlaying,
+                                        );
+                                      },
                                       builder: (context, tuple, _) {
                                         final currentIdx = tuple.$1;
                                         final playing = tuple.$2;
+                                        final full = tilawat.surahs.cast<Map<String, dynamic>>();
+                                        final fullIdx =
+                                            full.indexWhere((e) => e['number'] == num);
                                         return AppCard(
+                                          margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                                           child: ListTile(
+                                            contentPadding: const EdgeInsets.symmetric(
+                                              horizontal: AppSpacing.md,
+                                              vertical: AppSpacing.xs,
+                                            ),
                                             title: Text(
                                               surah['name']?.toString() ?? '',
                                               textDirection: TextDirection.rtl,
-                                              style: GoogleFonts.amiri(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                color: cs.onSurface,
-                                              ),
+                                              style: AppTypography.listTitle(cs),
                                             ),
                                             leading: CircleAvatar(
-                                              backgroundColor: cs.primary
-                                                  .withValues(alpha: 0.2),
+                                              backgroundColor: cs.primary.withValues(alpha: 0.15),
                                               child: Text(
                                                 '$num',
                                                 style: TextStyle(
-                                                    color: cs.onSurface),
+                                                  color: cs.primary,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 13,
+                                                ),
                                               ),
                                             ),
                                             trailing: Row(
@@ -145,15 +355,13 @@ class _AudioPageState extends State<AudioPage> {
                                                 _SurahDownloadAction(
                                                   surahNumber: num,
                                                   surah: surah,
-                                                  reciter:
-                                                      settings.selectedReciter,
+                                                  reciter: settings.selectedReciter,
                                                 ),
                                                 IconButton(
                                                   icon: Icon(
                                                     playing
                                                         ? Icons.pause_rounded
-                                                        : Icons
-                                                            .play_arrow_rounded,
+                                                        : Icons.play_arrow_rounded,
                                                     color: cs.onSurface,
                                                   ),
                                                   onPressed: () async {
@@ -163,11 +371,9 @@ class _AudioPageState extends State<AudioPage> {
                                                       await _play(
                                                         tilawat,
                                                         index,
-                                                        position: (currentIdx ==
-                                                                index)
-                                                            ? tilawat
-                                                                .player
-                                                                .position
+                                                        filtered,
+                                                        position: (currentIdx == fullIdx && fullIdx >= 0)
+                                                            ? tilawat.player.position
                                                             : null,
                                                       );
                                                     }
@@ -178,7 +384,8 @@ class _AudioPageState extends State<AudioPage> {
                                             onTap: () => _play(
                                               tilawat,
                                               index,
-                                              position: (currentIdx == index)
+                                              filtered,
+                                              position: (currentIdx == fullIdx && fullIdx >= 0)
                                                   ? tilawat.player.position
                                                   : null,
                                             ),
@@ -237,8 +444,7 @@ class _SurahDownloadAction extends StatelessWidget {
         if (done) {
           return Padding(
             padding: const EdgeInsetsDirectional.only(end: 4),
-            child: Icon(Icons.offline_pin_rounded,
-                color: cs.primary, size: 22),
+            child: Icon(Icons.offline_pin_rounded, color: cs.primary, size: 22),
           );
         }
         return IconButton(

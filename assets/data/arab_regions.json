@@ -1,0 +1,194 @@
+{
+  "countries": [
+    {
+      "id": "MA",
+      "ar": "المغرب",
+      "en": "Morocco",
+      "fr": "Maroc",
+      "tz": "Africa/Casablanca",
+      "cities": [
+        {"ar": "الدار البيضاء", "en": "Casablanca", "fr": "Casablanca", "lat": 33.5731, "lon": -7.5898},
+        {"ar": "الرباط", "en": "Rabat", "fr": "Rabat", "lat": 34.0209, "lon": -6.8416},
+        {"ar": "فاس", "en": "Fes", "fr": "Fès", "lat": 34.0331, "lon": -5.0003},
+        {"ar": "مراكش", "en": "Marrakesh", "fr": "Marrakech", "lat": 31.6295, "lon": -7.9811},
+        {"ar": "طنجة", "en": "Tangier", "fr": "Tanger", "lat": 35.7595, "lon": -5.834}
+      ]
+    },
+    {
+      "id": "SA",
+      "ar": "السعودية",
+      "en": "Saudi Arabia",
+      "fr": "Arabie saoudite",
+      "tz": "Asia/Riyadh",
+      "cities": [
+        {"ar": "مكة المكرمة", "en": "Makkah", "fr": "La Mecque", "lat": 21.4225, "lon": 39.8262},
+        {"ar": "المدينة المنورة", "en": "Madinah", "fr": "Médine", "lat": 24.5247, "lon": 39.5692},
+        {"ar": "الرياض", "en": "Riyadh", "fr": "Riyad", "lat": 24.7136, "lon": 46.6753},
+        {"ar": "جدة", "en": "Jeddah", "fr": "Djeddah", "lat": 21.5433, "lon": 39.1679},
+        {"ar": "الدمام", "en": "Dammam", "fr": "Dammam", "lat": 26.4207, "lon": 50.0888}
+      ]
+    },
+    {
+      "id": "EG",
+      "ar": "مصر",
+      "en": "Egypt",
+      "fr": "Égypte",
+      "tz": "Africa/Cairo",
+      "cities": [
+        {"ar": "القاهرة", "en": "Cairo", "fr": "Le Caire", "lat": 30.0444, "lon": 31.2357},
+        {"ar": "الإسكندرية", "en": "Alexandria", "fr": "Alexandrie", "lat": 31.2001, "lon": 29.9187},
+        {"ar": "الجيزة", "en": "Giza", "fr": "Gizeh", "lat": 30.0131, "lon": 31.2089},
+        {"ar": "أسوان", "en": "Aswan", "fr": "Assouan", "lat": 24.0889, "lon": 32.8998}
+      ]
+    },
+    {
+      "id": "AE",
+      "ar": "الإمارات",
+      "en": "United Arab Emirates",
+      "fr": "Émirats arabes unis",
+      "tz": "Asia/Dubai",
+      "cities": [
+        {"ar": "دبي", "en": "Dubai", "fr": "Dubaï", "lat": 25.2048, "lon": 55.2708},
+        {"ar": "أبو ظبي", "en": "Abu Dhabi", "fr": "Abou Dabi", "lat": 24.4539, "lon": 54.3773},
+        {"ar": "الشارقة", "en": "Sharjah", "fr": "Charjah", "lat": 25.3463, "lon": 55.4209}
+      ]
+    },
+    {
+      "id": "DZ",
+      "ar": "الجزائر",
+      "en": "Algeria",
+      "fr": "Algérie",
+      "tz": "Africa/Algiers",
+      "cities": [
+        {"ar": "الجزائر العاصمة", "en": "Algiers", "fr": "Alger", "lat": 36.7538, "lon": 3.0588},
+        {"ar": "وهران", "en": "Oran", "fr": "Oran", "lat": 35.6969, "lon": -0.6331},
+        {"ar": "قسنطينة", "en": "Constantine", "fr": "Constantine", "lat": 36.365, "lon": 6.6147}
+      ]
+    },
+    {
+      "id": "TN",
+      "ar": "تونس",
+      "en": "Tunisia",
+      "fr": "Tunisie",
+      "tz": "Africa/Tunis",
+      "cities": [
+        {"ar": "تونس", "en": "Tunis", "fr": "Tunis", "lat": 36.8065, "lon": 10.1815},
+        {"ar": "صفاقس", "en": "Sfax", "fr": "Sfax", "lat": 34.7406, "lon": 10.7603}
+      ]
+    },
+    {
+      "id": "LB",
+      "ar": "لبنان",
+      "en": "Lebanon",
+      "fr": "Liban",
+      "tz": "Asia/Beirut",
+      "cities": [
+        {"ar": "بيروت", "en": "Beirut", "fr": "Beyrouth", "lat": 33.8938, "lon": 35.5018},
+        {"ar": "طرابلس", "en": "Tripoli", "fr": "Tripoli", "lat": 34.4346, "lon": 35.8362}
+      ]
+    },
+    {
+      "id": "JO",
+      "ar": "الأردن",
+      "en": "Jordan",
+      "fr": "Jordanie",
+      "tz": "Asia/Amman",
+      "cities": [
+        {"ar": "عمان", "en": "Amman", "fr": "Amman", "lat": 31.9454, "lon": 35.9284},
+        {"ar": "الزرقاء", "en": "Zarqa", "fr": "Zarqa", "lat": 32.0728, "lon": 36.08796}
+      ]
+    },
+    {
+      "id": "IQ",
+      "ar": "العراق",
+      "en": "Iraq",
+      "fr": "Irak",
+      "tz": "Asia/Baghdad",
+      "cities": [
+        {"ar": "بغداد", "en": "Baghdad", "fr": "Bagdad", "lat": 33.3152, "lon": 44.3661},
+        {"ar": "البصرة", "en": "Basra", "fr": "Bassora", "lat": 30.5088, "lon": 47.7804}
+      ]
+    },
+    {
+      "id": "KW",
+      "ar": "الكويت",
+      "en": "Kuwait",
+      "fr": "Koweït",
+      "tz": "Asia/Kuwait",
+      "cities": [
+        {"ar": "الكويت", "en": "Kuwait City", "fr": "Koweït", "lat": 29.3759, "lon": 47.9774}
+      ]
+    },
+    {
+      "id": "QA",
+      "ar": "قطر",
+      "en": "Qatar",
+      "fr": "Qatar",
+      "tz": "Asia/Qatar",
+      "cities": [
+        {"ar": "الدوحة", "en": "Doha", "fr": "Doha", "lat": 25.2854, "lon": 51.531}
+      ]
+    },
+    {
+      "id": "BH",
+      "ar": "البحرين",
+      "en": "Bahrain",
+      "fr": "Bahreïn",
+      "tz": "Asia/Bahrain",
+      "cities": [
+        {"ar": "المنامة", "en": "Manama", "fr": "Manama", "lat": 26.2235, "lon": 50.5876}
+      ]
+    },
+    {
+      "id": "OM",
+      "ar": "عُمان",
+      "en": "Oman",
+      "fr": "Oman",
+      "tz": "Asia/Muscat",
+      "cities": [
+        {"ar": "مسقط", "en": "Muscat", "fr": "Mascate", "lat": 23.588, "lon": 58.3829}
+      ]
+    },
+    {
+      "id": "YE",
+      "ar": "اليمن",
+      "en": "Yemen",
+      "fr": "Yémen",
+      "tz": "Asia/Aden",
+      "cities": [
+        {"ar": "صنعاء", "en": "Sanaa", "fr": "Sanaa", "lat": 15.3694, "lon": 44.191}
+      ]
+    },
+    {
+      "id": "SD",
+      "ar": "السودان",
+      "en": "Sudan",
+      "fr": "Soudan",
+      "tz": "Africa/Khartoum",
+      "cities": [
+        {"ar": "الخرطوم", "en": "Khartoum", "fr": "Khartoum", "lat": 15.5007, "lon": 32.5599}
+      ]
+    },
+    {
+      "id": "LY",
+      "ar": "ليبيا",
+      "en": "Libya",
+      "fr": "Libye",
+      "tz": "Africa/Tripoli",
+      "cities": [
+        {"ar": "طرابلس", "en": "Tripoli", "fr": "Tripoli", "lat": 32.8872, "lon": 13.1913}
+      ]
+    },
+    {
+      "id": "PS",
+      "ar": "فلسطين",
+      "en": "Palestine",
+      "fr": "Palestine",
+      "tz": "Asia/Gaza",
+      "cities": [
+        {"ar": "القدس", "en": "Jerusalem", "fr": "Jérusalem", "lat": 31.7683, "lon": 35.2137},
+        {"ar": "غزة", "en": "Gaza", "fr": "Gaza", "lat": 31.3547, "lon": 34.3082}
+      ]
+    }
+  ]
+}

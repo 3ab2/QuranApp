@@ -4,6 +4,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:arabic_numbers/arabic_numbers.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 
+import '../ui/app_tokens.dart';
 import '../pages/about_page.dart';
 import '../pages/help_page.dart';
 import '../pages/rate_page.dart';
@@ -40,7 +41,10 @@ class TopBar extends StatelessWidget {
     return Directionality(
       textDirection: Directionality.of(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.pageH,
+          vertical: AppSpacing.md - 4,
+        ),
         decoration: BoxDecoration(
           color: cs.surface,
           border: Border(bottom: BorderSide(color: theme.dividerColor, width: 1)),
