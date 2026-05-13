@@ -174,7 +174,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get prophetStoriesSearchEmpty =>
-      'Aucune histoire de prophète ne correspond. Essayez d’autres mots ou désactivez le filtre narration.';
+      'Aucune histoire de prophète ne correspond. Essayez d’autres mots.';
 
   @override
   String get prophetStoriesSearchOpenTooltip => 'Rechercher dans les histoires';
@@ -522,6 +522,66 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get prayerQiblaRotateHint =>
       'Tournez lentement jusqu’à ce que l’aiguille se stabilise vers la Kaaba';
+
+  @override
+  String get prayerQiblaFallbackSubtitle =>
+      'Direction de la Qibla depuis votre position';
+
+  @override
+  String get prayerQiblaFallbackExplanation =>
+      'La boussole en direct a besoin des capteurs magnétiques et d’orientation du téléphone. Elle fonctionne pleinement dans l’application mobile.';
+
+  @override
+  String get prayerQiblaFallbackBrowserNote =>
+      'Les navigateurs web et les ordinateurs n’exposent souvent pas les capteurs nécessaires à une boussole en direct.';
+
+  @override
+  String get prayerQiblaFallbackStaticHint =>
+      'Qibla approximative depuis votre position enregistrée';
+
+  @override
+  String prayerQiblaFallbackAngle(String angle) {
+    return 'Azimut de la Qibla : $angle depuis le nord';
+  }
+
+  @override
+  String get prayerQiblaFallbackLocationTitle => 'Votre position';
+
+  @override
+  String get prayerQiblaFallbackLocationUnknown => 'Position non définie';
+
+  @override
+  String get prayerQiblaFallbackLocationHint =>
+      'Choisissez votre ville sur la page Prière pour afficher l’angle de la Qibla chez vous.';
+
+  @override
+  String get prayerQiblaFallbackKaabaTitle => 'Vers la Kaaba';
+
+  @override
+  String get prayerQiblaFallbackMobileTitle => 'Boussole en direct sur mobile';
+
+  @override
+  String get prayerQiblaFallbackMobileBody =>
+      'Ouvrez l’application sur votre téléphone pour une boussole en temps réel qui suit votre orientation vers la Qibla.';
+
+  @override
+  String get prayerQiblaFallbackDragHint =>
+      'Glissez doucement pour explorer — relâchez pour vous réaligner sur la Qibla';
+
+  @override
+  String get prayerQiblaFallbackInfoTitle => 'La Qibla en un coup d’œil';
+
+  @override
+  String get prayerQiblaFallbackAngleLabel => 'Angle Qibla';
+
+  @override
+  String get prayerQiblaFallbackDistanceLabel => 'Vers la Kaaba';
+
+  @override
+  String get prayerQiblaFallbackHeadingLabel => 'Mode boussole';
+
+  @override
+  String get prayerQiblaFallbackHeadingValue => 'Guide statique';
 
   @override
   String get prayerSettingsReminder => 'Rappel avant la prière';
@@ -894,4 +954,134 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get sourcesOpenLinkFailed =>
       'Impossible d\'ouvrir ce lien sur cet appareil.';
+
+  @override
+  String get homeQuranicDuas => 'Invocations coraniques';
+
+  @override
+  String get homeKhatmDua => 'Doua de khatm';
+
+  @override
+  String get quranicDuasTitle => 'Invocations tirées du Coran';
+
+  @override
+  String get quranicDuasSearchHint => 'Texte, thème ou sourate…';
+
+  @override
+  String get quranicDuasSearchOpenTooltip => 'Rechercher des invocations';
+
+  @override
+  String get quranicDuasFilterTooltip => 'Filtrer par sourate et thème';
+
+  @override
+  String get quranicDuasFilterTitle => 'Filtres';
+
+  @override
+  String get quranicDuasAllSurahs => 'Toutes les sourates';
+
+  @override
+  String get quranicDuasAllTopics => 'Tous les thèmes';
+
+  @override
+  String get quranicDuasApplyFilters => 'Appliquer';
+
+  @override
+  String get quranicDuasClearFilters => 'Effacer les filtres';
+
+  @override
+  String get quranicDuasEmpty =>
+      'Aucune invocation ne correspond à votre recherche ou filtres.';
+
+  @override
+  String get quranicDuasLoadError =>
+      'Impossible de charger les invocations. Réessayez ou rouvrez la page.';
+
+  @override
+  String get quranicDuasOpenQuran => 'Ouvrir dans le Coran';
+
+  @override
+  String get quranicDuasOpenTafsir => 'Ouvrir le tafsir';
+
+  @override
+  String get quranicDuasCopy => 'Copier';
+
+  @override
+  String get quranicDuasShare => 'Partager';
+
+  @override
+  String get quranicDuasFavoriteOn => 'Enregistré localement';
+
+  @override
+  String get quranicDuasFavoriteOff => 'Enregistrer';
+
+  @override
+  String get quranicDuasCopied => 'Copié dans le presse-papiers.';
+
+  @override
+  String get quranicDuasShareSubject => 'Invocation du Coran';
+
+  @override
+  String get khatmDuaTitle => 'Doua de khatm al-Qur\'an';
+
+  @override
+  String get khatmDuaSubtitle => 'Une lecture posée pour clore et remercier';
+
+  @override
+  String get khatmDuaLoadError =>
+      'Impossible de charger cette page. Réessayez.';
+
+  @override
+  String get khatmDuaAudioSoon =>
+      'Une récitation audio sera proposée dans une prochaine mise à jour.';
+
+  @override
+  String get khatmDuaFooterNote =>
+      'Ce texte sert à la lecture et à la méditation ; rapprochez-vous d’une formulation recommandée par des savants ou votre communauté pour le khatm.';
+
+  @override
+  String get duaTopicMercy => 'Miséricorde';
+
+  @override
+  String get duaTopicForgiveness => 'Pardon';
+
+  @override
+  String get duaTopicRizq => 'Provision';
+
+  @override
+  String get duaTopicPatience => 'Patience';
+
+  @override
+  String get duaTopicGuidance => 'Orientation';
+
+  @override
+  String get duaTopicProtection => 'Protection';
+
+  @override
+  String get duaTopicParents => 'Parents';
+
+  @override
+  String get duaTopicSuccess => 'Réussite';
+
+  @override
+  String get duaTopicGratitude => 'Reconnaissance';
+
+  @override
+  String get duaTopicKnowledge => 'Savoir';
+
+  @override
+  String get duaTopicRefuge => 'Confiance et refuge';
+
+  @override
+  String get duaTopicFamily => 'Famille';
+
+  @override
+  String get duaTopicTaqwa => 'Piété';
+
+  @override
+  String get duaTopicHealing => 'Épreuve et guérison';
+
+  @override
+  String duaRefLine(Object surahName, Object ayahPart) {
+    return '$surahName · $ayahPart';
+  }
 }

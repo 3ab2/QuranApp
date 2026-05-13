@@ -21,7 +21,6 @@ class _StoriesPageState extends State<StoriesPage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _searchOpen = false;
-  bool _audioOnly = false;
 
   @override
   void initState() {
@@ -107,23 +106,6 @@ class _StoriesPageState extends State<StoriesPage> {
                         style: AppTypography.pageTitle(cs),
                       ),
                     ),
-                    FilterChip(
-                      label: Text(
-                        l10n.homeAudio,
-                        style: AppTypography.caption(cs, opacity: 0.95),
-                      ),
-                      selected: _audioOnly,
-                      onSelected: (v) => setState(() => _audioOnly = v),
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      showCheckmark: false,
-                      avatar: Icon(
-                        Icons.headphones_outlined,
-                        size: 16,
-                        color: _audioOnly ? cs.onPrimary : cs.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
                     IconButton(
                       tooltip: _searchOpen ? l10n.quranSearchClose : l10n.prophetStoriesSearchOpenTooltip,
                       onPressed: _toggleSearch,
@@ -181,9 +163,7 @@ class _StoriesPageState extends State<StoriesPage> {
                     }
 
                     final q = _searchController.text;
-                    var rows = baseUnique
-                        .where((s) => !_audioOnly || s.hasNarration)
-                        .toList();
+                    var rows = baseUnique.toList();
                     rows = rows.where((s) => _storyMatchesQuery(s, q)).toList();
 
                     if (rows.isEmpty) {

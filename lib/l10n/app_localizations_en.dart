@@ -170,7 +170,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prophetStoriesSearchEmpty =>
-      'No prophet stories match. Try different words or turn off the narration filter.';
+      'No prophet stories match. Try different words.';
 
   @override
   String get prophetStoriesSearchOpenTooltip => 'Search stories';
@@ -512,6 +512,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get prayerQiblaRotateHint =>
       'Turn slowly until the needle steadies toward the Kaaba';
+
+  @override
+  String get prayerQiblaFallbackSubtitle =>
+      'Qibla direction from your location';
+
+  @override
+  String get prayerQiblaFallbackExplanation =>
+      'The live compass needs your phone\'s magnetic and direction sensors. It works fully inside the mobile app.';
+
+  @override
+  String get prayerQiblaFallbackBrowserNote =>
+      'Web and desktop browsers often cannot access the sensors needed for a live compass.';
+
+  @override
+  String get prayerQiblaFallbackStaticHint =>
+      'Approximate Qibla from your saved location';
+
+  @override
+  String prayerQiblaFallbackAngle(String angle) {
+    return 'Qibla bearing: $angle from north';
+  }
+
+  @override
+  String get prayerQiblaFallbackLocationTitle => 'Your location';
+
+  @override
+  String get prayerQiblaFallbackLocationUnknown => 'Location not set yet';
+
+  @override
+  String get prayerQiblaFallbackLocationHint =>
+      'Set your city on the Prayer page to see the Qibla angle for where you are.';
+
+  @override
+  String get prayerQiblaFallbackKaabaTitle => 'Toward the Kaaba';
+
+  @override
+  String get prayerQiblaFallbackMobileTitle => 'Live compass on mobile';
+
+  @override
+  String get prayerQiblaFallbackMobileBody =>
+      'Open this app on your phone for a real-time compass that follows your movement toward the Qibla.';
+
+  @override
+  String get prayerQiblaFallbackDragHint =>
+      'Drag gently to explore — release to realign with Qibla';
+
+  @override
+  String get prayerQiblaFallbackInfoTitle => 'Qibla at a glance';
+
+  @override
+  String get prayerQiblaFallbackAngleLabel => 'Qibla angle';
+
+  @override
+  String get prayerQiblaFallbackDistanceLabel => 'To Kaaba';
+
+  @override
+  String get prayerQiblaFallbackHeadingLabel => 'Compass mode';
+
+  @override
+  String get prayerQiblaFallbackHeadingValue => 'Static guide';
 
   @override
   String get prayerSettingsReminder => 'Reminder before prayer';
@@ -879,4 +939,132 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sourcesOpenLinkFailed =>
       'Could not open this link on this device.';
+
+  @override
+  String get homeQuranicDuas => 'Quranic duas';
+
+  @override
+  String get homeKhatmDua => 'Khatm dua';
+
+  @override
+  String get quranicDuasTitle => 'Duas from the Qur\'an';
+
+  @override
+  String get quranicDuasSearchHint => 'Search text, topic, or surah…';
+
+  @override
+  String get quranicDuasSearchOpenTooltip => 'Search duas';
+
+  @override
+  String get quranicDuasFilterTooltip => 'Filter by surah and topic';
+
+  @override
+  String get quranicDuasFilterTitle => 'Filters';
+
+  @override
+  String get quranicDuasAllSurahs => 'All surahs';
+
+  @override
+  String get quranicDuasAllTopics => 'All topics';
+
+  @override
+  String get quranicDuasApplyFilters => 'Apply';
+
+  @override
+  String get quranicDuasClearFilters => 'Clear filters';
+
+  @override
+  String get quranicDuasEmpty => 'No duas match your search or filters.';
+
+  @override
+  String get quranicDuasLoadError =>
+      'Could not load duas. Pull to retry or reopen the page.';
+
+  @override
+  String get quranicDuasOpenQuran => 'Open in Qur\'an';
+
+  @override
+  String get quranicDuasOpenTafsir => 'Open tafsir';
+
+  @override
+  String get quranicDuasCopy => 'Copy';
+
+  @override
+  String get quranicDuasShare => 'Share';
+
+  @override
+  String get quranicDuasFavoriteOn => 'Saved locally';
+
+  @override
+  String get quranicDuasFavoriteOff => 'Save';
+
+  @override
+  String get quranicDuasCopied => 'Copied to clipboard.';
+
+  @override
+  String get quranicDuasShareSubject => 'Du\'a from the Qur\'an';
+
+  @override
+  String get khatmDuaTitle => 'Khatm al-Qur\'an supplication';
+
+  @override
+  String get khatmDuaSubtitle => 'A calm reading for completion and gratitude';
+
+  @override
+  String get khatmDuaLoadError => 'Could not load this page. Try again.';
+
+  @override
+  String get khatmDuaAudioSoon =>
+      'Audio recitation will be offered in a future update.';
+
+  @override
+  String get khatmDuaFooterNote =>
+      'This layout is for reading and reflection; follow wording your scholars or community recommend for khatm.';
+
+  @override
+  String get duaTopicMercy => 'Mercy';
+
+  @override
+  String get duaTopicForgiveness => 'Forgiveness';
+
+  @override
+  String get duaTopicRizq => 'Provision';
+
+  @override
+  String get duaTopicPatience => 'Patience';
+
+  @override
+  String get duaTopicGuidance => 'Guidance';
+
+  @override
+  String get duaTopicProtection => 'Protection';
+
+  @override
+  String get duaTopicParents => 'Parents';
+
+  @override
+  String get duaTopicSuccess => 'Success';
+
+  @override
+  String get duaTopicGratitude => 'Gratitude';
+
+  @override
+  String get duaTopicKnowledge => 'Knowledge';
+
+  @override
+  String get duaTopicRefuge => 'Trust & refuge';
+
+  @override
+  String get duaTopicFamily => 'Family';
+
+  @override
+  String get duaTopicTaqwa => 'God-consciousness';
+
+  @override
+  String get duaTopicHealing => 'Hardship & healing';
+
+  @override
+  String duaRefLine(Object surahName, Object ayahPart) {
+    return '$surahName · $ayahPart';
+  }
 }

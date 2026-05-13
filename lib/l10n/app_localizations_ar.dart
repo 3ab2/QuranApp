@@ -169,7 +169,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get prophetStoriesSearchEmpty =>
-      'لا توجد قصص مطابقة. جرّب كلمات أخرى أو ألغِ تصفية السرد الصوتي.';
+      'لا توجد قصص مطابقة. جرّب كلمات أخرى.';
 
   @override
   String get prophetStoriesSearchOpenTooltip => 'البحث في القصص';
@@ -500,6 +500,65 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get prayerQiblaRotateHint =>
       'درّب الجهاز برفق حتى تستقر الإشارة نحو الكعبة';
+
+  @override
+  String get prayerQiblaFallbackSubtitle => 'اتجاه القبلة من موقعك';
+
+  @override
+  String get prayerQiblaFallbackExplanation =>
+      'البوصلة المباشرة تحتاج إلى حساسات الهاتف مثل المغناطيسية والاتجاه، وهي تعمل بشكل كامل داخل تطبيق الهاتف.';
+
+  @override
+  String get prayerQiblaFallbackBrowserNote =>
+      'متصفحات الويب وأجهزة الحاسوب قد لا تتيح الحساسات اللازمة للبوصلة الحية.';
+
+  @override
+  String get prayerQiblaFallbackStaticHint =>
+      'اتجاه القبلة التقريبي من موقعك المحفوظ';
+
+  @override
+  String prayerQiblaFallbackAngle(String angle) {
+    return 'زاوية القبلة: $angle من الشمال';
+  }
+
+  @override
+  String get prayerQiblaFallbackLocationTitle => 'موقعك';
+
+  @override
+  String get prayerQiblaFallbackLocationUnknown => 'لم يُحدَّد الموقع بعد';
+
+  @override
+  String get prayerQiblaFallbackLocationHint =>
+      'اختر مدينتك في صفحة الصلاة لمعرفة زاوية القبلة عندك.';
+
+  @override
+  String get prayerQiblaFallbackKaabaTitle => 'نحو الكعبة';
+
+  @override
+  String get prayerQiblaFallbackMobileTitle => 'بوصلة حية على الهاتف';
+
+  @override
+  String get prayerQiblaFallbackMobileBody =>
+      'افتح التطبيق على هاتفك لبوصلة تتبع حركتك نحو القبلة لحظة بلحظة.';
+
+  @override
+  String get prayerQiblaFallbackDragHint =>
+      'اسحب برفق للاستكشاف — اترك لإعادة المحاذاة مع القبلة';
+
+  @override
+  String get prayerQiblaFallbackInfoTitle => 'القبلة في لمحة';
+
+  @override
+  String get prayerQiblaFallbackAngleLabel => 'زاوية القبلة';
+
+  @override
+  String get prayerQiblaFallbackDistanceLabel => 'إلى الكعبة';
+
+  @override
+  String get prayerQiblaFallbackHeadingLabel => 'وضع البوصلة';
+
+  @override
+  String get prayerQiblaFallbackHeadingValue => 'دليل ثابت';
 
   @override
   String get prayerSettingsReminder => 'تذكير قبل الصلاة';
@@ -852,4 +911,131 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sourcesOpenLinkFailed => 'تعذّر فتح هذا الرابط على هذا الجهاز.';
+
+  @override
+  String get homeQuranicDuas => 'أدعية من القرآن';
+
+  @override
+  String get homeKhatmDua => 'دعاء ختم القرآن';
+
+  @override
+  String get quranicDuasTitle => 'أدعية من القرآن الكريم';
+
+  @override
+  String get quranicDuasSearchHint => 'ابحث في النص أو الموضوع أو السورة…';
+
+  @override
+  String get quranicDuasSearchOpenTooltip => 'البحث في الأدعية';
+
+  @override
+  String get quranicDuasFilterTooltip => 'تصفية حسب السورة والموضوع';
+
+  @override
+  String get quranicDuasFilterTitle => 'التصفية';
+
+  @override
+  String get quranicDuasAllSurahs => 'كل السور';
+
+  @override
+  String get quranicDuasAllTopics => 'كل المواضيع';
+
+  @override
+  String get quranicDuasApplyFilters => 'تطبيق';
+
+  @override
+  String get quranicDuasClearFilters => 'مسح التصفية';
+
+  @override
+  String get quranicDuasEmpty => 'لا توجد أدعية مطابقة لبحثك أو تصفيتك.';
+
+  @override
+  String get quranicDuasLoadError =>
+      'تعذّر تحميل الأدعية. أعد المحاولة أو أعد فتح الصفحة.';
+
+  @override
+  String get quranicDuasOpenQuran => 'فتح في المصحف';
+
+  @override
+  String get quranicDuasOpenTafsir => 'فتح التفسير';
+
+  @override
+  String get quranicDuasCopy => 'نسخ';
+
+  @override
+  String get quranicDuasShare => 'مشاركة';
+
+  @override
+  String get quranicDuasFavoriteOn => 'محفوظ محليًا';
+
+  @override
+  String get quranicDuasFavoriteOff => 'حفظ';
+
+  @override
+  String get quranicDuasCopied => 'تم النسخ إلى الحافظة.';
+
+  @override
+  String get quranicDuasShareSubject => 'دعاء من القرآن';
+
+  @override
+  String get khatmDuaTitle => 'دعاء ختم القرآن الكريم';
+
+  @override
+  String get khatmDuaSubtitle => 'قراءة هادئة للختم والشكر';
+
+  @override
+  String get khatmDuaLoadError => 'تعذّر تحميل الصفحة. حاول مرة أخرى.';
+
+  @override
+  String get khatmDuaAudioSoon => 'ستُتاح تلاوة صوتية في تحديث قادم.';
+
+  @override
+  String get khatmDuaFooterNote =>
+      'هذا التنسيق للقراءة والتدبر؛ راجع صيغًا مأثورة مع عالم مؤهل أو عادات مجتمعك لختم القرآن.';
+
+  @override
+  String get duaTopicMercy => 'رحمة';
+
+  @override
+  String get duaTopicForgiveness => 'مغفرة';
+
+  @override
+  String get duaTopicRizq => 'رزق';
+
+  @override
+  String get duaTopicPatience => 'صبر';
+
+  @override
+  String get duaTopicGuidance => 'هدى';
+
+  @override
+  String get duaTopicProtection => 'حفظ وعناية';
+
+  @override
+  String get duaTopicParents => 'الوالدان';
+
+  @override
+  String get duaTopicSuccess => 'توفيق';
+
+  @override
+  String get duaTopicGratitude => 'شكر وبر';
+
+  @override
+  String get duaTopicKnowledge => 'علم';
+
+  @override
+  String get duaTopicRefuge => 'توكل وملجأ';
+
+  @override
+  String get duaTopicFamily => 'أسرة وذرية';
+
+  @override
+  String get duaTopicTaqwa => 'تقوى';
+
+  @override
+  String get duaTopicHealing => 'بلاء وشفاء';
+
+  @override
+  String duaRefLine(Object surahName, Object ayahPart) {
+    return '$surahName · $ayahPart';
+  }
 }

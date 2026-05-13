@@ -409,7 +409,7 @@ abstract class AppLocalizations {
   /// No description provided for @prophetStoriesSearchEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No prophet stories match. Try different words or turn off the narration filter.'**
+  /// **'No prophet stories match. Try different words.'**
   String get prophetStoriesSearchEmpty;
 
   /// No description provided for @prophetStoriesSearchOpenTooltip.
@@ -1011,6 +1011,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn slowly until the needle steadies toward the Kaaba'**
   String get prayerQiblaRotateHint;
+
+  /// No description provided for @prayerQiblaFallbackSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla direction from your location'**
+  String get prayerQiblaFallbackSubtitle;
+
+  /// No description provided for @prayerQiblaFallbackExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'The live compass needs your phone\'s magnetic and direction sensors. It works fully inside the mobile app.'**
+  String get prayerQiblaFallbackExplanation;
+
+  /// No description provided for @prayerQiblaFallbackBrowserNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Web and desktop browsers often cannot access the sensors needed for a live compass.'**
+  String get prayerQiblaFallbackBrowserNote;
+
+  /// No description provided for @prayerQiblaFallbackStaticHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate Qibla from your saved location'**
+  String get prayerQiblaFallbackStaticHint;
+
+  /// No description provided for @prayerQiblaFallbackAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla bearing: {angle} from north'**
+  String prayerQiblaFallbackAngle(String angle);
+
+  /// No description provided for @prayerQiblaFallbackLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location'**
+  String get prayerQiblaFallbackLocationTitle;
+
+  /// No description provided for @prayerQiblaFallbackLocationUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not set yet'**
+  String get prayerQiblaFallbackLocationUnknown;
+
+  /// No description provided for @prayerQiblaFallbackLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your city on the Prayer page to see the Qibla angle for where you are.'**
+  String get prayerQiblaFallbackLocationHint;
+
+  /// No description provided for @prayerQiblaFallbackKaabaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Toward the Kaaba'**
+  String get prayerQiblaFallbackKaabaTitle;
+
+  /// No description provided for @prayerQiblaFallbackMobileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live compass on mobile'**
+  String get prayerQiblaFallbackMobileTitle;
+
+  /// No description provided for @prayerQiblaFallbackMobileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open this app on your phone for a real-time compass that follows your movement toward the Qibla.'**
+  String get prayerQiblaFallbackMobileBody;
+
+  /// No description provided for @prayerQiblaFallbackDragHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag gently to explore — release to realign with Qibla'**
+  String get prayerQiblaFallbackDragHint;
+
+  /// No description provided for @prayerQiblaFallbackInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla at a glance'**
+  String get prayerQiblaFallbackInfoTitle;
+
+  /// No description provided for @prayerQiblaFallbackAngleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla angle'**
+  String get prayerQiblaFallbackAngleLabel;
+
+  /// No description provided for @prayerQiblaFallbackDistanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To Kaaba'**
+  String get prayerQiblaFallbackDistanceLabel;
+
+  /// No description provided for @prayerQiblaFallbackHeadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Compass mode'**
+  String get prayerQiblaFallbackHeadingLabel;
+
+  /// No description provided for @prayerQiblaFallbackHeadingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Static guide'**
+  String get prayerQiblaFallbackHeadingValue;
 
   /// No description provided for @prayerSettingsReminder.
   ///
@@ -1635,6 +1737,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open this link on this device.'**
   String get sourcesOpenLinkFailed;
+
+  /// No description provided for @homeQuranicDuas.
+  ///
+  /// In en, this message translates to:
+  /// **'Quranic duas'**
+  String get homeQuranicDuas;
+
+  /// No description provided for @homeKhatmDua.
+  ///
+  /// In en, this message translates to:
+  /// **'Khatm dua'**
+  String get homeKhatmDua;
+
+  /// No description provided for @quranicDuasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duas from the Qur\'an'**
+  String get quranicDuasTitle;
+
+  /// No description provided for @quranicDuasSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search text, topic, or surah…'**
+  String get quranicDuasSearchHint;
+
+  /// No description provided for @quranicDuasSearchOpenTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search duas'**
+  String get quranicDuasSearchOpenTooltip;
+
+  /// No description provided for @quranicDuasFilterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by surah and topic'**
+  String get quranicDuasFilterTooltip;
+
+  /// No description provided for @quranicDuasFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get quranicDuasFilterTitle;
+
+  /// No description provided for @quranicDuasAllSurahs.
+  ///
+  /// In en, this message translates to:
+  /// **'All surahs'**
+  String get quranicDuasAllSurahs;
+
+  /// No description provided for @quranicDuasAllTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'All topics'**
+  String get quranicDuasAllTopics;
+
+  /// No description provided for @quranicDuasApplyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get quranicDuasApplyFilters;
+
+  /// No description provided for @quranicDuasClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get quranicDuasClearFilters;
+
+  /// No description provided for @quranicDuasEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No duas match your search or filters.'**
+  String get quranicDuasEmpty;
+
+  /// No description provided for @quranicDuasLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load duas. Pull to retry or reopen the page.'**
+  String get quranicDuasLoadError;
+
+  /// No description provided for @quranicDuasOpenQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Qur\'an'**
+  String get quranicDuasOpenQuran;
+
+  /// No description provided for @quranicDuasOpenTafsir.
+  ///
+  /// In en, this message translates to:
+  /// **'Open tafsir'**
+  String get quranicDuasOpenTafsir;
+
+  /// No description provided for @quranicDuasCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get quranicDuasCopy;
+
+  /// No description provided for @quranicDuasShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get quranicDuasShare;
+
+  /// No description provided for @quranicDuasFavoriteOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved locally'**
+  String get quranicDuasFavoriteOn;
+
+  /// No description provided for @quranicDuasFavoriteOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get quranicDuasFavoriteOff;
+
+  /// No description provided for @quranicDuasCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard.'**
+  String get quranicDuasCopied;
+
+  /// No description provided for @quranicDuasShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Du\'a from the Qur\'an'**
+  String get quranicDuasShareSubject;
+
+  /// No description provided for @khatmDuaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Khatm al-Qur\'an supplication'**
+  String get khatmDuaTitle;
+
+  /// No description provided for @khatmDuaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A calm reading for completion and gratitude'**
+  String get khatmDuaSubtitle;
+
+  /// No description provided for @khatmDuaLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this page. Try again.'**
+  String get khatmDuaLoadError;
+
+  /// No description provided for @khatmDuaAudioSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio recitation will be offered in a future update.'**
+  String get khatmDuaAudioSoon;
+
+  /// No description provided for @khatmDuaFooterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This layout is for reading and reflection; follow wording your scholars or community recommend for khatm.'**
+  String get khatmDuaFooterNote;
+
+  /// No description provided for @duaTopicMercy.
+  ///
+  /// In en, this message translates to:
+  /// **'Mercy'**
+  String get duaTopicMercy;
+
+  /// No description provided for @duaTopicForgiveness.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgiveness'**
+  String get duaTopicForgiveness;
+
+  /// No description provided for @duaTopicRizq.
+  ///
+  /// In en, this message translates to:
+  /// **'Provision'**
+  String get duaTopicRizq;
+
+  /// No description provided for @duaTopicPatience.
+  ///
+  /// In en, this message translates to:
+  /// **'Patience'**
+  String get duaTopicPatience;
+
+  /// No description provided for @duaTopicGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Guidance'**
+  String get duaTopicGuidance;
+
+  /// No description provided for @duaTopicProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection'**
+  String get duaTopicProtection;
+
+  /// No description provided for @duaTopicParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents'**
+  String get duaTopicParents;
+
+  /// No description provided for @duaTopicSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get duaTopicSuccess;
+
+  /// No description provided for @duaTopicGratitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Gratitude'**
+  String get duaTopicGratitude;
+
+  /// No description provided for @duaTopicKnowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge'**
+  String get duaTopicKnowledge;
+
+  /// No description provided for @duaTopicRefuge.
+  ///
+  /// In en, this message translates to:
+  /// **'Trust & refuge'**
+  String get duaTopicRefuge;
+
+  /// No description provided for @duaTopicFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get duaTopicFamily;
+
+  /// No description provided for @duaTopicTaqwa.
+  ///
+  /// In en, this message translates to:
+  /// **'God-consciousness'**
+  String get duaTopicTaqwa;
+
+  /// No description provided for @duaTopicHealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardship & healing'**
+  String get duaTopicHealing;
+
+  /// No description provided for @duaRefLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{surahName} · {ayahPart}'**
+  String duaRefLine(Object surahName, Object ayahPart);
 }
 
 class _AppLocalizationsDelegate

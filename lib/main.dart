@@ -23,6 +23,8 @@ import 'pages/story_detail_page.dart';
 import 'pages/surah_detail_page.dart';
 import 'data/surah_data.dart';
 import 'pages/scientific_miracles_page.dart';
+import 'pages/quranic_duas_page.dart';
+import 'pages/khatm_quran_dua_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -141,6 +143,8 @@ class QuranApp extends StatelessWidget {
             '/audio': (context) => const AudioPage(),
             '/stories': (context) => const StoriesPage(),
             '/scientific-miracles': (context) => const ScientificMiraclesPage(),
+            '/quranic-duas': (context) => const QuranicDuasPage(),
+            '/khatm-dua': (context) => const KhatmQuranDuaPage(),
             '/settings': (context) => const SettingsPage(),
           },
           onGenerateRoute: (settings) {

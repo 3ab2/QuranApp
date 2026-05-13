@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_qiblah/flutter_qiblah.dart';
@@ -9,10 +11,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 import 'package:quran_app/widgets/back_button_widget.dart';
 
-const double _kaabaLat = 21.422487;
-const double _kaabaLon = 39.826206;
+import 'qibla_fallback_view.dart';
+import 'qibla_math.dart';
+
+bool _supportsLiveCompass() =>
+    !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
 Widget buildPrayerQiblaPage(BuildContext context) {
+  if (!_supportsLiveCompass()) {
+    return const QiblaFallbackView();
+  }
   return const _QiblaScaffold();
 }
 
@@ -49,11 +57,11 @@ class _QiblaScaffoldState extends State<_QiblaScaffold> {
       final fresh = pos ?? await Geolocator.getCurrentPosition();
       if (!mounted) return;
       setState(() {
-        _distanceKm = _haversineKm(
+        _distanceKm = qiblaHaversineKm(
           fresh.latitude,
           fresh.longitude,
-          _kaabaLat,
-          _kaabaLon,
+          kKaabaLatitude,
+          kKaabaLongitude,
         );
         _ready = true;
       });
@@ -74,6 +82,14 @@ class _QiblaScaffoldState extends State<_QiblaScaffold> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+
+    if (_error != null) {
+      return QiblaFallbackView(
+        statusBanner: _error == 'location_service'
+            ? l10n.prayerQiblaLocationDisabled
+            : l10n.prayerQiblaError,
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -100,27 +116,7 @@ class _QiblaScaffoldState extends State<_QiblaScaffold> {
                 ],
               ),
             ),
-            if (_error != null)
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      _error == 'location_service'
-                          ? l10n.prayerQiblaLocationDisabled
-                          : l10n.prayerQiblaError,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.amiri(
-                        fontSize: 16,
-                        height: 1.5,
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.85),
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            else if (!_ready)
+            if (!_ready)
               const Expanded(
                 child: Center(child: CircularProgressIndicator()),
               )
@@ -171,12 +167,9 @@ class _QiblaCompassBodyState extends State<_QiblaCompassBody> {
       stream: FlutterQiblah.qiblahStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              l10n.prayerQiblaError,
-              style: GoogleFonts.amiri(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
+          return QiblaFallbackView(
+            embedded: true,
+            statusBanner: l10n.prayerQiblaError,
           );
         }
         if (!snapshot.hasData) {
@@ -320,14 +313,3 @@ class _CompassRosePainter extends CustomPainter {
       oldDelegate.color != color;
 }
 
-double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
-  const earthKm = 6371.0;
-  final p1 = lat1 * math.pi / 180;
-  final p2 = lat2 * math.pi / 180;
-  final dLat = (lat2 - lat1) * math.pi / 180;
-  final dLon = (lon2 - lon1) * math.pi / 180;
-  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-      math.cos(p1) * math.cos(p2) * math.sin(dLon / 2) * math.sin(dLon / 2);
-  final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-  return earthKm * c;
-}

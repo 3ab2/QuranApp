@@ -54,6 +54,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/
+    - assets/data/quranic_duas.json
+    - assets/data/khatm_quran_dua.json
     - assets/sounds/adhan/
     - assets/sounds/adhan/fajr.mp3
     - assets/sounds/adhan/dhuhr.mp3
