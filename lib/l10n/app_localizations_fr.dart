@@ -511,6 +511,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de lire la boussole sur cet appareil.';
 
   @override
+  String get prayerQiblaEmulatorUnavailable =>
+      'Les capteurs de boussole ne sont pas disponibles sur cet appareil ou émulateur. Utilisez le guide Qibla statique ci-dessous.';
+
+  @override
   String prayerQiblaDistanceKm(String km) {
     return 'Environ $km km jusqu’à la Kaaba';
   }
@@ -585,6 +589,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get prayerSettingsReminder => 'Rappel avant la prière';
+
+  @override
+  String get prayerReminderEnabledHelp =>
+      'Une notification simple quelques minutes avant chaque prière pour vous préparer.';
+
+  @override
+  String get prayerAdhanEnabledHelp =>
+      'Notification à l\'heure exacte de la prière et lecture manuelle de l\'adhan depuis la liste.';
 
   @override
   String get prayerReminderPreset5 => '5 min';

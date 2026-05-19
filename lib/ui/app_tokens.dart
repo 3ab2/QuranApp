@@ -73,6 +73,10 @@ class AppMotion {
   static const Duration fast = Duration(milliseconds: 200);
   static const Duration medium = Duration(milliseconds: 320);
   static const Duration slow = Duration(milliseconds: 480);
+
+  /// Standard list / page scroll padding (horizontal + bottom breathing room).
+  static EdgeInsets listPadding({double bottom = AppSpacing.listBottom}) =>
+      EdgeInsets.fromLTRB(0, AppSpacing.xs, 0, bottom);
 }
 
 /// Typography using Amiri — hierarchy stays consistent app-wide.

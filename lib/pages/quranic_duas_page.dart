@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/surah_data.dart';
 import '../duas/quranic_dua_repository.dart';
 import '../models/quranic_dua.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
@@ -146,6 +147,8 @@ class _QuranicDuasPageState extends State<QuranicDuasPage> {
       'family': {'en': 'family', 'fr': 'famille', 'ar': 'أسرة'},
       'taqwa': {'en': 'taqwa', 'fr': 'piété', 'ar': 'تقوى'},
       'healing': {'en': 'healing', 'fr': 'guérison', 'ar': 'شفاء'},
+      'faith': {'en': 'faith', 'fr': 'foi', 'ar': 'إيمان'},
+      'anxiety': {'en': 'anxiety', 'fr': 'anxiété', 'ar': 'هم'},
     };
     return map[category]?[lang] ?? category;
   }
@@ -495,12 +498,10 @@ class _QuranicDuasPageState extends State<QuranicDuasPage> {
                                 ),
                               )
                             : ListView.builder(
-                                padding: const EdgeInsets.fromLTRB(
-                                  0,
-                                  AppSpacing.xs,
-                                  0,
-                                  AppSpacing.listBottom,
-                                ),
+                                physics: AppScrollPhysics.list(context),
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                padding: AppMotion.listPadding(),
                                 itemCount: _filtered.length,
                                 itemBuilder: (context, i) {
                                   final d = _filtered[i];

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 
 import '../providers/tilawat_audio_controller.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/top_bar.dart';
 
@@ -66,9 +67,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
+          physics: AppScrollPhysics.list(context),
           slivers: [
             SliverToBoxAdapter(
               child: Column(

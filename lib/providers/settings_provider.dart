@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/quran_audio_service.dart';
+import '../ui/app_tokens.dart';
 
 class SettingsProvider extends ChangeNotifier {
   // Preferences keys
   static const _kDarkMode = 'darkMode';
-  static const _kAdhanEnabled = 'adhanEnabled';
-  static const _kReminderEnabled = 'reminderEnabled';
   static const _kSelectedReciter = 'selectedReciter';
   static const _kSelectedLanguage = 'selectedLanguage';
   static const _kVolume = 'volume';
 
   // State
   bool _isDarkMode = false;
-  bool _isAdhanEnabled = false;
-  bool _isReminderEnabled = false;
   String _selectedReciter = QuranAudioService.defaultReciterName;
   String _selectedLanguage = 'العربية';
   double _volume = 0.7;
@@ -24,8 +21,6 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _isDarkMode = prefs.getBool(_kDarkMode) ?? false;
-    _isAdhanEnabled = prefs.getBool(_kAdhanEnabled) ?? false;
-    _isReminderEnabled = prefs.getBool(_kReminderEnabled) ?? false;
     _selectedReciter =
         prefs.getString(_kSelectedReciter) ?? QuranAudioService.defaultReciterName;
     _selectedLanguage = prefs.getString(_kSelectedLanguage) ?? 'العربية';
@@ -38,8 +33,6 @@ class SettingsProvider extends ChangeNotifier {
   bool get isDarkMode => _isDarkMode;
 
   // Other settings
-  bool get isAdhanEnabled => _isAdhanEnabled;
-  bool get isReminderEnabled => _isReminderEnabled;
   String get selectedReciter => _selectedReciter;
   String get selectedLanguage => _selectedLanguage;
   double get volume => _volume;
@@ -59,6 +52,45 @@ class SettingsProvider extends ChangeNotifier {
       default:
         return const Locale('ar');
     }
+  }
+
+  static ThemeData _productionPolish(ThemeData base, ColorScheme scheme) {
+    return base.copyWith(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
+      splashFactory: InkRipple.splashFactory,
+      highlightColor: scheme.primary.withValues(alpha: 0.06),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        ),
+        showDragHandle: true,
+      ),
+      dialogTheme: DialogThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: scheme.primary,
+        linearTrackColor: scheme.primary.withValues(alpha: 0.2),
+      ),
+    );
   }
 
   // Soft, eye-friendly palettes
@@ -175,7 +207,7 @@ class SettingsProvider extends ChangeNotifier {
       surface: Color(0xFFF7F7F9),
       onSurface: Color(0xFF1C1C1E),
     );
-    return baseLight.copyWith(
+    final light = baseLight.copyWith(
       colorScheme: lightScheme,
       scaffoldBackgroundColor: lightScheme.surface,
       cardColor: lightScheme.surface,
@@ -205,6 +237,7 @@ class SettingsProvider extends ChangeNotifier {
         textStyle: TextStyle(color: lightScheme.onSurface),
       ),
     );
+    return _productionPolish(light, lightScheme);
   }
 
   ThemeData getDarkThemeData() {
@@ -222,7 +255,7 @@ class SettingsProvider extends ChangeNotifier {
       surface: Color(0xFF171819),
       onSurface: Color(0xFFE6E6E6),
     );
-    return baseDark.copyWith(
+    final dark = baseDark.copyWith(
       colorScheme: darkScheme,
       scaffoldBackgroundColor: darkScheme.surface,
       cardColor: darkScheme.surface,
@@ -252,6 +285,7 @@ class SettingsProvider extends ChangeNotifier {
         textStyle: TextStyle(color: darkScheme.onSurface),
       ),
     );
+    return _productionPolish(dark, darkScheme);
   }
 
   // Mutators with persistence
@@ -259,20 +293,6 @@ class SettingsProvider extends ChangeNotifier {
     _isDarkMode = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kDarkMode, value);
-    notifyListeners();
-  }
-
-  Future<void> setAdhanEnabled(bool value) async {
-    _isAdhanEnabled = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kAdhanEnabled, value);
-    notifyListeners();
-  }
-
-  Future<void> setReminderEnabled(bool value) async {
-    _isReminderEnabled = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kReminderEnabled, value);
     notifyListeners();
   }
 

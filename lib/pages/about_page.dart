@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
 
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
@@ -45,6 +46,7 @@ class AboutPage extends StatelessWidget {
               const SizedBox(height: AppSpacing.afterHeader),
               Expanded(
                 child: ListView(
+                  physics: AppScrollPhysics.list(context),
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.pageH,
                     0,

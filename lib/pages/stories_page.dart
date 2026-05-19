@@ -6,6 +6,7 @@ import '../models/prophet_story.dart';
 import '../stories/prophet_story_service.dart';
 import '../widgets/top_bar.dart';
 import '../widgets/common_ui.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 
 class StoriesPage extends StatefulWidget {
@@ -180,6 +181,7 @@ class _StoriesPageState extends State<StoriesPage> {
                     }
 
                     return ListView.builder(
+                      physics: AppScrollPhysics.list(context),
                       padding: const EdgeInsets.fromLTRB(
                         AppSpacing.pageH,
                         AppSpacing.xs,

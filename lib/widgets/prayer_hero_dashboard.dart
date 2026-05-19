@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
-import 'package:quran_app/prayer/prayer_atmosphere.dart';
 import 'package:quran_app/prayer/prayer_timeline.dart';
 import 'package:quran_app/ui/app_tokens.dart';
 import 'package:quran_app/widgets/common_ui.dart';
@@ -20,13 +19,11 @@ String formatPrayerCountdownHms(Duration d) {
 class PrayerHeroCompact extends StatelessWidget {
   final PrayerDashboardSnapshot snapshot;
   final String locationLine;
-  final VoidCallback onOpenQibla;
 
   const PrayerHeroCompact({
     super.key,
     required this.snapshot,
     required this.locationLine,
-    required this.onOpenQibla,
   });
 
   String _phaseLabel(AppLocalizations l10n) {
@@ -46,8 +43,6 @@ class PrayerHeroCompact extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final atm =
-        PrayerAtmosphere.fromSnapshot(snapshot, theme.brightness);
     final showCountdown = snapshot.nextPrayerAt.isAfter(DateTime.now()) &&
         snapshot.phase != PrayerUrgencyPhase.atAdhan;
 
@@ -126,18 +121,6 @@ class PrayerHeroCompact extends StatelessWidget {
                         color: theme.colorScheme.primary.withValues(alpha: 0.85),
                       ),
                     ),
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                    tooltip: l10n.prayerOpenQibla,
-                    onPressed: onOpenQibla,
-                    icon: Icon(
-                      Icons.explore_outlined,
-                      size: 22,
-                      color: atm.accent,
-                    ),
-                  ),
                 ],
               ),
             ],

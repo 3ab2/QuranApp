@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quran_app/l10n/app_localizations.dart';
-import 'package:quran_app/pages/prayer_qibla_page.dart';
 import 'package:quran_app/services/prayer_service.dart';
 
 /// Calm full-screen surface while Adhan plays (subtle motion only).
@@ -37,7 +36,7 @@ class _AdhanImmersivePageState extends State<AdhanImmersivePage>
   @override
   void initState() {
     super.initState();
-    _savedVolume = widget.prayerService.settings?.volume ?? 0.85;
+    _savedVolume = 1.0;
     _breath = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
@@ -80,14 +79,6 @@ class _AdhanImmersivePageState extends State<AdhanImmersivePage>
         widget.player.setVolume(_savedVolume);
       }
     });
-  }
-
-  void _openQibla() {
-    final nav = Navigator.of(context);
-    nav.pop();
-    nav.push<void>(
-      MaterialPageRoute<void>(builder: (_) => const PrayerQiblaPage()),
-    );
   }
 
   String _clockLine() {
@@ -216,11 +207,6 @@ class _AdhanImmersivePageState extends State<AdhanImmersivePage>
                                         ? l10n.prayerAdhanUnmute
                                         : l10n.prayerAdhanMute,
                                     onTap: _toggleMute,
-                                  ),
-                                  _ChromeButton(
-                                    icon: Icons.explore_outlined,
-                                    label: l10n.prayerOpenQibla,
-                                    onTap: _openQibla,
                                   ),
                                 ],
                               ),

@@ -5,6 +5,7 @@ import 'package:quran_app/l10n/app_localizations.dart';
 import '../providers/download_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/tilawat_audio_controller.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
@@ -299,6 +300,9 @@ class _AudioPageState extends State<AudioPage> {
                                 )
                               : ListView.builder(
                                   key: ValueKey<String>(_searchController.text),
+                                  physics: AppScrollPhysics.list(context),
+                                  keyboardDismissBehavior:
+                                      ScrollViewKeyboardDismissBehavior.onDrag,
                                   padding: const EdgeInsets.fromLTRB(
                                     AppSpacing.pageH,
                                     AppSpacing.xs,

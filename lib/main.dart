@@ -11,6 +11,7 @@ import 'navigation/web_view_focus_guard.dart';
 import 'providers/settings_provider.dart';
 import 'providers/download_provider.dart';
 import 'providers/tilawat_audio_controller.dart';
+import 'ui/app_scroll.dart';
 import 'widgets/tilawat_mini_player_bar.dart';
 import 'pages/home_page.dart';
 import 'pages/quran_page.dart';
@@ -85,6 +86,7 @@ class QuranApp extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, settings, child) {
         return MaterialApp(
+          scrollBehavior: const AppScrollBehavior(),
           navigatorKey: appNavigatorKey,
           navigatorObservers: [tilawatNavigatorObserver],
           builder: (context, child) =>
@@ -152,9 +154,10 @@ class QuranApp extends StatelessWidget {
             if (name != null && name.startsWith('/story/')) {
               final id = Uri.decodeComponent(name.substring('/story/'.length));
               if (id.isNotEmpty) {
-                return MaterialPageRoute(
+                return MaterialPageRoute<void>(
                   builder: (context) => StoryDetailPage(id: id),
                   settings: settings,
+                  fullscreenDialog: false,
                 );
               }
             }

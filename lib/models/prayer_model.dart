@@ -76,7 +76,10 @@ class Location {
 }
 
 class AdhanSettings {
+  /// Notification + manual adhan playback at the exact prayer time.
   final bool adhanEnabled;
+  /// Simple text reminder [notificationBeforeMinutes] before prayer.
+  final bool reminderEnabled;
   final int notificationBeforeMinutes;
   final bool autoLocation;
   final double volume;
@@ -89,6 +92,7 @@ class AdhanSettings {
 
   AdhanSettings({
     required this.adhanEnabled,
+    this.reminderEnabled = true,
     required this.notificationBeforeMinutes,
     required this.autoLocation,
     required this.volume,
@@ -105,9 +109,12 @@ class AdhanSettings {
     }
     return AdhanSettings(
       adhanEnabled: json['adhan_enabled'] ?? true,
+      reminderEnabled: json['reminder_enabled'] ??
+          json['adhan_enabled'] ??
+          true,
       notificationBeforeMinutes: json['notification_before_minutes'] ?? 5,
       autoLocation: json['auto_location'] ?? true,
-      volume: (json['volume'] as num?)?.toDouble() ?? 0.8,
+      volume: (json['volume'] as num?)?.toDouble() ?? 1.0,
       muezzinVoiceId: json['muezzin_voice_id']?.toString() ?? 'bundled_default',
       mosqueModeEnabled: json['mosque_mode_enabled'] == true,
       manualPrayerLocation: manual,
@@ -117,6 +124,7 @@ class AdhanSettings {
   Map<String, dynamic> toJson() {
     return {
       'adhan_enabled': adhanEnabled,
+      'reminder_enabled': reminderEnabled,
       'notification_before_minutes': notificationBeforeMinutes,
       'auto_location': autoLocation,
       'volume': volume,
@@ -129,6 +137,7 @@ class AdhanSettings {
 
   AdhanSettings copyWith({
     bool? adhanEnabled,
+    bool? reminderEnabled,
     int? notificationBeforeMinutes,
     bool? autoLocation,
     double? volume,
@@ -139,6 +148,7 @@ class AdhanSettings {
   }) {
     return AdhanSettings(
       adhanEnabled: adhanEnabled ?? this.adhanEnabled,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
       notificationBeforeMinutes:
           notificationBeforeMinutes ?? this.notificationBeforeMinutes,
       autoLocation: autoLocation ?? this.autoLocation,

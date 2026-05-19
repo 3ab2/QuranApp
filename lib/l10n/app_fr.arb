@@ -211,6 +211,7 @@
   "prayerQiblaWebUnavailable": "La boussole qibla en direct utilise les capteurs du téléphone et est disponible dans l’application mobile.",
   "prayerQiblaLocationDisabled": "Activez la localisation et l’autorisation pour utiliser la boussole qibla.",
   "prayerQiblaError": "Impossible de lire la boussole sur cet appareil.",
+  "prayerQiblaEmulatorUnavailable": "Les capteurs de boussole ne sont pas disponibles sur cet appareil ou émulateur. Utilisez le guide Qibla statique ci-dessous.",
   "prayerQiblaDistanceKm": "Environ {km} km jusqu’à la Kaaba",
   "@prayerQiblaDistanceKm": {
     "placeholders": {
@@ -246,6 +247,8 @@
   "prayerQiblaFallbackHeadingLabel": "Mode boussole",
   "prayerQiblaFallbackHeadingValue": "Guide statique",
   "prayerSettingsReminder": "Rappel avant la prière",
+  "prayerReminderEnabledHelp": "Une notification simple quelques minutes avant chaque prière pour vous préparer.",
+  "prayerAdhanEnabledHelp": "Notification à l'heure exacte de la prière et lecture manuelle de l'adhan depuis la liste.",
   "prayerReminderPreset5": "5 min",
   "prayerReminderPreset10": "10 min",
   "prayerReminderPreset15": "15 min",

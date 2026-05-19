@@ -12,6 +12,7 @@ import '../services/miracle_service.dart';
 import '../services/quran_text_service.dart';
 import '../services/tafsir/tafsir_repository.dart';
 import '../services/tafsir/tafsir_search_service.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
@@ -573,7 +574,6 @@ class _TafsirPageState extends State<TafsirPage> {
       padding: const EdgeInsets.fromLTRB(AppSpacing.pageH, 0, AppSpacing.pageH, AppSpacing.sm),
       child: Material(
         color: cs.surface,
-        borderRadius: AppRadius.card,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.card,
@@ -838,12 +838,12 @@ class _TafsirPageState extends State<TafsirPage> {
     return ListView.builder(
       key: const ValueKey('tafsir-feed'),
       controller: _scrollController,
+      physics: AppScrollPhysics.list(context),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       cacheExtent: 4000,
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageH,
-        AppSpacing.xs,
-        AppSpacing.pageH,
-        AppSpacing.listBottom,
+      padding: AppMotion.listPadding().copyWith(
+        left: AppSpacing.pageH,
+        right: AppSpacing.pageH,
       ),
       itemCount: _feed.length + (showFooter ? 1 : 0),
       itemBuilder: (context, index) {

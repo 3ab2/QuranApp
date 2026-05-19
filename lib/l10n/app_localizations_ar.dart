@@ -490,6 +490,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get prayerQiblaError => 'تعذّر قراءة البوصلة على هذا الجهاز.';
 
   @override
+  String get prayerQiblaEmulatorUnavailable =>
+      'حساسات البوصلة غير متوفرة على هذا الجهاز أو المحاكي. استخدم دليل القبلة الثابت أدناه.';
+
+  @override
   String prayerQiblaDistanceKm(String km) {
     return 'نحو $km كم إلى الكعبة';
   }
@@ -562,6 +566,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get prayerSettingsReminder => 'تذكير قبل الصلاة';
+
+  @override
+  String get prayerReminderEnabledHelp =>
+      'إشعار بسيط قبل كل صلاة ببضع دقائائق للاستعداد.';
+
+  @override
+  String get prayerAdhanEnabledHelp =>
+      'إشعار عند وقت الصلاة بالضبط وتشغيل الأذان يدوياً من قائمة الصلوات.';
 
   @override
   String get prayerReminderPreset5 => '5 دقائق';

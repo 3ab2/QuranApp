@@ -57,7 +57,7 @@ void main() {
   });
 
   group('ProphetStoryService', () {
-    test('loads stories from modular JSON and preserves valid story audio',
+    test('loads stories from modular JSON and strips legacy narration URLs',
         () async {
       final service = ProphetStoryService(
         dataSource: JsonProphetStoryDataSource(
@@ -79,13 +79,11 @@ void main() {
       final stories = await service.getStories();
 
       expect(stories, hasLength(1));
-      expect(
-        stories.single.narrationUrl,
-        'https://archive.org/download/Islamic_Tape-250_uP_bY_mUSLEm/adam_1.mp3',
-      );
+      expect(stories.single.narrationUrl, isNull);
+      expect(stories.single.hasAudio, isFalse);
     });
 
-    test('removes Quran recitation audio from stories', () async {
+    test('strips Quran recitation URLs from stories', () async {
       final service = ProphetStoryService(
         dataSource: JsonProphetStoryDataSource(
           loadJson: () async => jsonEncode([

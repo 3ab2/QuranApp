@@ -211,6 +211,7 @@
   "prayerQiblaWebUnavailable": "Live compass qibla uses device sensors and is available in the mobile app.",
   "prayerQiblaLocationDisabled": "Enable location services and grant permission to use the compass qibla.",
   "prayerQiblaError": "Could not read compass data on this device.",
+  "prayerQiblaEmulatorUnavailable": "Live compass sensors are unavailable on this device or emulator. Use the static Qibla guide below.",
   "prayerQiblaDistanceKm": "About {km} km to the Kaaba",
   "@prayerQiblaDistanceKm": {
     "placeholders": {
@@ -246,6 +247,8 @@
   "prayerQiblaFallbackHeadingLabel": "Compass mode",
   "prayerQiblaFallbackHeadingValue": "Static guide",
   "prayerSettingsReminder": "Reminder before prayer",
+  "prayerReminderEnabledHelp": "A simple notification a few minutes before each prayer so you can prepare.",
+  "prayerAdhanEnabledHelp": "Notification at the exact prayer time and manual adhan playback from the prayer list.",
   "prayerReminderPreset5": "5 min",
   "prayerReminderPreset10": "10 min",
   "prayerReminderPreset15": "15 min",

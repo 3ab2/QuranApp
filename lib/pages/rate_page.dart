@@ -11,7 +11,7 @@ import '../widgets/top_bar.dart';
 const String _kPlayStoreListingUrl =
     'https://play.google.com/store/apps/details?id=com.example.quran_app';
 
-const String _kFeedbackEmail = 'feedback@example.com';
+const String _kFeedbackEmail = '3ab2uelkarch2006@gmail.com';
 
 class RatePage extends StatelessWidget {
   const RatePage({super.key});

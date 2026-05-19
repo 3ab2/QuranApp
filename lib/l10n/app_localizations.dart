@@ -994,6 +994,12 @@ abstract class AppLocalizations {
   /// **'Could not read compass data on this device.'**
   String get prayerQiblaError;
 
+  /// No description provided for @prayerQiblaEmulatorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Live compass sensors are unavailable on this device or emulator. Use the static Qibla guide below.'**
+  String get prayerQiblaEmulatorUnavailable;
+
   /// No description provided for @prayerQiblaDistanceKm.
   ///
   /// In en, this message translates to:
@@ -1119,6 +1125,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminder before prayer'**
   String get prayerSettingsReminder;
+
+  /// No description provided for @prayerReminderEnabledHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A simple notification a few minutes before each prayer so you can prepare.'**
+  String get prayerReminderEnabledHelp;
+
+  /// No description provided for @prayerAdhanEnabledHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification at the exact prayer time and manual adhan playback from the prayer list.'**
+  String get prayerAdhanEnabledHelp;
 
   /// No description provided for @prayerReminderPreset5.
   ///

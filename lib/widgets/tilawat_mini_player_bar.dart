@@ -5,9 +5,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
 import '../app_navigator.dart';
-import '../pages/story_narration_full_player_page.dart';
 import '../pages/tilawat_full_player_page.dart';
 import '../providers/tilawat_audio_controller.dart';
+import '../ui/app_tokens.dart';
 
 /// Bottom bar: left transport controls, right surah/reciter + mosque; progress below.
 class TilawatMiniPlayerBar extends StatelessWidget {
@@ -23,8 +23,8 @@ class TilawatMiniPlayerBar extends StatelessWidget {
   static const double obstructionInsetAboveSafeBottom =
       10 + _controlTap + 10 + _miniProgressTrackHeight + 8;
 
-  /// Slider row visual height (thumb + track + theme padding).
-  static const double _miniProgressTrackHeight = 48;
+  /// Slider row visual height (compact track + thumb).
+  static const double _miniProgressTrackHeight = 28;
 
   @override
   Widget build(BuildContext context) {
@@ -35,17 +35,12 @@ class TilawatMiniPlayerBar extends StatelessWidget {
     final cs = theme.colorScheme;
     final bottom = MediaQuery.paddingOf(context).bottom;
 
-    final bool story = tilawat.isStoryNarrationSession;
     final surah = tilawat.currentSurahMap;
-    if (!story && surah == null) return const SizedBox.shrink();
+    if (surah == null) return const SizedBox.shrink();
 
     final idx = tilawat.currentSurahIndex ?? 0;
-    final canPrev = story
-        ? tilawat.storySkipHasPrevious
-        : idx > 0;
-    final canNext = story
-        ? tilawat.storySkipHasNext
-        : idx < tilawat.surahs.length - 1;
+    final canPrev = idx > 0;
+    final canNext = idx < tilawat.surahs.length - 1;
 
     final muted = cs.onSurface.withValues(alpha: 0.28);
 
@@ -57,15 +52,15 @@ class TilawatMiniPlayerBar extends StatelessWidget {
       color: cs.surfaceContainerHighest.withValues(alpha: 0.97),
       child: InkWell(
         onTap: () {
-          if (tilawat.isStoryNarrationSession) {
-            appNavigatorKey.currentState
-                ?.push(StoryNarrationFullPlayerPage.route());
-          } else {
-            appNavigatorKey.currentState?.push(TilawatFullPlayerPage.route());
-          }
+          appNavigatorKey.currentState?.push(TilawatFullPlayerPage.route());
         },
         child: Padding(
-          padding: EdgeInsets.fromLTRB(14, 10, 14, 8 + bottom),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.pageH,
+            AppSpacing.sm,
+            AppSpacing.pageH,
+            AppSpacing.sm + bottom,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -120,9 +115,7 @@ class TilawatMiniPlayerBar extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  story
-                                      ? (tilawat.activeStoryTitle ?? '')
-                                      : (surah!['name']?.toString() ?? ''),
+                                  surah['name']?.toString() ?? '',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
@@ -136,9 +129,7 @@ class TilawatMiniPlayerBar extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  story
-                                      ? (tilawat.activeStoryNarratorLabel ?? '')
-                                      : tilawat.currentReciterLabel,
+                                  tilawat.currentReciterLabel,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.end,
@@ -154,9 +145,7 @@ class TilawatMiniPlayerBar extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
                           Icon(
-                            story
-                                ? Icons.auto_stories_rounded
-                                : Icons.mosque_rounded,
+                            Icons.mosque_rounded,
                             size: _mosqueSize,
                             color: cs.primary.withValues(alpha: 0.72),
                           ),
@@ -242,18 +231,21 @@ class _MiniProgress extends StatelessWidget {
                 ? total.inMilliseconds.toDouble()
                 : 1.0;
             final v = pos.inMilliseconds.toDouble().clamp(0.0, maxMs);
-            return SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 2,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
-                overlayShape: SliderComponentShape.noOverlay,
-              ),
-              child: Slider(
-                value: v,
-                max: maxMs,
-                activeColor: cs.primary,
-                inactiveColor: cs.outline.withValues(alpha: 0.32),
-                onChanged: (x) => onSeek(Duration(milliseconds: x.round())),
+            return SizedBox(
+              height: TilawatMiniPlayerBar._miniProgressTrackHeight,
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 2.5,
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+                  overlayShape: SliderComponentShape.noOverlay,
+                ),
+                child: Slider(
+                  value: v,
+                  max: maxMs,
+                  activeColor: cs.primary,
+                  inactiveColor: cs.outline.withValues(alpha: 0.28),
+                  onChanged: (x) => onSeek(Duration(milliseconds: x.round())),
+                ),
               ),
             );
           },
@@ -317,8 +309,7 @@ class TilawatAppShell extends StatelessWidget {
   final Widget child;
 
   static bool _isBarVisible(TilawatAudioController tilawat) =>
-      tilawat.showMiniPlayer &&
-      (tilawat.currentSurahMap != null || tilawat.isStoryNarrationSession);
+      tilawat.showMiniPlayer && tilawat.currentSurahMap != null;
 
   @override
   Widget build(BuildContext context) {

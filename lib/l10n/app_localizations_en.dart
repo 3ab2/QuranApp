@@ -501,6 +501,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prayerQiblaError => 'Could not read compass data on this device.';
 
   @override
+  String get prayerQiblaEmulatorUnavailable =>
+      'Live compass sensors are unavailable on this device or emulator. Use the static Qibla guide below.';
+
+  @override
   String prayerQiblaDistanceKm(String km) {
     return 'About $km km to the Kaaba';
   }
@@ -575,6 +579,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prayerSettingsReminder => 'Reminder before prayer';
+
+  @override
+  String get prayerReminderEnabledHelp =>
+      'A simple notification a few minutes before each prayer so you can prepare.';
+
+  @override
+  String get prayerAdhanEnabledHelp =>
+      'Notification at the exact prayer time and manual adhan playback from the prayer list.';
 
   @override
   String get prayerReminderPreset5 => '5 min';

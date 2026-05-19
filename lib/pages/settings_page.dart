@@ -6,6 +6,7 @@ import 'package:quran_app/l10n/app_localizations.dart';
 import '../widgets/top_bar.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/common_ui.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -42,6 +43,7 @@ class SettingsPage extends StatelessWidget {
               const SizedBox(height: AppSpacing.afterHeader),
               Expanded(
                 child: ListView(
+                  physics: AppScrollPhysics.list(context),
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.pageH,
                     0,
@@ -57,41 +59,11 @@ class SettingsPage extends StatelessWidget {
                           vertical: AppSpacing.xs,
                         ),
                         title: Text(
-                          l10n.settingsAdhanEnabled,
-                          style: AppTypography.listTitle(cs),
-                        ),
-                        value: settings.isAdhanEnabled,
-                        onChanged: (val) => settings.setAdhanEnabled(val),
-                      ),
-                    ),
-                    AppCard(
-                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                      child: SwitchListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                          vertical: AppSpacing.xs,
-                        ),
-                        title: Text(
                           l10n.settingsDarkMode,
                           style: AppTypography.listTitle(cs),
                         ),
                         value: settings.isDarkMode,
                         onChanged: (val) => settings.setDarkMode(val),
-                      ),
-                    ),
-                    AppCard(
-                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                      child: SwitchListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                          vertical: AppSpacing.xs,
-                        ),
-                        title: Text(
-                          l10n.settingsPrayerReminder,
-                          style: AppTypography.listTitle(cs),
-                        ),
-                        value: settings.isReminderEnabled,
-                        onChanged: (val) => settings.setReminderEnabled(val),
                       ),
                     ),
                     AppSectionTitle(text: l10n.settingsSelectReciter),

@@ -9,7 +9,6 @@ import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
 
 /// Immersive reading page for the khatm supplication (Arabic body from local JSON).
-/// Audio hooks: reserved via disabled control + [KhatmDuaRepository] expansion later.
 class KhatmQuranDuaPage extends StatefulWidget {
   const KhatmQuranDuaPage({super.key});
 
@@ -51,13 +50,6 @@ class _KhatmQuranDuaPageState extends State<KhatmQuranDuaPage> {
               AppPageHeader(
                 title: l10n.khatmDuaTitle,
                 subtitle: l10n.khatmDuaSubtitle,
-                trailing: [
-                  IconButton(
-                    tooltip: l10n.khatmDuaAudioSoon,
-                    onPressed: null,
-                    icon: Icon(Icons.headphones_outlined, color: cs.onSurface.withValues(alpha: 0.35)),
-                  ),
-                ],
               ),
               const SizedBox(height: AppSpacing.afterHeader),
               Expanded(

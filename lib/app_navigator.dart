@@ -5,6 +5,3 @@ final appNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Route name for [TilawatFullPlayerPage] (focus / observer hooks).
 const tilawatFullPlayerRouteName = '/tilawat-full';
-
-/// Route name for [StoryNarrationFullPlayerPage] (focus / observer hooks).
-const storyNarrationFullPlayerRouteName = '/story-narration-full';

@@ -7,19 +7,16 @@ import 'package:quran_app/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/prayer_model.dart';
-import '../prayer/adhan_voice_registry.dart';
-import '../prayer/mosque_mode_controller.dart';
 import '../prayer/prayer_live_clock.dart';
-import '../prayer/prayer_timeline.dart';
 import '../prayer/prayer_widget_data.dart';
 import '../services/prayer_service.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/prayer_location_picker_sheet.dart';
 import '../widgets/prayer_hero_dashboard.dart';
 import '../widgets/top_bar.dart';
 import 'adhan_immersive_page.dart';
-import 'prayer_qibla_page.dart';
 
 class AdhanPage extends StatefulWidget {
   const AdhanPage({super.key});
@@ -31,7 +28,6 @@ class AdhanPage extends StatefulWidget {
 class _AdhanPageState extends State<AdhanPage> {
   final PrayerService _prayerService = PrayerService();
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final AudioPlayer _previewPlayer = AudioPlayer();
   final PrayerLiveClock _liveClock = PrayerLiveClock();
 
   PrayerTimes? _prayerTimes;
@@ -55,13 +51,6 @@ class _AdhanPageState extends State<AdhanPage> {
       final k = '${s.currentPeriod.nameAr}|${s.nextPrayer.nameAr}';
       if (k != _highlightSignature) {
         setState(() => _highlightSignature = k);
-      }
-      if (s.phase == PrayerUrgencyPhase.approaching) {
-        MosqueModeController.onApproachingPrayerWindow(
-          enabled: _settings?.mosqueModeEnabled ?? false,
-          nextPrayerNameAr: s.nextPrayer.nameAr,
-          now: DateTime.now(),
-        );
       }
     }
   }
@@ -210,8 +199,7 @@ class _AdhanPageState extends State<AdhanPage> {
         } else {
           await _audioPlayer.setUrl(audioSource.uri);
         }
-        final vol = _settings?.volume ?? 0.8;
-        await _audioPlayer.setVolume(vol);
+        await _audioPlayer.setVolume(1.0);
         await _audioPlayer.play();
         if (!mounted) return;
         setState(() {
@@ -244,11 +232,9 @@ class _AdhanPageState extends State<AdhanPage> {
     final l10n = AppLocalizations.of(context)!;
 
     bool adhanEnabled = currentSettings.adhanEnabled;
+    bool reminderEnabled = currentSettings.reminderEnabled;
     int notificationMinutes =
         currentSettings.notificationBeforeMinutes.clamp(1, 120);
-    double volume = currentSettings.volume;
-    String muezzinId = currentSettings.muezzinVoiceId;
-    bool mosqueMode = currentSettings.mosqueModeEnabled;
     final minutesController =
         TextEditingController(text: notificationMinutes.toString());
 
@@ -266,17 +252,35 @@ class _AdhanPageState extends State<AdhanPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SwitchListTile(
-                  title: Text('تفعيل الأذان', style: GoogleFonts.amiri()),
+                  title: Text(l10n.settingsPrayerReminder,
+                      style: GoogleFonts.amiri(fontWeight: FontWeight.w600)),
+                  subtitle: Text(
+                    l10n.prayerReminderEnabledHelp,
+                    style: GoogleFonts.amiri(fontSize: 12),
+                  ),
+                  value: reminderEnabled,
+                  onChanged: (value) {
+                    setDialogState(() => reminderEnabled = value);
+                  },
+                ),
+                SwitchListTile(
+                  title: Text(l10n.settingsAdhanEnabled,
+                      style: GoogleFonts.amiri(fontWeight: FontWeight.w600)),
+                  subtitle: Text(
+                    l10n.prayerAdhanEnabledHelp,
+                    style: GoogleFonts.amiri(fontSize: 12),
+                  ),
                   value: adhanEnabled,
                   onChanged: (value) {
                     setDialogState(() => adhanEnabled = value);
                   },
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.prayerSettingsReminder,
-                  style: GoogleFonts.amiri(fontWeight: FontWeight.w600),
-                ),
+                if (reminderEnabled) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.prayerSettingsReminder,
+                    style: GoogleFonts.amiri(fontWeight: FontWeight.w600),
+                  ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -331,111 +335,7 @@ class _AdhanPageState extends State<AdhanPage> {
                     }
                   },
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.prayerMuezzinVoice,
-                  style: GoogleFonts.amiri(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8),
-                ...kAdhanVoiceCatalog.map(
-                  (v) => RadioListTile<String>(
-                    dense: true,
-                    title: Text(
-                      Localizations.localeOf(context).languageCode == 'ar'
-                          ? v.labelAr
-                          : Localizations.localeOf(context).languageCode == 'fr'
-                              ? v.labelFr
-                              : v.labelEn,
-                      style: GoogleFonts.amiri(fontSize: 14),
-                    ),
-                    value: v.id,
-                    groupValue: muezzinId,
-                    onChanged: (val) {
-                      if (val == null) return;
-                      setDialogState(() => muezzinId = val);
-                    },
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    try {
-                      await _previewPlayer.stop();
-                      final draft = AdhanSettings(
-                        adhanEnabled: adhanEnabled,
-                        notificationBeforeMinutes:
-                            notificationMinutes.clamp(1, 120),
-                        autoLocation: currentSettings.autoLocation,
-                        volume: volume,
-                        muezzinVoiceId: muezzinId,
-                        mosqueModeEnabled: mosqueMode,
-                        manualPrayerLocation:
-                            currentSettings.manualPrayerLocation,
-                      );
-                      final src = await _prayerService.resolveAdhanAudioSource(
-                        'الفجر',
-                        forSettings: draft,
-                      );
-                      if (src == null) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'ملفات الأذان غير متوفرة',
-                                style: GoogleFonts.amiri(),
-                              ),
-                            ),
-                          );
-                        }
-                        return;
-                      }
-                      if (src.isAsset) {
-                        await _previewPlayer.setAsset(src.uri);
-                      } else {
-                        await _previewPlayer.setUrl(src.uri);
-                      }
-                      await _previewPlayer.setVolume(volume);
-                      await _previewPlayer.play();
-                    } catch (_) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'تعذّر المعاينة',
-                              style: GoogleFonts.amiri(),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.play_circle_outline),
-                  label: Text(l10n.prayerPreviewVoice, style: GoogleFonts.amiri()),
-                ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title:
-                      Text(l10n.prayerMosqueMode, style: GoogleFonts.amiri()),
-                  subtitle: Text(
-                    l10n.prayerMosqueModeHelp,
-                    style: GoogleFonts.amiri(fontSize: 12),
-                  ),
-                  value: mosqueMode,
-                  onChanged: (v) => setDialogState(() => mosqueMode = v),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'مستوى الصوت: ${(volume * 100).round()}%',
-                  style: GoogleFonts.amiri(),
-                ),
-                Slider(
-                  value: volume,
-                  min: 0.0,
-                  max: 1.0,
-                  divisions: 10,
-                  onChanged: (value) {
-                    setDialogState(() => volume = value);
-                  },
-                ),
+                ],
               ],
             ),
           ),
@@ -451,11 +351,12 @@ class _AdhanPageState extends State<AdhanPage> {
                         notificationMinutes;
                 final newSettings = AdhanSettings(
                   adhanEnabled: adhanEnabled,
+                  reminderEnabled: reminderEnabled,
                   notificationBeforeMinutes: parsed.clamp(1, 120),
                   autoLocation: currentSettings.autoLocation,
-                  volume: volume,
-                  muezzinVoiceId: muezzinId,
-                  mosqueModeEnabled: mosqueMode,
+                  volume: currentSettings.volume,
+                  muezzinVoiceId: currentSettings.muezzinVoiceId,
+                  mosqueModeEnabled: false,
                   manualPrayerLocation:
                       currentSettings.manualPrayerLocation,
                 );
@@ -478,7 +379,6 @@ class _AdhanPageState extends State<AdhanPage> {
     );
 
     minutesController.dispose();
-    await _previewPlayer.stop();
   }
 
   Widget _buildPrayerCard(
@@ -767,9 +667,7 @@ class _AdhanPageState extends State<AdhanPage> {
                           )
                         : RepaintBoundary(
                             child: CustomScrollView(
-                              physics: const BouncingScrollPhysics(
-                                parent: AlwaysScrollableScrollPhysics(),
-                              ),
+                              physics: AppScrollPhysics.list(context),
                               slivers: [
                                 SliverToBoxAdapter(
                                   child: ListenableBuilder(
@@ -842,14 +740,6 @@ class _AdhanPageState extends State<AdhanPage> {
                                             snapshot: snap,
                                             locationLine:
                                                 '${_prayerService.locationDisplayName} · ${_prayerService.resolvedTimeZone}',
-                                            onOpenQibla: () {
-                                              Navigator.of(context).push<void>(
-                                                MaterialPageRoute<void>(
-                                                  builder: (_) =>
-                                                      const PrayerQiblaPage(),
-                                                ),
-                                              );
-                                            },
                                           ),
                                         ],
                                       );
@@ -945,7 +835,6 @@ class _AdhanPageState extends State<AdhanPage> {
   void dispose() {
     _liveClock.removeListener(_onLiveClock);
     _liveClock.dispose();
-    _previewPlayer.dispose();
     _audioPlayer.dispose();
     super.dispose();
   }

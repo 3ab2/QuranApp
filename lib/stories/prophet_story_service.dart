@@ -5,8 +5,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 
 import '../models/prophet_story.dart';
-import 'story_audio_policy.dart';
-import 'story_narration_registry.dart';
 
 const String kDefaultProphetStoriesAsset = 'assets/data/prophet_stories.json';
 const int kMinimumFullStoryLength = 280;
@@ -238,7 +236,8 @@ class ProphetStoryService {
       throw FormatException(
           'Story ${story.id} full_content is too short for production');
     }
-    if (!isAllowedProphetStoryAudioUrl(story.narrationUrl)) {
+    // Stories are text-only in production; strip any legacy narration URLs.
+    if (story.narrationUrl != null) {
       return story.copyWith(clearNarrationUrl: true);
     }
     return story;
@@ -252,66 +251,6 @@ class ProphetStoryService {
   void _debugDuplicate(String message) {
     if (kDebugMode) {
       debugPrint('[ProphetStoryService] $message');
-    }
-  }
-}
-
-class StoryNarrationInfo {
-  final String url;
-  final String? narratorName;
-  final int? declaredDurationSeconds;
-
-  const StoryNarrationInfo({
-    required this.url,
-    this.narratorName,
-    this.declaredDurationSeconds,
-  });
-}
-
-extension ProphetStoryNarrationResolver on ProphetStoryService {
-  Future<StoryNarrationInfo?> resolveNarrationForStory(String id) async {
-    final story = await getStoryById(id);
-    final registryEntry = kTrustedStoryNarrationRegistry[id];
-    final raw = (story.narrationUrl ?? registryEntry?['url']?.toString())?.trim();
-    final narratorName =
-        story.narratorName ?? registryEntry?['narrator']?.toString();
-    final declaredDuration = story.narrationDurationSeconds ??
-        (registryEntry?['duration'] is int
-            ? registryEntry!['duration'] as int
-            : int.tryParse('${registryEntry?['duration'] ?? ''}'));
-    if (raw == null || raw.isEmpty) return null;
-    if (!isAllowedProphetStoryAudioUrl(raw)) return null;
-    final reachable = await _verifyNarrationReachable(raw);
-    if (!reachable) return null;
-    return StoryNarrationInfo(
-      url: raw,
-      narratorName: narratorName,
-      declaredDurationSeconds: declaredDuration,
-    );
-  }
-
-  Future<bool> _verifyNarrationReachable(String url) async {
-    // Browser CORS policies can block probe requests even when media playback
-    // might still work through the audio pipeline. Skip URL probing on web.
-    if (kIsWeb) return true;
-
-    final uri = Uri.tryParse(url);
-    if (uri == null || !uri.hasScheme) return false;
-    final client = http.Client();
-    try {
-      final head = await client
-          .head(uri, headers: const {'Range': 'bytes=0-1'})
-          .timeout(const Duration(seconds: 8));
-      if (head.statusCode >= 200 && head.statusCode < 400) return true;
-
-      final get = await client
-          .get(uri, headers: const {'Range': 'bytes=0-1'})
-          .timeout(const Duration(seconds: 8));
-      return get.statusCode >= 200 && get.statusCode < 400;
-    } catch (_) {
-      return false;
-    } finally {
-      client.close();
     }
   }
 }

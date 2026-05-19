@@ -9,6 +9,7 @@ import '../models/scientific_miracle_model.dart';
 import '../models/tafsir_entry.dart';
 import '../services/miracle_service.dart';
 import '../services/tafsir/tafsir_repository.dart';
+import '../ui/app_scroll.dart';
 import '../ui/app_tokens.dart';
 import '../widgets/common_ui.dart';
 import '../widgets/top_bar.dart';
@@ -285,7 +286,7 @@ class ScientificMiraclesPageState extends State<ScientificMiraclesPage> {
                     : CustomScrollView(
                         keyboardDismissBehavior:
                             ScrollViewKeyboardDismissBehavior.onDrag,
-                        physics: const AlwaysScrollableScrollPhysics(),
+                        physics: AppScrollPhysics.list(context),
                         slivers: [
                           SliverPadding(
                             padding: const EdgeInsets.fromLTRB(

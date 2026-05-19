@@ -211,6 +211,7 @@
   "prayerQiblaWebUnavailable": "بوصلة القبلة المباشرة تحتاج حساسات الجهاز وتتوفر في تطبيق الهاتف.",
   "prayerQiblaLocationDisabled": "فعّل الموقع والأذونات لاستخدام بوصلة القبلة.",
   "prayerQiblaError": "تعذّر قراءة البوصلة على هذا الجهاز.",
+  "prayerQiblaEmulatorUnavailable": "حساسات البوصلة غير متوفرة على هذا الجهاز أو المحاكي. استخدم دليل القبلة الثابت أدناه.",
   "prayerQiblaDistanceKm": "نحو {km} كم إلى الكعبة",
   "@prayerQiblaDistanceKm": {
     "placeholders": {
@@ -246,6 +247,8 @@
   "prayerQiblaFallbackHeadingLabel": "وضع البوصلة",
   "prayerQiblaFallbackHeadingValue": "دليل ثابت",
   "prayerSettingsReminder": "تذكير قبل الصلاة",
+  "prayerReminderEnabledHelp": "إشعار بسيط قبل كل صلاة ببضع دقائائق للاستعداد.",
+  "prayerAdhanEnabledHelp": "إشعار عند وقت الصلاة بالضبط وتشغيل الأذان يدوياً من قائمة الصلوات.",
   "prayerReminderPreset5": "5 دقائق",
   "prayerReminderPreset10": "10 دقائق",
   "prayerReminderPreset15": "15 دقيقة",
