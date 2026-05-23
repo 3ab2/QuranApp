@@ -1,6 +1,6 @@
 {
   "@@locale": "fr",
-  "appTitle": "Application Coran",
+  "appTitle": "Quran Noor — Coran, Adhan & invocations",
   "homeQuran": "Coran",
   "homeTafsir": "Tafsir",
   "homeAudio": "Récitations",
@@ -298,6 +298,7 @@
     }
   },
   "aboutCreditsLine": "Conçu avec soin pour la Oumma. Tout bien vient d'Allah ; toute erreur est la nôtre.",
+  "aboutDeveloperCredit": "Développement — ELKARCH ABDELHAMID · القرش عبد الحميد",
   "helpSubtitle": "Réponses courtes, mise en page calme — moins de recherche, plus de profit.",
   "helpCardIntro": "Utilisez les sections ci-dessous pour vous orienter, puis ouvrez la FAQ pour le détail.",
   "helpSectionGuides": "Guides rapides",

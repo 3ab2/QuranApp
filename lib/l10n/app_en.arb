@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Quran App",
+  "appTitle": "Quran Noor — Quran, Adhan & Duas",
   "homeQuran": "Quran",
   "homeTafsir": "Tafsir",
   "homeAudio": "Recitations",
@@ -298,6 +298,7 @@
     }
   },
   "aboutCreditsLine": "Crafted with care for the Ummah. All good is from Allah; any mistake is ours.",
+  "aboutDeveloperCredit": "Development — ELKARCH ABDELHAMID · القرش عبد الحميد",
   "helpSubtitle": "Short answers, calm layout — so you spend less time searching and more time benefiting.",
   "helpCardIntro": "Use the sections below for quick orientation, then open the FAQ for finer details.",
   "helpSectionGuides": "Quick guides",

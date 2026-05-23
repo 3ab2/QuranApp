@@ -176,6 +176,12 @@ class AboutPage extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
+                      l10n.aboutDeveloperCredit,
+                      textAlign: TextAlign.center,
+                      style: AppTypography.caption(cs, opacity: 0.62),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
                       l10n.aboutCreditsLine,
                       textAlign: TextAlign.center,
                       style: AppTypography.caption(cs, opacity: 0.55),

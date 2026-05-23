@@ -1,0 +1,15 @@
+# Copy to key.properties (never commit key.properties).
+# Place your keystore file in this android/ directory or set an absolute path.
+#
+# Generate a keystore (JKS — legacy; PKCS12 is preferred for new keystores):
+#   keytool -genkeypair -v -keystore upload-keystore.jks -storetype PKCS12 \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload \
+#     -storepass YOUR_STORE_PASSWORD -keypass YOUR_KEY_PASSWORD \
+#     -dname "CN=Quran Noor, OU=Mobile, O=YourOrg, L=City, ST=State, C=XX"
+#
+# Or run:  android/generate_upload_keystore.ps1  (Windows)
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=upload-keystore.jks

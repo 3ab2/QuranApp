@@ -11,6 +11,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import '../models/prayer_model.dart';
 import '../prayer/prayer_notification_ids.dart';
+import '../prayer/prayer_schedule_util.dart';
 
 class PrayerService {
   static final PrayerService _instance = PrayerService._internal();
@@ -24,6 +25,11 @@ class PrayerService {
   Set<String>? _availableAssets;
   final Set<String> _loggedMissingAssets = {};
   String _resolvedTimeZone = 'UTC';
+
+  /// Cached after permission probe — exact alarms fail hard on Android 14+ if denied.
+  bool? _androidExactAlarmsAllowed;
+
+  bool _notificationsInitialized = false;
 
   PrayerTimes? _prayerTimes;
   Location? _location;
@@ -80,6 +86,8 @@ class PrayerService {
     required String channelId,
     required String channelName,
     required String channelDescription,
+    AndroidNotificationCategory androidCategory =
+        AndroidNotificationCategory.reminder,
   }) {
     return NotificationDetails(
       android: AndroidNotificationDetails(
@@ -88,6 +96,7 @@ class PrayerService {
         channelDescription: channelDescription,
         importance: Importance.high,
         priority: Priority.high,
+        category: androidCategory,
         playSound: true,
         enableVibration: true,
       ),
@@ -119,8 +128,11 @@ class PrayerService {
 
   Future<void> initialize() async {
     await _configureLocalTimezone();
-    await _initializeNotifications();
-    await _requestNotificationPermissions();
+    if (!_notificationsInitialized) {
+      await _initializeNotifications();
+      await _requestNotificationPermissions();
+      _notificationsInitialized = true;
+    }
     await _loadSettings();
     await _syncTimezoneForScheduling();
     await _restoreAndRescheduleIfPossible();
@@ -168,6 +180,16 @@ class PrayerService {
               'Android exact alarms permission: ${exactGranted == true ? 'granted' : 'denied'}');
         } catch (e) {
           debugPrint('Exact alarm permission request failed: $e');
+        }
+        try {
+          _androidExactAlarmsAllowed =
+              await androidPlugin.canScheduleExactNotifications() ?? false;
+          debugPrint(
+              'Android canScheduleExactNotifications: $_androidExactAlarmsAllowed',
+          );
+        } catch (e) {
+          _androidExactAlarmsAllowed = null;
+          debugPrint('canScheduleExactNotifications check failed: $e');
         }
       }
 
@@ -317,7 +339,9 @@ class PrayerService {
 
       final url =
           'https://api.aladhan.com/v1/timings?latitude=${locationToUse.latitude}&longitude=${locationToUse.longitude}&method=2';
-      debugPrint('Tentative de récupération des horaires depuis: $url');
+      if (kDebugMode) {
+        debugPrint('Tentative de récupération des horaires depuis: $url');
+      }
 
       final response = await http.get(Uri.parse(url)).timeout(
         const Duration(seconds: 10),
@@ -329,8 +353,10 @@ class PrayerService {
       if (response.statusCode == 200) {
         try {
           final data = json.decode(response.body);
-          debugPrint(
-              'Réponse API reçue: ${response.body.substring(0, 200)}...');
+          if (kDebugMode) {
+            debugPrint(
+                'Réponse API reçue: ${response.body.substring(0, 200)}...');
+          }
 
           if (data['data'] != null && data['data']['timings'] != null) {
             final timings = data['data']['timings'];
@@ -363,7 +389,9 @@ class PrayerService {
           return _getDefaultPrayerTimes(locationToUse);
         }
       } else {
-        debugPrint('Erreur API: ${response.statusCode} - ${response.body}');
+        if (kDebugMode) {
+          debugPrint('Erreur API: ${response.statusCode} - ${response.body}');
+        }
         // Utiliser des données par défaut
         return _getDefaultPrayerTimes(locationToUse);
       }
@@ -426,6 +454,23 @@ class PrayerService {
     return 'It is time for $prayerNameEn prayer · حان وقت صلاة $prayerNameAr';
   }
 
+  Future<void> _refreshAndroidExactAlarmFlag() async {
+    try {
+      final androidPlugin =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      if (androidPlugin == null) {
+        _androidExactAlarmsAllowed = null;
+        return;
+      }
+      _androidExactAlarmsAllowed =
+          await androidPlugin.canScheduleExactNotifications() ?? false;
+    } catch (e) {
+      debugPrint('Exact alarm capability refresh failed: $e');
+      _androidExactAlarmsAllowed = null;
+    }
+  }
+
   Future<void> _schedulePrayerNotifications() async {
     if (_prayerTimes == null || _settings == null) return;
     final settings = _settings!;
@@ -447,6 +492,15 @@ class PrayerService {
       'reminder=${settings.reminderEnabled} adhan=${settings.adhanEnabled}',
     );
 
+    await _refreshAndroidExactAlarmFlag();
+
+    AndroidScheduleMode androidMode() {
+      if (_androidExactAlarmsAllowed == true) {
+        return AndroidScheduleMode.exactAllowWhileIdle;
+      }
+      return AndroidScheduleMode.inexactAllowWhileIdle;
+    }
+
     Future<void> scheduleOneShot({
       required int id,
       required String title,
@@ -459,31 +513,44 @@ class PrayerService {
         return;
       }
       final scheduled = tz.TZDateTime.from(when, tz.local);
-      await _notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduled,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-      debugPrint('Alarm scheduled: id=$id at $scheduled ($_resolvedTimeZone)');
+      Future<void> doSchedule(AndroidScheduleMode mode) => _notifications.zonedSchedule(
+            id,
+            title,
+            body,
+            scheduled,
+            details,
+            androidScheduleMode: mode,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+          );
+      try {
+        await doSchedule(androidMode());
+        debugPrint('Alarm scheduled: id=$id at $scheduled ($_resolvedTimeZone)');
+      } catch (e, st) {
+        debugPrint('zonedSchedule failed (id=$id mode=${androidMode()}): $e\n$st');
+        if (androidMode() == AndroidScheduleMode.exactAllowWhileIdle) {
+          try {
+            await doSchedule(AndroidScheduleMode.inexactAllowWhileIdle);
+            debugPrint('Alarm scheduled (inexact fallback): id=$id at $scheduled');
+          } catch (e2, st2) {
+            debugPrint('zonedSchedule inexact fallback failed: $e2\n$st2');
+          }
+        }
+      }
     }
 
     Future<void> schedulePreAlert(
         String prayerName, String prayerNameEn, String time) async {
       if (!settings.reminderEnabled) return;
 
-      final nextPrayerTime = PrayerService.computeNextPrayerDateTime(
+      final nextPrayerTime = PrayerScheduleUtil.nextPrayerInstantTz(
         now: now,
         prayerTime: time,
       );
 
       final lead = _effectivePreAlertLead();
-      final notificationTime = PrayerService.computePreAlertDateTime(
-        nextPrayerTime,
+      final notificationTime = PrayerScheduleUtil.preAlertInstant(
+        prayerInstant: nextPrayerTime,
         lead: lead,
       );
       final leadMinutes = lead.inMinutes;
@@ -504,13 +571,36 @@ class PrayerService {
               'Text reminders before prayer times (automatic timezone)',
         ),
       );
+
+      // Second day same clock — covers ~48h without reopening the app (Doze-safe chain).
+      final nextDayPrayer = nextPrayerTime.add(const Duration(days: 1));
+      final notificationTime2 = PrayerScheduleUtil.preAlertInstant(
+        prayerInstant: nextDayPrayer,
+        lead: lead,
+      );
+      await scheduleOneShot(
+        id: _getPrePrayerNotificationIdTomorrow(prayerName),
+        title: 'Prayer reminder',
+        body: _preAlertNotificationBody(
+          prayerName,
+          prayerNameEn,
+          leadMinutes,
+        ),
+        when: notificationTime2,
+        details: _preAlertNotificationDetails(
+          channelId: 'prayer_pre_alerts',
+          channelName: 'Prayer Reminders',
+          channelDescription:
+              'Text reminders before prayer times (automatic timezone)',
+        ),
+      );
     }
 
     Future<void> scheduleAdhanAtPrayerTime(
         String prayerName, String prayerNameEn, String time) async {
       if (!settings.adhanEnabled) return;
 
-      final nextPrayerTime = PrayerService.computeNextPrayerDateTime(
+      final nextPrayerTime = PrayerScheduleUtil.nextPrayerInstantTz(
         now: now,
         prayerTime: time,
       );
@@ -525,6 +615,22 @@ class PrayerService {
           channelName: 'Adhan at prayer time',
           channelDescription:
               'Notifications at the exact prayer time for adhan playback',
+          androidCategory: AndroidNotificationCategory.alarm,
+        ),
+      );
+
+      final nextDayPrayer = nextPrayerTime.add(const Duration(days: 1));
+      await scheduleOneShot(
+        id: _getAdhanAtTimeNotificationIdTomorrow(prayerName),
+        title: 'Adhan',
+        body: _adhanAtTimeNotificationBody(prayerName, prayerNameEn),
+        when: nextDayPrayer,
+        details: _preAlertNotificationDetails(
+          channelId: 'prayer_adhan_alerts',
+          channelName: 'Adhan at prayer time',
+          channelDescription:
+              'Notifications at the exact prayer time for adhan playback',
+          androidCategory: AndroidNotificationCategory.alarm,
         ),
       );
     }
@@ -554,11 +660,21 @@ class PrayerService {
       103,
       104,
       105,
+      301,
+      302,
+      303,
+      304,
+      305,
       201,
       202,
       203,
       204,
       205,
+      401,
+      402,
+      403,
+      404,
+      405,
       kPrayerSnoozeNotificationId,
     ]) {
       await _notifications.cancel(id);
@@ -777,6 +893,7 @@ class PrayerService {
       debugPrint('Snooze skipped: notification permission denied');
       return;
     }
+    await _refreshAndroidExactAlarmFlag();
     await _notifications.cancel(kPrayerSnoozeNotificationId);
     final when = tz.TZDateTime.now(tz.local).add(delay);
     final details = _preAlertNotificationDetails(
@@ -784,16 +901,31 @@ class PrayerService {
       channelName: 'Adhan snooze',
       channelDescription: 'Snoozed Adhan reminder',
     );
-    await _notifications.zonedSchedule(
-      kPrayerSnoozeNotificationId,
-      'Adhan (snoozed)',
-      'Snoozed — $prayerLabel',
-      when,
-      details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+    Future<void> doSchedule(AndroidScheduleMode mode) => _notifications.zonedSchedule(
+          kPrayerSnoozeNotificationId,
+          'Adhan (snoozed)',
+          'Snoozed — $prayerLabel',
+          when,
+          details,
+          androidScheduleMode: mode,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+    try {
+      await doSchedule(
+        _androidExactAlarmsAllowed == true
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    } catch (e, st) {
+      debugPrint('Adhan snooze exact schedule failed: $e\n$st');
+      try {
+        await doSchedule(AndroidScheduleMode.inexactAllowWhileIdle);
+      } catch (e2, st2) {
+        debugPrint('Adhan snooze inexact schedule failed: $e2\n$st2');
+        return;
+      }
+    }
     debugPrint('Adhan snooze scheduled at $when');
   }
 
@@ -802,14 +934,7 @@ class PrayerService {
     required DateTime now,
     required String prayerTime,
   }) {
-    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(prayerTime);
-    final hour = int.tryParse(match?.group(1) ?? '') ?? 0;
-    final minute = int.tryParse(match?.group(2) ?? '') ?? 0;
-    final candidate = DateTime(now.year, now.month, now.day, hour, minute);
-    if (candidate.isBefore(now)) {
-      return candidate.add(const Duration(days: 1));
-    }
-    return candidate;
+    return PrayerScheduleUtil.nextPrayerInstantTz(now: now, prayerTime: prayerTime);
   }
 
   @visibleForTesting
@@ -817,6 +942,12 @@ class PrayerService {
     DateTime prayerDateTime, {
     Duration lead = const Duration(minutes: 5),
   }) {
+    if (prayerDateTime is tz.TZDateTime) {
+      return PrayerScheduleUtil.preAlertInstant(
+        prayerInstant: prayerDateTime,
+        lead: lead,
+      );
+    }
     return prayerDateTime.subtract(lead);
   }
 
@@ -831,6 +962,9 @@ class PrayerService {
     return prayerIds[prayerName] ?? 100;
   }
 
+  int _getPrePrayerNotificationIdTomorrow(String prayerName) =>
+      _getPrePrayerNotificationId(prayerName) + 200;
+
   int _getAdhanAtTimeNotificationId(String prayerName) {
     final prayerIds = {
       'الفجر': 201,
@@ -841,6 +975,9 @@ class PrayerService {
     };
     return prayerIds[prayerName] ?? 206;
   }
+
+  int _getAdhanAtTimeNotificationIdTomorrow(String prayerName) =>
+      _getAdhanAtTimeNotificationId(prayerName) + 200;
 
   void dispose() {
     // No-op for now; retained for compatibility with existing callers.

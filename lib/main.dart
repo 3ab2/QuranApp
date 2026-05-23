@@ -26,12 +26,14 @@ import 'data/surah_data.dart';
 import 'pages/scientific_miracles_page.dart';
 import 'pages/quranic_duas_page.dart';
 import 'pages/khatm_quran_dua_page.dart';
+import 'services/prayer_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   webViewFocusGuard.register();
   final settingsProvider = SettingsProvider();
   await settingsProvider.loadSettings();
+  await PrayerService().initialize();
   final downloadProvider = DownloadProvider();
 
   TilawatAudioHandler? tilawatBackgroundHandler;
@@ -42,7 +44,7 @@ void main() async {
         download: downloadProvider,
       ),
       config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.example.quran_app.channel.tilawat',
+        androidNotificationChannelId: 'com.qurannoor.app.channel.tilawat',
         androidNotificationChannelName: 'Tilawat',
         androidNotificationOngoing: true,
         androidStopForegroundOnPause: true,

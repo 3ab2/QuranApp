@@ -172,6 +172,10 @@ quranAPP/
 - وصف واضح للمشكلة
 - خطوات إعادة إنتاج المشكلة
 
+## Google Play / production release (Quran Noor)
+
+See **[docs/RELEASE_GOOGLE_PLAY.md](docs/RELEASE_GOOGLE_PLAY.md)** for signing (`android/key.properties`), AAB build, Play Console checklist, privacy/exact-alarms notes, and OEM battery guidance.
+
 ## 📄 الترخيص
 
 هذا المشروع مرخص تحت رخصة MIT.

@@ -1,19 +1,12 @@
 import 'package:quran_app/models/prayer_model.dart';
+import 'package:quran_app/prayer/prayer_schedule_util.dart';
 
-/// Same calendar rule as [PrayerService.computeNextPrayerDateTime] (kept local
-/// so dashboard logic does not depend on `@visibleForTesting` APIs).
+/// Same calendar rule as [PrayerScheduleUtil.nextPrayerInstantTz].
 DateTime _nextPrayerOccurrence({
   required DateTime now,
   required String prayerTime,
 }) {
-  final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(prayerTime);
-  final hour = int.tryParse(match?.group(1) ?? '') ?? 0;
-  final minute = int.tryParse(match?.group(2) ?? '') ?? 0;
-  final candidate = DateTime(now.year, now.month, now.day, hour, minute);
-  if (candidate.isBefore(now)) {
-    return candidate.add(const Duration(days: 1));
-  }
-  return candidate;
+  return PrayerScheduleUtil.nextPrayerInstantTz(now: now, prayerTime: prayerTime);
 }
 
 /// Live prayer dashboard state derived from [PrayerTimes] and clock.

@@ -3,9 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:quran_app/models/prayer_model.dart';
 import 'package:quran_app/prayer/prayer_timeline.dart';
 import 'package:quran_app/services/prayer_service.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    tz_data.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('UTC'));
+  });
 
   group('Prayer schedule computation', () {
     test('keeps same day when prayer time is upcoming', () {

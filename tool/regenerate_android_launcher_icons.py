@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate Android mipmap launcher PNGs from web/icons/Icon-512.png."""
+"""Regenerate Android mipmap launcher PNGs from iOS 1024 master (high-quality downscale)."""
 
 from __future__ import annotations
 
@@ -116,7 +116,7 @@ def _write_png(path: Path, width: int, height: int, rgba: bytes) -> None:
     path.write_bytes(png)
 
 
-def _resize_rgba(
+def _resize_rgba_nearest(
     src_w: int, src_h: int, src: bytes, dst_w: int, dst_h: int
 ) -> bytes:
     dst = bytearray(dst_w * dst_h * 4)
@@ -130,13 +130,32 @@ def _resize_rgba(
     return bytes(dst)
 
 
+def _resize_pil_lanczos(src_path: Path, dst_w: int, dst_h: int) -> bytes:
+    from PIL import Image  # type: ignore
+
+    img = Image.open(src_path).convert("RGBA")
+    img = img.resize((dst_w, dst_h), Image.Resampling.LANCZOS)
+    return img.tobytes()
+
+
 def main() -> None:
     if not SRC.is_file():
         raise SystemExit(f"Source icon missing: {SRC}")
-    sw, sh, rgba = _read_png(SRC)
+    use_pil = False
+    sw = sh = 0
+    rgba_master = b""
+    try:
+        from PIL import Image  # noqa: F401
+
+        use_pil = True
+    except ImportError:
+        sw, sh, rgba_master = _read_png(SRC)
     for folder, size in SIZES.items():
         out_dir = RES / folder
-        scaled = _resize_rgba(sw, sh, rgba, size, size)
+        if use_pil:
+            scaled = _resize_pil_lanczos(SRC, size, size)
+        else:
+            scaled = _resize_rgba_nearest(sw, sh, rgba_master, size, size)
         for name in ("ic_launcher.png", "ic_launcher_foreground.png"):
             _write_png(out_dir / name, size, size, scaled)
             print(f"Wrote {out_dir / name} ({size}x{size})")

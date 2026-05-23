@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Quran App'**
+  /// **'Quran Noor — Quran, Adhan & Duas'**
   String get appTitle;
 
   /// No description provided for @homeQuran.
@@ -1401,6 +1401,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Crafted with care for the Ummah. All good is from Allah; any mistake is ours.'**
   String get aboutCreditsLine;
+
+  /// No description provided for @aboutDeveloperCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Development — ELKARCH ABDELHAMID · القرش عبد الحميد'**
+  String get aboutDeveloperCredit;
 
   /// No description provided for @helpSubtitle.
   ///

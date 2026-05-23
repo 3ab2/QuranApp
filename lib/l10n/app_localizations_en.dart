@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Quran App';
+  String get appTitle => 'Quran Noor — Quran, Adhan & Duas';
 
   @override
   String get homeQuran => 'Quran';
@@ -743,6 +743,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutCreditsLine =>
       'Crafted with care for the Ummah. All good is from Allah; any mistake is ours.';
+
+  @override
+  String get aboutDeveloperCredit =>
+      'Development — ELKARCH ABDELHAMID · القرش عبد الحميد';
 
   @override
   String get helpSubtitle =>

@@ -33,6 +33,9 @@ class _QuranPageState extends State<QuranPage> {
   final FocusNode _searchFocus = FocusNode();
   final Map<String, GlobalKey> _ayahMarkerKeys = {};
 
+  final ValueNotifier<double> _readProgressNotifier = ValueNotifier<double>(0);
+  final ValueNotifier<int> _currentSurahNotifier = ValueNotifier<int>(1);
+
   Timer? _searchDebounce;
   Timer? _scrollUiThrottle;
 
@@ -45,9 +48,6 @@ class _QuranPageState extends State<QuranPage> {
   double _fontSize = 22;
   double _lineHeight = QuranReaderPreferences.defaultLineHeight;
   bool _mushafReady = false;
-
-  double _readProgress = 0;
-  int _currentSurah = 1;
 
   @override
   void initState() {
@@ -70,6 +70,8 @@ class _QuranPageState extends State<QuranPage> {
       _lineHeight = lh;
       _mushafReady = mush;
     });
+    _currentSurahNotifier.value = 1;
+    _readProgressNotifier.value = 0;
   }
 
   GlobalKey _keyForAyah(String verseKey) =>
@@ -77,7 +79,7 @@ class _QuranPageState extends State<QuranPage> {
 
   void _onPositionsChanged() {
     _scrollUiThrottle?.cancel();
-    _scrollUiThrottle = Timer(const Duration(milliseconds: 90), () {
+    _scrollUiThrottle = Timer(const Duration(milliseconds: 130), () {
       if (!mounted || !_repo.isReady) return;
       final positions = _positionsListener.itemPositions.value;
       if (positions.isEmpty) return;
@@ -96,10 +98,12 @@ class _QuranPageState extends State<QuranPage> {
         final frac = span > 0.001 ? (-top.itemLeadingEdge / span).clamp(0.0, 1.0) : 0.0;
         progress = ((idx + frac) / maxI).clamp(0.0, 1.0);
       }
-      setState(() {
-        _currentSurah = surah;
-        _readProgress = progress;
-      });
+      if ((_readProgressNotifier.value - progress).abs() < 0.004 &&
+          _currentSurahNotifier.value == surah) {
+        return;
+      }
+      _readProgressNotifier.value = progress;
+      _currentSurahNotifier.value = surah;
     });
   }
 
@@ -110,6 +114,8 @@ class _QuranPageState extends State<QuranPage> {
     _positionsListener.itemPositions.removeListener(_onPositionsChanged);
     _searchController.dispose();
     _searchFocus.dispose();
+    _readProgressNotifier.dispose();
+    _currentSurahNotifier.dispose();
     super.dispose();
   }
 
@@ -452,137 +458,164 @@ class _QuranPageState extends State<QuranPage> {
           child: Column(
             children: [
               const TopBar(),
-              if (!_loading) ...[
-                LinearProgressIndicator(
-                  value: _readProgress,
-                  minHeight: 2,
-                  backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                  color: cs.primary.withValues(alpha: 0.45),
-                ),
-              ],
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 8, 4),
-                child: Row(
-                  children: [
-                    IconButton(
-                      tooltip: l10n.quranBackToHome,
-                      onPressed: _goHome,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                      icon: const BackButtonIcon(),
-                      color: cs.primary,
-                    ),
-                    Material(
-                      color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(10),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: _loading ? null : _openSurahPicker,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              if (!_loading)
+                ListenableBuilder(
+                  listenable: Listenable.merge([
+                    _readProgressNotifier,
+                    _currentSurahNotifier,
+                  ]),
+                  builder: (context, _) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        LinearProgressIndicator(
+                          value: _readProgressNotifier.value,
+                          minHeight: 2,
+                          backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                          color: cs.primary.withValues(alpha: 0.45),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 8, 8, 4),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.menu_book_outlined, size: 20, color: cs.primary),
-                              const SizedBox(width: 6),
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 124),
-                                child: Text(
-                                  _loading ? '…' : _repo.surahName(_currentSurah),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.amiri(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: cs.onSurface,
+                              IconButton(
+                                tooltip: l10n.quranBackToHome,
+                                onPressed: _goHome,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                                icon: const BackButtonIcon(),
+                                color: cs.primary,
+                              ),
+                              Material(
+                                color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                                borderRadius: BorderRadius.circular(10),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: _openSurahPicker,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.menu_book_outlined, size: 20, color: cs.primary),
+                                        const SizedBox(width: 6),
+                                        ConstrainedBox(
+                                          constraints: const BoxConstraints(maxWidth: 124),
+                                          child: Text(
+                                            _repo.surahName(_currentSurahNotifier.value),
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.amiri(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: cs.onSurface,
+                                            ),
+                                          ),
+                                        ),
+                                        Icon(Icons.arrow_drop_down, color: cs.onSurface.withValues(alpha: 0.6)),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                              Icon(Icons.arrow_drop_down, color: cs.onSurface.withValues(alpha: 0.6)),
+                              if (_savedBookmark != null) ...[
+                                const SizedBox(width: 6),
+                                TextButton(
+                                  onPressed: _continueReading,
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    l10n.quranContinueReading,
+                                    style: TextStyle(fontSize: 12, color: cs.primary),
+                                  ),
+                                ),
+                              ],
+                              const Spacer(),
+                              IconButton(
+                                tooltip: _searchOpen ? l10n.quranSearchClose : l10n.quranSearchOpen,
+                                onPressed: () {
+                                  setState(() {
+                                    _searchOpen = !_searchOpen;
+                                    if (_searchOpen) {
+                                      _searchHits = _repo.search(_searchController.text);
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        _searchFocus.requestFocus();
+                                      });
+                                    } else {
+                                      _searchController.clear();
+                                      _searchHits = [];
+                                      _searchFocus.unfocus();
+                                    }
+                                  });
+                                },
+                                icon: Icon(_searchOpen ? Icons.close : Icons.search, color: cs.primary),
+                              ),
+                              IconButton(
+                                tooltip: l10n.quranSaveBookmark,
+                                onPressed: _saveBookmark,
+                                icon: Icon(
+                                  _savedBookmark != null ? Icons.bookmark : Icons.bookmark_outline,
+                                  color: cs.primary,
+                                ),
+                              ),
+                              PopupMenuButton<String>(
+                                icon: Icon(Icons.more_vert, color: cs.primary),
+                                onSelected: (v) async {
+                                  if (v == 'inc') {
+                                    setState(() => _fontSize += 1.5);
+                                    await _persistFontSize();
+                                  } else if (v == 'dec') {
+                                    setState(() => _fontSize = max(14.0, _fontSize - 1.5));
+                                    await _persistFontSize();
+                                  } else if (v == 'lh_inc') {
+                                    setState(() => _lineHeight = (_lineHeight + 0.08).clamp(1.15, 2.0));
+                                    await _persistLineHeight();
+                                  } else if (v == 'lh_dec') {
+                                    setState(() => _lineHeight = (_lineHeight - 0.08).clamp(1.15, 2.0));
+                                    await _persistLineHeight();
+                                  } else if (v == 'mushaf') {
+                                    setState(() => _mushafReady = !_mushafReady);
+                                    await _readerPrefs.saveMushafModeReady(_mushafReady);
+                                  }
+                                },
+                                itemBuilder: (ctx) => [
+                                  PopupMenuItem(value: 'inc', child: Text(l10n.surahIncreaseFont)),
+                                  PopupMenuItem(value: 'dec', child: Text(l10n.surahDecreaseFont)),
+                                  PopupMenuItem(value: 'lh_inc', child: Text(l10n.quranLineSpacingIncrease)),
+                                  PopupMenuItem(value: 'lh_dec', child: Text(l10n.quranLineSpacingDecrease)),
+                                  CheckedPopupMenuItem(
+                                    value: 'mushaf',
+                                    checked: _mushafReady,
+                                    child: Text(l10n.quranMushafModeToggle),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
-                    if (_savedBookmark != null) ...[
-                      const SizedBox(width: 6),
-                      TextButton(
-                        onPressed: _continueReading,
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          l10n.quranContinueReading,
-                          style: TextStyle(fontSize: 12, color: cs.primary),
-                        ),
-                      ),
-                    ],
-                    const Spacer(),
-                    IconButton(
-                      tooltip: _searchOpen ? l10n.quranSearchClose : l10n.quranSearchOpen,
-                      onPressed: _loading
-                          ? null
-                          : () {
-                              setState(() {
-                                _searchOpen = !_searchOpen;
-                                if (_searchOpen) {
-                                  _searchHits = _repo.search(_searchController.text);
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    _searchFocus.requestFocus();
-                                  });
-                                } else {
-                                  _searchController.clear();
-                                  _searchHits = [];
-                                  _searchFocus.unfocus();
-                                }
-                              });
-                            },
-                      icon: Icon(_searchOpen ? Icons.close : Icons.search, color: cs.primary),
-                    ),
-                    IconButton(
-                      tooltip: l10n.quranSaveBookmark,
-                      onPressed: _loading ? null : _saveBookmark,
-                      icon: Icon(
-                        _savedBookmark != null ? Icons.bookmark : Icons.bookmark_outline,
+                      ],
+                    );
+                  },
+                ),
+              if (_loading)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 8, 4),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        tooltip: l10n.quranBackToHome,
+                        onPressed: _goHome,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                        icon: const BackButtonIcon(),
                         color: cs.primary,
                       ),
-                    ),
-                    PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, color: cs.primary),
-                      onSelected: (v) async {
-                        if (v == 'inc') {
-                          setState(() => _fontSize += 1.5);
-                          await _persistFontSize();
-                        } else if (v == 'dec') {
-                          setState(() => _fontSize = max(14.0, _fontSize - 1.5));
-                          await _persistFontSize();
-                        } else if (v == 'lh_inc') {
-                          setState(() => _lineHeight = (_lineHeight + 0.08).clamp(1.15, 2.0));
-                          await _persistLineHeight();
-                        } else if (v == 'lh_dec') {
-                          setState(() => _lineHeight = (_lineHeight - 0.08).clamp(1.15, 2.0));
-                          await _persistLineHeight();
-                        } else if (v == 'mushaf') {
-                          setState(() => _mushafReady = !_mushafReady);
-                          await _readerPrefs.saveMushafModeReady(_mushafReady);
-                        }
-                      },
-                      itemBuilder: (ctx) => [
-                        PopupMenuItem(value: 'inc', child: Text(l10n.surahIncreaseFont)),
-                        PopupMenuItem(value: 'dec', child: Text(l10n.surahDecreaseFont)),
-                        PopupMenuItem(value: 'lh_inc', child: Text(l10n.quranLineSpacingIncrease)),
-                        PopupMenuItem(value: 'lh_dec', child: Text(l10n.quranLineSpacingDecrease)),
-                        CheckedPopupMenuItem(
-                          value: 'mushaf',
-                          checked: _mushafReady,
-                          child: Text(l10n.quranMushafModeToggle),
-                        ),
-                      ],
-                    ),
-                  ],
+                      const Spacer(),
+                    ],
+                  ),
                 ),
-              ),
               if (_searchOpen)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -671,13 +704,15 @@ class _QuranPageState extends State<QuranPage> {
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
                         itemBuilder: (context, index) {
                           final row = _repo.rowAt(index);
+                          Widget child;
                           if (row.isSurahHeader) {
-                            return _surahSeparator(context, row.surah);
+                            child = _surahSeparator(context, row.surah);
+                          } else if (row.isSurahBody) {
+                            child = _surahMushafBody(context, row.surah);
+                          } else {
+                            child = const SizedBox.shrink();
                           }
-                          if (row.isSurahBody) {
-                            return _surahMushafBody(context, row.surah);
-                          }
-                          return const SizedBox.shrink();
+                          return RepaintBoundary(child: child);
                         },
                       ),
               ),

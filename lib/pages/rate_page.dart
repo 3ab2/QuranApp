@@ -9,7 +9,7 @@ import '../widgets/top_bar.dart';
 
 /// Placeholder listing until the production Play Console link is finalized.
 const String _kPlayStoreListingUrl =
-    'https://play.google.com/store/apps/details?id=com.example.quran_app';
+    'https://play.google.com/store/apps/details?id=com.qurannoor.app';
 
 const String _kFeedbackEmail = '3ab2uelkarch2006@gmail.com';
 
